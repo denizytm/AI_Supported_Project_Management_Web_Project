@@ -1,27 +1,19 @@
-using Microsoft.OpenApi.Models;
-
+using backend.Hubs;
+using backend.interfaces;
+using Microsoft.AspNetCore.SignalR;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Swagger/OpenAPI için gerekli servisleri ekleyelim
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen(c =>
-{
-    c.SwaggerDoc("v1", new OpenApiInfo { Title = "Weather API", Version = "v1" });
-});
+builder.Services.AddSignalR();
 
 var app = builder.Build();
 
-// Sadece Development ortamında Swagger UI'yi aç
-if (app.Environment.IsDevelopment())
+app.MapHub<ChatHub>("/chathub");
+
+app.MapPost("broadcast", async (string message, IHubContext<ChatHub, IChatClient> context) =>
 {
-    app.UseSwagger();
-    app.UseSwaggerUI(c =>
-    {
-        c.SwaggerEndpoint("/swagger/v1/swagger.json", "Weather API v1");
-        c.RoutePrefix = ""; // Swagger'ı direkt root URL'ye ekler
-    });
-}
+    await context.Clients.All.ReceiveMessage(message);
+    return Results.NoContent();
+});
 
 app.Run();
-

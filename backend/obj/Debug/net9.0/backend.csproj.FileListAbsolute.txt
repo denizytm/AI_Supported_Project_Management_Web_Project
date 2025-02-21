@@ -34,3 +34,9 @@ C:\Users\user\Desktop\NextNetProject\backend\obj\Debug\net9.0\refint\backend.dll
 C:\Users\user\Desktop\NextNetProject\backend\obj\Debug\net9.0\backend.pdb
 C:\Users\user\Desktop\NextNetProject\backend\obj\Debug\net9.0\backend.genruntimeconfig.cache
 C:\Users\user\Desktop\NextNetProject\backend\obj\Debug\net9.0\ref\backend.dll
+C:\Users\user\Desktop\NextNetProject\backend\bin\Debug\net9.0\Fleck.dll
+C:\Users\user\Desktop\NextNetProject\backend\obj\Debug\net9.0\backend.sourcelink.json
+C:\Users\user\Desktop\NextNetProject\backend\bin\Debug\net9.0\Microsoft.AspNetCore.Http.Connections.Client.dll
+C:\Users\user\Desktop\NextNetProject\backend\bin\Debug\net9.0\Microsoft.AspNetCore.SignalR.Client.dll
+C:\Users\user\Desktop\NextNetProject\backend\bin\Debug\net9.0\Microsoft.AspNetCore.SignalR.Client.Core.dll
+C:\Users\user\Desktop\NextNetProject\backend\bin\Debug\net9.0\System.Net.ServerSentEvents.dll
