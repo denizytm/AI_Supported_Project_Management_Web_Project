@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using backend.interfaces;
+using backend.Interfaces;
 using Microsoft.AspNetCore.SignalR;
 
 namespace backend.Hubs

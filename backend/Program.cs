@@ -1,19 +1,20 @@
-using backend.Hubs;
-using backend.interfaces;
-using Microsoft.AspNetCore.SignalR;
-
+using backend.Data;
+using backend.Extensions;
+using Microsoft.EntityFrameworkCore;
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddSignalR();
+builder.Services.ConfigureSignalR();
+builder.Services.AddControllers();
+builder.Services.ConfigureCors();
+
+builder.Services.AddDbContext<ApplicationDbContext>(options => {
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
+});
 
 var app = builder.Build();
+app.UseCors();
 
-app.MapHub<ChatHub>("/chathub");
-
-app.MapPost("broadcast", async (string message, IHubContext<ChatHub, IChatClient> context) =>
-{
-    await context.Clients.All.ReceiveMessage(message);
-    return Results.NoContent();
-});
+app.ConfigureSignalREndpoints();
+app.MapControllers();
 
 app.Run();
