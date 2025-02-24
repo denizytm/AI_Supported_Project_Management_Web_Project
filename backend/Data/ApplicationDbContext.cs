@@ -10,9 +10,12 @@ namespace backend.Data
         {
         }
 
-        // Veritabanındaki tablolara karşılık gelen DbSet özellikleri
+        public DbSet<ChatMessage> ChatMessages { get; set; }
         public DbSet<Project> Projects { get; set; }
-        public DbSet<Models.Task> Tasks { get; set; }
+        public DbSet<ProjectType> ProjectTypes { get; set; }
         public DbSet<Resource> Resources { get; set; }
+        public DbSet<backend.Models.Task> Tasks { get; set; }
+        public DbSet<Technology> Technologies { get; set; } 
+        public DbSet<User> Users { get; set; }
     }
 }

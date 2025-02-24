@@ -1,7 +1,11 @@
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+using backend.Models; 
+
+public enum ResourceType
+{
+    Equipment,
+    Software
+}
 
 namespace backend.Models
 {
@@ -9,10 +13,9 @@ namespace backend.Models
     {
         public int Id { get; set; }
         public string Name { get; set; } = String.Empty;
-        public string Type { get; set; } = String.Empty; // "Human", "Equipment", vs.
-        public int Quantity { get; set; }
+        public ResourceType Type { get; set; }
 
-        // Kaynağın projelere atanabilirliğini gösterebiliriz
-        public ICollection<Project> AssignedProjects { get; set; }
+        public int? AssignedProjectId { get; set; }
+        public Project AssignedProject { get; set; } = null!;
     }
 }

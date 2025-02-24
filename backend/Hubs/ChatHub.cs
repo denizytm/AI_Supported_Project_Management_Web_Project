@@ -26,10 +26,10 @@ namespace backend.Hubs
         }
 
         // Bağlantı kapandığında çalışan işlem
-        public override Task OnDisconnectedAsync(Exception? exception)
+        public override async Task OnDisconnectedAsync(Exception? exception)
         {
-            // Bağlantı kapandığında işlemi burada tanımlayabilirsiniz
-            return base.OnDisconnectedAsync(exception);
+            await Clients.All.ReceiveMessage($"{Context.ConnectionId} has left the hub");
+            await base.OnDisconnectedAsync(exception);
         }
     }
 }

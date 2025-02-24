@@ -22,14 +22,14 @@ namespace backend.Controllers
         }
 
         [HttpPost("message/send")]
-        public async Task<IActionResult> MessageFromClient([FromBody] MessageRequest request)
+        public async Task<IActionResult> MessageFromClient([FromBody] ChatMessage request)
         {
-            if (request == null || string.IsNullOrWhiteSpace(request.Message))
+            if (request == null || string.IsNullOrWhiteSpace(request.Content))
             {
                 return BadRequest("Invalid request");
             }
 
-            await _hubContext.Clients.All.ReceiveMessage(request.Message);
+            await _hubContext.Clients.All.ReceiveMessage(request.Content);
             return NoContent();
         }
     }

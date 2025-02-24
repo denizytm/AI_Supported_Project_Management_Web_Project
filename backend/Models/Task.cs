@@ -3,18 +3,41 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
+public enum TaskStatus {
+    ToDo,
+    InProgress,
+    Done
+}
+
+public enum Priority {
+    Low,
+    Medium,
+    High,
+    Critical
+}
+
+public enum TaskLevel {
+    Beginner,
+    Intermediate,
+    Expert
+} 
+
 namespace backend.Models
 {
     public class Task
     {
         public int Id { get; set; }
-        public string Name { get; set; }
-        public string Description { get; set; }
+        public string Title { get; set; } = String.Empty;
+        public string Description { get; set; } = String.Empty;
         public DateTime DueDate { get; set; }
-        public string Status { get; set; } // "Not Started", "In Progress", "Completed"
-        
-        // İlişki
+        public TaskLevel TaskLevel { get; set; }
+        public Priority Priority { get; set; }
+        public TaskStatus Status { get; set; } 
+
         public int ProjectId { get; set; }
-        public Project Project { get; set; } // Her görev bir projeye ait olacak
+        public Project Project { get; set; } = null!;
+
+        public int? AssignedUserId { get; set; }
+        public User AssignedUser { get; set; } = null!;
     }
 }
