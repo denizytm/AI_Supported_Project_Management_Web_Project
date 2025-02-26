@@ -5,37 +5,15 @@ using System.Linq;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 
-public enum Role
+namespace backend.Dtos.User
 {
-    Admin,
-    ProjectManager,
-    Developer
-}
-
-public enum ProficiencyLevel
-{
-    Beginner,
-    Intermediate,
-    Expert
-}
-
-public enum AvailabilityStatus
-{
-    Available,
-    Busy,
-    OnLeave
-}
-
-namespace backend.Models
-{
-    public class User
+    public class UserDto
     {
         public int Id { get; set; }
         public string Name { get; set; } = String.Empty;
         public string Email { get; set; } = String.Empty;
-        public string Password { get; set; } = String.Empty;
+        [JsonIgnore] // when we return a data instance, this attribute won't be shown in the JSON 
         public ProficiencyLevel ProficiencyLevel { get; set; }
-        [NotMapped]
         public string ProficiencyLevelName 
         {
             get => ProficiencyLevel.ToString();
@@ -43,7 +21,6 @@ namespace backend.Models
         }
         [JsonIgnore] // when we return a data instance, this attribute won't be shown in the JSON 
         public Role Role { get; set; }
-        [NotMapped]
         public string RoleName
         {
             get => Role.ToString();
@@ -51,14 +28,10 @@ namespace backend.Models
         }
         [JsonIgnore] // when we return a data instance, this attribute won't be shown in the JSON 
         public AvailabilityStatus Status { get; set; }
-        [NotMapped]
         public string StatusName
         {
             get => Status.ToString();
             set => Status = Enum.Parse<AvailabilityStatus>(value);
         }
-        public List<Project>? Projects { get; set; }
-        public List<Technology>? Technologies { get; set; }
-        public List<Task>? AssignedTask { get; set; } 
     }
 }

@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using backend.Data;
+using backend.Dtos.User;
+using backend.Mappers;
 using backend.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -25,8 +27,8 @@ namespace backend.Controllers
         {
             try
             {
-                var users = await _context.Users.ToListAsync();
-                return Ok(users);
+                var userDtos = _context.Users.ToList().Select(user => user.ToUserDto()); // transform all the user datas into userDto's
+                return Ok(userDtos);
             }
             catch (Exception ex)
             {
@@ -47,7 +49,7 @@ namespace backend.Controllers
                 {
                     return BadRequest(new { message = $"No user found with the id value : {id}" });
                 }
-                return Ok(user);
+                return Ok(user.ToUserDto());
             }
             catch (Exception ex)
             {
@@ -59,12 +61,15 @@ namespace backend.Controllers
         }
 
         [HttpPost("add")]
-        public async Task<IActionResult> CreateUser(User user)
+        public async Task<IActionResult> CreateUser(CreateUserDto createUserDto)
         {
 
             try
             {
-                var result = await _context.Users.AddAsync(user);
+
+                var userData = createUserDto.ToUser();
+
+                var result = await _context.Users.AddAsync(userData);
 
                 if (result.Entity != null)
                 {
