@@ -3,24 +3,27 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-public enum TaskStatus {
+public enum TaskStatus
+{
     ToDo,
     InProgress,
     Done
 }
 
-public enum Priority {
+public enum Priority
+{
     Low,
     Medium,
     High,
     Critical
 }
 
-public enum TaskLevel {
+public enum TaskLevel
+{
     Beginner,
     Intermediate,
     Expert
-} 
+}
 
 namespace backend.Models
 {
@@ -32,12 +35,16 @@ namespace backend.Models
         public DateTime DueDate { get; set; }
         public TaskLevel TaskLevel { get; set; }
         public Priority Priority { get; set; }
-        public TaskStatus Status { get; set; } 
+        public TaskStatus Status { get; set; }
+        public Double EstimatedHours { get; set; }
 
         public int ProjectId { get; set; }
         public Project Project { get; set; } = null!;
 
+        public int? TaskId { get; set; }
+        public Task? DependingTask { get; set; } = null!;
+
         public int? AssignedUserId { get; set; }
-        public User AssignedUser { get; set; } = null!;
+        public List<User> AssignedUser { get; set; } = null!;
     }
 }

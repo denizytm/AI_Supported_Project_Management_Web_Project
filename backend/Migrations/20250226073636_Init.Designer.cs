@@ -12,7 +12,7 @@ using backend.Data;
 namespace backend.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20250224173418_Init")]
+    [Migration("20250226073636_Init")]
     partial class Init
     {
         /// <inheritdoc />
@@ -55,6 +55,36 @@ namespace backend.Migrations
                     b.ToTable("ProjectUser");
                 });
 
+            modelBuilder.Entity("TaskUser", b =>
+                {
+                    b.Property<int>("AssignedTaskId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("AssignedUserId")
+                        .HasColumnType("int");
+
+                    b.HasKey("AssignedTaskId", "AssignedUserId");
+
+                    b.HasIndex("AssignedUserId");
+
+                    b.ToTable("TaskUser");
+                });
+
+            modelBuilder.Entity("TechnologyUser", b =>
+                {
+                    b.Property<int>("TechnologiesId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("UsersId")
+                        .HasColumnType("int");
+
+                    b.HasKey("TechnologiesId", "UsersId");
+
+                    b.HasIndex("UsersId");
+
+                    b.ToTable("TechnologyUser");
+                });
+
             modelBuilder.Entity("backend.Models.ChatMessage", b =>
                 {
                     b.Property<int>("Id")
@@ -67,20 +97,10 @@ namespace backend.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int?>("ProjectId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("SenderId")
-                        .HasColumnType("int");
-
                     b.Property<DateTime>("SentAt")
                         .HasColumnType("datetime2");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("ProjectId");
-
-                    b.HasIndex("SenderId");
 
                     b.ToTable("ChatMessages");
                 });
@@ -92,6 +112,9 @@ namespace backend.Migrations
                         .HasColumnType("int");
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<decimal>("Budget")
+                        .HasColumnType("decimal(18,2)");
 
                     b.Property<string>("Description")
                         .IsRequired()
@@ -147,6 +170,9 @@ namespace backend.Migrations
                     b.Property<int?>("AssignedProjectId")
                         .HasColumnType("int");
 
+                    b.Property<double>("Cost")
+                        .HasColumnType("float");
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -172,12 +198,18 @@ namespace backend.Migrations
                     b.Property<int?>("AssignedUserId")
                         .HasColumnType("int");
 
+                    b.Property<int?>("DependingTaskId")
+                        .HasColumnType("int");
+
                     b.Property<string>("Description")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime>("DueDate")
                         .HasColumnType("datetime2");
+
+                    b.Property<double>("EstimatedHours")
+                        .HasColumnType("float");
 
                     b.Property<int>("Priority")
                         .HasColumnType("int");
@@ -186,6 +218,9 @@ namespace backend.Migrations
                         .HasColumnType("int");
 
                     b.Property<int>("Status")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("TaskId")
                         .HasColumnType("int");
 
                     b.Property<int>("TaskLevel")
@@ -197,7 +232,7 @@ namespace backend.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("AssignedUserId");
+                    b.HasIndex("DependingTaskId");
 
                     b.HasIndex("ProjectId");
 
@@ -216,12 +251,7 @@ namespace backend.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int?>("UserId")
-                        .HasColumnType("int");
-
                     b.HasKey("Id");
-
-                    b.HasIndex("UserId");
 
                     b.ToTable("Technologies");
                 });
@@ -246,6 +276,9 @@ namespace backend.Migrations
                         .HasColumnType("int");
 
                     b.Property<int>("Role")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Status")
                         .HasColumnType("int");
 
                     b.HasKey("Id");
@@ -283,21 +316,34 @@ namespace backend.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("backend.Models.ChatMessage", b =>
+            modelBuilder.Entity("TaskUser", b =>
                 {
-                    b.HasOne("backend.Models.Project", "Project")
+                    b.HasOne("backend.Models.Task", null)
                         .WithMany()
-                        .HasForeignKey("ProjectId");
-
-                    b.HasOne("backend.Models.User", "Sender")
-                        .WithMany()
-                        .HasForeignKey("SenderId")
+                        .HasForeignKey("AssignedTaskId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("Project");
+                    b.HasOne("backend.Models.User", null)
+                        .WithMany()
+                        .HasForeignKey("AssignedUserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
 
-                    b.Navigation("Sender");
+            modelBuilder.Entity("TechnologyUser", b =>
+                {
+                    b.HasOne("backend.Models.Technology", null)
+                        .WithMany()
+                        .HasForeignKey("TechnologiesId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("backend.Models.User", null)
+                        .WithMany()
+                        .HasForeignKey("UsersId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("backend.Models.Project", b =>
@@ -322,9 +368,9 @@ namespace backend.Migrations
 
             modelBuilder.Entity("backend.Models.Task", b =>
                 {
-                    b.HasOne("backend.Models.User", "AssignedUser")
+                    b.HasOne("backend.Models.Task", "DependingTask")
                         .WithMany()
-                        .HasForeignKey("AssignedUserId");
+                        .HasForeignKey("DependingTaskId");
 
                     b.HasOne("backend.Models.Project", "Project")
                         .WithMany("Tasks")
@@ -332,26 +378,14 @@ namespace backend.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("AssignedUser");
+                    b.Navigation("DependingTask");
 
                     b.Navigation("Project");
-                });
-
-            modelBuilder.Entity("backend.Models.Technology", b =>
-                {
-                    b.HasOne("backend.Models.User", null)
-                        .WithMany("Technologies")
-                        .HasForeignKey("UserId");
                 });
 
             modelBuilder.Entity("backend.Models.Project", b =>
                 {
                     b.Navigation("Tasks");
-                });
-
-            modelBuilder.Entity("backend.Models.User", b =>
-                {
-                    b.Navigation("Technologies");
                 });
 #pragma warning restore 612, 618
         }

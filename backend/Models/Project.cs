@@ -22,6 +22,7 @@ namespace backend.Models
         public DateTime StartDate { get; set; }
         public DateTime EndDate { get; set; }
         public ProjectStatus Status { get; set; } 
+        public decimal Budget { get; set; }
         public List<Task> Tasks { get; set; } = null!;
         public List<User> AssignedUsers { get; set; } = null!;
     }

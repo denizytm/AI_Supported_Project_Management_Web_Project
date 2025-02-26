@@ -12,6 +12,20 @@ namespace backend.Migrations
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.CreateTable(
+                name: "ChatMessages",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Content = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    SentAt = table.Column<DateTime>(type: "datetime2", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_ChatMessages", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "ProjectTypes",
                 columns: table => new
                 {
@@ -25,6 +39,19 @@ namespace backend.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "Technologies",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Technologies", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Users",
                 columns: table => new
                 {
@@ -33,7 +60,8 @@ namespace backend.Migrations
                     Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Email = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     ProficiencyLevel = table.Column<int>(type: "int", nullable: false),
-                    Role = table.Column<int>(type: "int", nullable: false)
+                    Role = table.Column<int>(type: "int", nullable: false),
+                    Status = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -51,7 +79,8 @@ namespace backend.Migrations
                     ProjectTypeId = table.Column<int>(type: "int", nullable: false),
                     StartDate = table.Column<DateTime>(type: "datetime2", nullable: false),
                     EndDate = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    Status = table.Column<int>(type: "int", nullable: false)
+                    Status = table.Column<int>(type: "int", nullable: false),
+                    Budget = table.Column<decimal>(type: "decimal(18,2)", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -65,47 +94,49 @@ namespace backend.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Technologies",
+                name: "TechnologyUser",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    UserId = table.Column<int>(type: "int", nullable: true)
+                    TechnologiesId = table.Column<int>(type: "int", nullable: false),
+                    UsersId = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Technologies", x => x.Id);
+                    table.PrimaryKey("PK_TechnologyUser", x => new { x.TechnologiesId, x.UsersId });
                     table.ForeignKey(
-                        name: "FK_Technologies_Users_UserId",
-                        column: x => x.UserId,
+                        name: "FK_TechnologyUser_Technologies_TechnologiesId",
+                        column: x => x.TechnologiesId,
+                        principalTable: "Technologies",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_TechnologyUser_Users_UsersId",
+                        column: x => x.UsersId,
                         principalTable: "Users",
-                        principalColumn: "Id");
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
-                name: "ChatMessages",
+                name: "ProjectTechnology",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    Content = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    SentAt = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    SenderId = table.Column<int>(type: "int", nullable: false),
-                    ProjectId = table.Column<int>(type: "int", nullable: true)
+                    ProjectsId = table.Column<int>(type: "int", nullable: false),
+                    TechnologiesId = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_ChatMessages", x => x.Id);
+                    table.PrimaryKey("PK_ProjectTechnology", x => new { x.ProjectsId, x.TechnologiesId });
                     table.ForeignKey(
-                        name: "FK_ChatMessages_Projects_ProjectId",
-                        column: x => x.ProjectId,
+                        name: "FK_ProjectTechnology_Projects_ProjectsId",
+                        column: x => x.ProjectsId,
                         principalTable: "Projects",
-                        principalColumn: "Id");
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_ChatMessages_Users_SenderId",
-                        column: x => x.SenderId,
-                        principalTable: "Users",
+                        name: "FK_ProjectTechnology_Technologies_TechnologiesId",
+                        column: x => x.TechnologiesId,
+                        principalTable: "Technologies",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -142,6 +173,7 @@ namespace backend.Migrations
                         .Annotation("SqlServer:Identity", "1, 1"),
                     Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Type = table.Column<int>(type: "int", nullable: false),
+                    Cost = table.Column<double>(type: "float", nullable: false),
                     AssignedProjectId = table.Column<int>(type: "int", nullable: true)
                 },
                 constraints: table =>
@@ -166,7 +198,10 @@ namespace backend.Migrations
                     TaskLevel = table.Column<int>(type: "int", nullable: false),
                     Priority = table.Column<int>(type: "int", nullable: false),
                     Status = table.Column<int>(type: "int", nullable: false),
+                    EstimatedHours = table.Column<double>(type: "float", nullable: false),
                     ProjectId = table.Column<int>(type: "int", nullable: false),
+                    TaskId = table.Column<int>(type: "int", nullable: true),
+                    DependingTaskId = table.Column<int>(type: "int", nullable: true),
                     AssignedUserId = table.Column<int>(type: "int", nullable: true)
                 },
                 constraints: table =>
@@ -179,45 +214,35 @@ namespace backend.Migrations
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_Tasks_Users_AssignedUserId",
-                        column: x => x.AssignedUserId,
-                        principalTable: "Users",
+                        name: "FK_Tasks_Tasks_DependingTaskId",
+                        column: x => x.DependingTaskId,
+                        principalTable: "Tasks",
                         principalColumn: "Id");
                 });
 
             migrationBuilder.CreateTable(
-                name: "ProjectTechnology",
+                name: "TaskUser",
                 columns: table => new
                 {
-                    ProjectsId = table.Column<int>(type: "int", nullable: false),
-                    TechnologiesId = table.Column<int>(type: "int", nullable: false)
+                    AssignedTaskId = table.Column<int>(type: "int", nullable: false),
+                    AssignedUserId = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_ProjectTechnology", x => new { x.ProjectsId, x.TechnologiesId });
+                    table.PrimaryKey("PK_TaskUser", x => new { x.AssignedTaskId, x.AssignedUserId });
                     table.ForeignKey(
-                        name: "FK_ProjectTechnology_Projects_ProjectsId",
-                        column: x => x.ProjectsId,
-                        principalTable: "Projects",
+                        name: "FK_TaskUser_Tasks_AssignedTaskId",
+                        column: x => x.AssignedTaskId,
+                        principalTable: "Tasks",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_ProjectTechnology_Technologies_TechnologiesId",
-                        column: x => x.TechnologiesId,
-                        principalTable: "Technologies",
+                        name: "FK_TaskUser_Users_AssignedUserId",
+                        column: x => x.AssignedUserId,
+                        principalTable: "Users",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
-
-            migrationBuilder.CreateIndex(
-                name: "IX_ChatMessages_ProjectId",
-                table: "ChatMessages",
-                column: "ProjectId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_ChatMessages_SenderId",
-                table: "ChatMessages",
-                column: "SenderId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Projects_ProjectTypeId",
@@ -240,9 +265,9 @@ namespace backend.Migrations
                 column: "AssignedProjectId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Tasks_AssignedUserId",
+                name: "IX_Tasks_DependingTaskId",
                 table: "Tasks",
-                column: "AssignedUserId");
+                column: "DependingTaskId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Tasks_ProjectId",
@@ -250,9 +275,14 @@ namespace backend.Migrations
                 column: "ProjectId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Technologies_UserId",
-                table: "Technologies",
-                column: "UserId");
+                name: "IX_TaskUser_AssignedUserId",
+                table: "TaskUser",
+                column: "AssignedUserId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_TechnologyUser_UsersId",
+                table: "TechnologyUser",
+                column: "UsersId");
         }
 
         /// <inheritdoc />
@@ -271,16 +301,22 @@ namespace backend.Migrations
                 name: "Resources");
 
             migrationBuilder.DropTable(
+                name: "TaskUser");
+
+            migrationBuilder.DropTable(
+                name: "TechnologyUser");
+
+            migrationBuilder.DropTable(
                 name: "Tasks");
 
             migrationBuilder.DropTable(
                 name: "Technologies");
 
             migrationBuilder.DropTable(
-                name: "Projects");
+                name: "Users");
 
             migrationBuilder.DropTable(
-                name: "Users");
+                name: "Projects");
 
             migrationBuilder.DropTable(
                 name: "ProjectTypes");

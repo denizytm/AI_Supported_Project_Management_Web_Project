@@ -14,7 +14,7 @@ namespace backend.Models
         public int Id { get; set; }
         public string Name { get; set; } = String.Empty;
         public ResourceType Type { get; set; }
-
+        public Double Cost { get; set; }
         public int? AssignedProjectId { get; set; }
         public Project AssignedProject { get; set; } = null!;
     }
