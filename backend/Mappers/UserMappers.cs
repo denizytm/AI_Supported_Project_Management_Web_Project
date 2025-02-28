@@ -22,8 +22,10 @@ namespace backend.Mappers
             };
         }
 
-        public static User ToUser(this CreateUserDto createUserDto){
-            return new User {
+        public static User ToUser(this CreateUserDto createUserDto)
+        {
+            return new User
+            {
                 Email = createUserDto.Email,
                 Id = createUserDto.Id,
                 Name = createUserDto.Name,
@@ -33,6 +35,21 @@ namespace backend.Mappers
                 Status = createUserDto.Status,
             };
         }
+
+        public static User UpdateDtoToUser(this UpdateUserDto updateUserDto, User userData)
+        {
+            return new User
+            {
+                Email = updateUserDto.Email,
+                Id = updateUserDto.Id,
+                Name = updateUserDto.Name,
+                Password = updateUserDto.Password,
+                ProficiencyLevel = updateUserDto.ProficiencyLevel,
+                Role = updateUserDto.Role,
+                Status = updateUserDto.Status,
+            };
+        }
+
 
     }
 }

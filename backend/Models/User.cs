@@ -41,7 +41,6 @@ namespace backend.Models
             get => ProficiencyLevel.ToString();
             set => ProficiencyLevel = Enum.Parse<ProficiencyLevel>(value);
         }
-        [JsonIgnore] // when we return a data instance, this attribute won't be shown in the JSON 
         public Role Role { get; set; }
         [NotMapped]
         public string RoleName
@@ -49,7 +48,6 @@ namespace backend.Models
             get => Role.ToString();
             set => Role = Enum.Parse<Role>(value);
         }
-        [JsonIgnore] // when we return a data instance, this attribute won't be shown in the JSON 
         public AvailabilityStatus Status { get; set; }
         [NotMapped]
         public string StatusName
