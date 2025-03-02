@@ -4,38 +4,34 @@ using backend.Interfaces;
 using backend.Repository;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.SemanticKernel;
-using Microsoft.SemanticKernel.ChatCompletion;
-using backend.Models;
 
-var builder = WebApplication.CreateBuilder(args);
-var configuration = builder.Configuration;
+var builder = WebApplication.CreateBuilder(args); // initializing the builder
+var configuration = builder.Configuration; // get config for the appsettings.json
 
+// adding the services
 builder.Services.ConfigureSignalR();
 builder.Services.AddControllers();
 builder.Services.ConfigureCors();
 builder.Services.AddHttpClient();
-builder.Services.AddScoped<IUserRepository, UserRepository>();
 
+// adding the ChatBot Service
 #pragma warning disable SKEXP0070
 builder.Services.AddKernel()
-    .AddGoogleAIGeminiChatCompletion(configuration["GoogleAI:ModelId"],configuration["GoogleAI:ApiKey"]);
-  
+    .AddGoogleAIGeminiChatCompletion(configuration["GoogleAI:ModelId"], configuration["GoogleAI:ApiKey"]);
 
+// adding the DB Context
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
 {
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
 });
 
-var app = builder.Build();
+// adding the Repositories
+builder.Services.AddScoped<IUserRepository, UserRepository>();
 
-app.UseCors();
-app.ConfigureSignalREndpoints();
-app.MapControllers();
+var app = builder.Build(); // building the app
 
-app.MapPost("/chat", async (IChatCompletionService chatCompletionService, ChatModel chatModel) =>
-{
-    var response = await chatCompletionService.GetChatMessageContentAsync(chatModel.Input);
-    return response?.ToString() ?? "Boş yanıt alındı!";
-}).WithRequestTimeout(TimeSpan.FromMinutes(10));
+app.UseCors(); 
+app.MapControllers(); 
+app.ConfigureSignalREndpoints(); 
 
 app.Run();
