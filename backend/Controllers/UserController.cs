@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.InteropServices.Swift;
 using System.Threading.Tasks;
 using backend.Data;
 using backend.Dtos.User;
@@ -25,7 +26,7 @@ namespace backend.Controllers
         }
 
         [HttpGet("all")]
-        public async Task<IActionResult> GetUsers()
+        public IActionResult GetUsers()
         {
             try
             {
@@ -60,6 +61,22 @@ namespace backend.Controllers
                     message = $"There was an error when fetching the user : {ex.Message}"
                 });
             }
+        }
+
+        [HttpPost("login")]
+        public async Task<IActionResult> LogInUser(LoginUserDto loginUserDto){
+
+            var userData = await _userContext.GetByEmailAsync(loginUserDto.Email);
+
+            if(userData == null) return BadRequest(new {
+                message = "There's no user with this email"
+            });
+
+            if(userData.Password != loginUserDto.Password) return BadRequest(new {
+                message = "Wrong password"
+            });
+            else return Ok(userData.ToUserDto());
+
         }
 
         [HttpPost("add")]

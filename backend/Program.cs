@@ -30,7 +30,7 @@ builder.Services.AddScoped<IUserRepository, UserRepository>();
 
 var app = builder.Build(); // building the app
 
-app.UseCors(); 
+app.UseCors("CorsPolicy"); 
 app.MapControllers(); 
 app.ConfigureSignalREndpoints(); 
 

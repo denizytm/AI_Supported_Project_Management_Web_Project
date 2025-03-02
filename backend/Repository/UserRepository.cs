@@ -27,6 +27,10 @@ namespace backend.Repository
             return await _context.Users.FirstOrDefaultAsync(data => data.Id == id);
         }
 
+        public async Task<User?> GetByEmailAsync(string email){
+            return await _context.Users.FirstOrDefaultAsync(data => data.Email == email);
+        }
+
         public async Task<User> CreateAsync(User userModel) {
             var userData = await _context.Users.AddAsync(userModel);  
             await _context.SaveChangesAsync();

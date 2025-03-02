@@ -41,7 +41,7 @@ namespace backend.Models
             get => ProficiencyLevel.ToString();
             set => ProficiencyLevel = Enum.Parse<ProficiencyLevel>(value);
         }
-        public Role Role { get; set; }
+        public Role Role { get; set; } 
         [NotMapped]
         public string RoleName
         {
