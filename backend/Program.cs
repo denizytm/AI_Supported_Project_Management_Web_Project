@@ -8,17 +8,17 @@ using Microsoft.SemanticKernel.ChatCompletion;
 using backend.Models;
 
 var builder = WebApplication.CreateBuilder(args);
+var configuration = builder.Configuration;
 
 builder.Services.ConfigureSignalR();
 builder.Services.AddControllers();
 builder.Services.ConfigureCors();
-builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddHttpClient();
+builder.Services.AddScoped<IUserRepository, UserRepository>();
 
 #pragma warning disable SKEXP0070
-
 builder.Services.AddKernel()
-    .AddGoogleAIGeminiChatCompletion("gemini-1.5-pro","AIzaSyD-40W--DxNGGUGYcBg6qjYNEkuhkKKwKQ");
+    .AddGoogleAIGeminiChatCompletion(configuration["GoogleAI:ModelId"],configuration["GoogleAI:ApiKey"]);
   
 
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
