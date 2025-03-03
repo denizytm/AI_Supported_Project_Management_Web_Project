@@ -1,24 +1,27 @@
 "use client";
 
-import Navbar from "@/components/Navbar";
 import axios from "axios";
 import { useEffect, useState } from "react";
 
-export default function LoginPage() {
+export default function RegisterPage() {
   const [formData, setFormData] = useState({
+    name: "",
+    last_name: "",
     email: "",
     password: "",
+    confirm_password: "",
   });
 
-  const handleLogin = async (e : React.MouseEvent<HTMLButtonElement>) => {
+  const handleRegister = async (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
-    const response = await axios.post('http://localhost:5110/api/users/login',{
-        email : formData.email,
-        password : formData.password
+    const response = await axios.post("http://localhost:5110/api/users/add", {
+      name: formData.name,
+      lastName: formData.last_name,
+      email: formData.email,
+      password: formData.password,
     });
 
     console.log(response.data);
-
   };
 
   return (
@@ -35,9 +38,39 @@ export default function LoginPage() {
 
           {/* Giriş Formu */}
           <h2 className="mb-4 text-center text-xl font-semibold text-gray-700">
-            Log In
+            Register
           </h2>
           <form className="space-y-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-600">
+                Name
+              </label>
+              <input
+                type="text"
+                className="mt-1 w-full rounded-md border border-gray-300 p-2 focus:border-gray-500 focus:ring-gray-500"
+                placeholder="Enter your name"
+                value={formData.name}
+                onChange={(e) =>
+                  setFormData((d) => ({ ...d, name: e.target.value }))
+                }
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-600">
+                Last Name
+              </label>
+              <input
+                type="text"
+                className="mt-1 w-full rounded-md border border-gray-300 p-2 focus:border-gray-500 focus:ring-gray-500"
+                placeholder="Enter your last name"
+                value={formData.last_name}
+                onChange={(e) =>
+                  setFormData((d) => ({ ...d, last_name: e.target.value }))
+                }
+              />
+            </div>
+
             <div>
               <label className="block text-sm font-medium text-gray-600">
                 Email
@@ -67,27 +100,37 @@ export default function LoginPage() {
                 }
               />
             </div>
-
-            {/* Şifre Sıfırlama ve Giriş Butonu */}
-            <div className="flex items-center justify-between">
-              <a href="#" className="text-sm text-blue-600 hover:underline">
-                Forgot Password?
-              </a>
+            <div>
+              <label className="block text-sm font-medium text-gray-600">
+                Confirm Password
+              </label>
+              <input
+                type="password"
+                className="mt-1 w-full rounded-md border border-gray-300 p-2 focus:border-gray-500 focus:ring-gray-500"
+                placeholder="Enter your password again"
+                value={formData.confirm_password}
+                onChange={(e) =>
+                  setFormData((d) => ({
+                    ...d,
+                    confirm_password: e.target.value,
+                  }))
+                }
+              />
             </div>
 
             <button
               type="submit"
               className="w-full rounded-md bg-gray-700 p-2 text-white hover:bg-gray-900"
-              onClick={(e)=> handleLogin(e)}
+              onClick={(e) => handleRegister(e)}
             >
-              Log In
+              Register
             </button>
           </form>
 
           {/* Hesap Oluşturma */}
           <div className="mt-4 text-center text-sm">
-            <a href="/register" className="text-blue-600 hover:underline">
-              Create Account
+            <a href="/login" className="text-blue-600 hover:underline">
+              Already Have an Account ?
             </a>
           </div>
         </div>

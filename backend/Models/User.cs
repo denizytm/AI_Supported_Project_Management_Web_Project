@@ -32,6 +32,7 @@ namespace backend.Models
     {
         public int Id { get; set; }
         public string Name { get; set; } = String.Empty;
+        public string LastName { get; set; } = String.Empty;
         public string Email { get; set; } = String.Empty;
         public string Password { get; set; } = String.Empty;
         public ProficiencyLevel ProficiencyLevel { get; set; }
