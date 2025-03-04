@@ -55,7 +55,7 @@ export default function ProjectManagement() {
       <Navbar />
       <div className="flex">
         <Sidebar />
-        <div className="p-6 bg-red-500 dark:bg-gray-900 text-gray-800 dark:text-white">
+        <div className=" mx-auto mt-20 w-10/12  dark:bg-gray-900 text-gray-800 dark:text-white">
           <h2 className="text-2xl font-semibold mb-4">Project Management</h2>
 
           {/* Genel Bilgiler ve Dağılım */}

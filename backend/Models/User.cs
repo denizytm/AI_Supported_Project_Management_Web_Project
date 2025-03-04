@@ -56,8 +56,8 @@ namespace backend.Models
             get => Status.ToString();
             set => Status = Enum.Parse<AvailabilityStatus>(value);
         }
-        public List<Project>? Projects { get; set; }
-        public List<Technology>? Technologies { get; set; }
-        public List<Task>? AssignedTask { get; set; } 
+        public List<Project> Projects { get; set; } = new List<Project>();
+        public List<Technology> Technologies { get; set; } = new List<Technology>();
+        public List<Task> AssignedTask { get; set; } = new List<Task>();
     }
 }

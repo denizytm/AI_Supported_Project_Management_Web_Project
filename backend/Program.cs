@@ -30,6 +30,13 @@ builder.Services.AddScoped<IUserRepository, UserRepository>();
 
 var app = builder.Build(); // building the app
 
+using (var scope = app.Services.CreateScope())
+{
+    var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+    context.Database.Migrate(); 
+    DbSeeder.Seed(context); 
+}
+
 app.UseCors("CorsPolicy"); 
 app.MapControllers(); 
 app.ConfigureSignalREndpoints(); 
