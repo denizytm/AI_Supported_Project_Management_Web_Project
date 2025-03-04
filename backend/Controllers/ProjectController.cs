@@ -21,21 +21,28 @@ namespace backend.Controllers
         }
 
         [HttpGet("all")]
-        public async Task<IActionResult> GetProjects()
+        public async Task<IActionResult> GetProjects(int page = 1)
         {
             try
             {
-                var projects = await _context.Projects.ToListAsync();
+                int perPage = 10;  
+
+                var projects = await _context.Projects
+                    .Skip((page - 1) * perPage)
+                    .Take(perPage) 
+                    .ToListAsync();
+
                 return Ok(projects);
             }
             catch (Exception ex)
             {
                 return BadRequest(new
                 {
-                    message = $"There was an error when fetching the projects : {ex.Message}"
+                    message = $"There was an error when fetching the projects: {ex.Message}"
                 });
             }
         }
+
 
         [HttpGet("find")]
         public async Task<IActionResult> GetProject(int id)
