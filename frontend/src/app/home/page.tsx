@@ -7,8 +7,7 @@ export default function HomePage() {
 
   return (
     <div>
-      <Navbar />
-      <Sidebar />
+      Home
     </div>
   );
 }
