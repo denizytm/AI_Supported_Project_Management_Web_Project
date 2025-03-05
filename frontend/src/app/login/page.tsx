@@ -1,13 +1,23 @@
 "use client";
 
 import Navbar from "@/components/Navbar";
+import { setUser } from "@/redux/slices/userSlice";
 import axios from "axios";
+import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import { useDispatch } from "react-redux";
 
 export default function LoginPage() {
   const [formData, setFormData] = useState({
     email: "",
     password: "",
+  });
+
+  const dispatch = useDispatch();
+  const router = useRouter();
+
+  useEffect(()=>{
+    if(localStorage.getItem('id')) router.push("/home");
   });
 
   const handleLogin = async (e : React.MouseEvent<HTMLButtonElement>) => {
@@ -17,7 +27,11 @@ export default function LoginPage() {
         password : formData.password
     });
 
-    console.log(response.data);
+    if(response.data){
+      dispatch(setUser(response.data));
+      localStorage.setItem('id',response.data.id);
+      router.push("/home");
+    }
 
   };
 

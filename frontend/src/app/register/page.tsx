@@ -1,7 +1,10 @@
 "use client";
 
+import { setUser } from "@/redux/slices/userSlice";
 import axios from "axios";
+import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import { useDispatch } from "react-redux";
 
 export default function RegisterPage() {
   const [formData, setFormData] = useState({
@@ -12,6 +15,9 @@ export default function RegisterPage() {
     confirm_password: "",
   });
 
+  const dispatch = useDispatch();
+  const router = useRouter();
+
   const handleRegister = async (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
     const response = await axios.post("http://localhost:5110/api/users/add", {
@@ -21,7 +27,11 @@ export default function RegisterPage() {
       password: formData.password,
     });
 
-    console.log(response.data);
+    if(response.data){
+      dispatch(setUser(response.data));
+      localStorage.setItem('id',response.data.id);
+      router.push('/home');
+    }
   };
 
   return (

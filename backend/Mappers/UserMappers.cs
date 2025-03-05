@@ -16,6 +16,7 @@ namespace backend.Mappers
                 Email = user.Email,
                 Id = user.Id,
                 Name = user.Name,
+                LastName = user.LastName,
                 ProficiencyLevelName = user.ProficiencyLevelName,
                 RoleName = user.RoleName,
                 StatusName = user.StatusName
@@ -29,6 +30,7 @@ namespace backend.Mappers
                 Email = createUserDto.Email,
                 Id = createUserDto.Id,
                 Name = createUserDto.Name,
+                LastName = createUserDto.LastName,
                 Password = createUserDto.Password,
                 ProficiencyLevel = createUserDto.ProficiencyLevel,
                 Role = createUserDto.Role,
@@ -43,6 +45,7 @@ namespace backend.Mappers
                 Email = updateUserDto.Email,
                 Id = updateUserDto.Id,
                 Name = updateUserDto.Name,
+                LastName = updateUserDto.LastName,
                 Password = updateUserDto.Password,
                 ProficiencyLevel = updateUserDto.ProficiencyLevel,
                 Role = updateUserDto.Role,
