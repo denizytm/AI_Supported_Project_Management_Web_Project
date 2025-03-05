@@ -28,8 +28,8 @@ export default function RegisterPage() {
     });
 
     if(response.data){
-      dispatch(setUser(response.data));
       localStorage.setItem('id',response.data.id);
+      window.location.reload();
       router.push('/home');
     }
   };

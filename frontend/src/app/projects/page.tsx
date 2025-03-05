@@ -13,6 +13,7 @@ export default function ProjectManagement() {
   );
   const [projects, setProjects] = useState<
     Array<{
+      id : string,
       name: string;
       manager: string;
       deadline: string;
@@ -35,13 +36,12 @@ export default function ProjectManagement() {
   }, [selectedPage]);
 
   return (
-    <div className="py-10" >
+    <div className="w-11/12 mx-auto" >
       {!projects.length ? (
         <div className="ml-5"> Loading... </div>
       ) : (
-        <div className=" mx-auto mt-20 w-10/12  dark:bg-gray-900 text-gray-800 dark:text-white">
+        <div className="dark:bg-gray-900 text-gray-800 dark:text-white">
           <h2 className="text-2xl font-semibold mb-4">Project Management</h2>
-
           {/* Genel Bilgiler ve Dağılım */}
           <div className="grid grid-cols-3 gap-4 mb-6">
             <div className="bg-white dark:bg-gray-800 p-4 rounded-md shadow">
@@ -145,8 +145,10 @@ export default function ProjectManagement() {
                     <td className="p-2">{project.process}</td>
                     <td className="p-2">{project.status}</td>
                     <td className="p-2">{project.priority}</td>
-                    <td className="p-2 text-blue-500 cursor-pointer">
-                      details
+                    <td
+                     onClick={()=>router.push(`/projects/management?id=${project.id}`)}
+                     className="p-2 text-blue-500 cursor-pointer">
+                      View
                     </td>
                   </tr>
                 ))}

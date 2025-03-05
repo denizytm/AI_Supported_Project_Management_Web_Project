@@ -12,7 +12,7 @@ using backend.Data;
 namespace backend.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20250304164908_Init")]
+    [Migration("20250305170318_Init")]
     partial class Init
     {
         /// <inheritdoc />
@@ -200,17 +200,24 @@ namespace backend.Migrations
                     b.Property<int?>("DependingTaskId")
                         .HasColumnType("int");
 
-                    b.Property<string>("Description")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<DateTime>("DueDate")
                         .HasColumnType("datetime2");
 
                     b.Property<double>("EstimatedHours")
                         .HasColumnType("float");
 
+                    b.Property<string>("Label")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Note")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<int>("Priority")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Progress")
                         .HasColumnType("int");
 
                     b.Property<int>("ProjectId")
@@ -225,7 +232,7 @@ namespace backend.Migrations
                     b.Property<int>("TaskLevel")
                         .HasColumnType("int");
 
-                    b.Property<string>("Title")
+                    b.Property<string>("TaskName")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 

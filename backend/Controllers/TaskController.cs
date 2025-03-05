@@ -37,6 +37,23 @@ namespace backend.Controllers
             }
         }
 
+        [HttpGet("get")]
+        public IActionResult GetTasksByProjectId(int projectId)
+        {
+            try
+            {
+                var tasks = _context.Tasks.Where(d => d.ProjectId == projectId).ToList();
+                return Ok(tasks);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new
+                {
+                    message = $"There was an error when fetching the tasks: {ex.Message}"
+                });
+            }
+        }
+
         [HttpGet("find")]
         public async Task<IActionResult> GetTask(int id)
         {

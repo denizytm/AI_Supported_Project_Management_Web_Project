@@ -50,8 +50,8 @@ namespace backend.Data
             if (!context.Tasks.Any())
             {
                 var taskFaker = new Faker<backend.Models.Task>()
-                    .RuleFor(t => t.Title, f => f.Lorem.Sentence())
-                    .RuleFor(t => t.Description, f => f.Lorem.Paragraph())
+                    .RuleFor(t => t.Label, f => f.Lorem.Sentence())
+                    .RuleFor(t => t.TaskName, f => f.Lorem.Sentence())
                     .RuleFor(t => t.DueDate, f => f.Date.Future())
                     .RuleFor(t => t.TaskLevel, f => f.PickRandom<TaskLevel>())
                     .RuleFor(t => t.Priority, f => f.PickRandom<Priority>())

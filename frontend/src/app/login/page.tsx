@@ -28,9 +28,9 @@ export default function LoginPage() {
     });
 
     if(response.data){
-      dispatch(setUser(response.data));
       localStorage.setItem('id',response.data.id);
-      router.push("/home");
+      window.location.reload();
+      router.push('/home');
     }
 
   };
