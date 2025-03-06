@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -34,8 +35,26 @@ namespace backend.Models
         public string Label { get; set; } = String.Empty;
         public DateTime DueDate { get; set; }
         public TaskLevel TaskLevel { get; set; }
+        [NotMapped]
+        public string TaskLevelName 
+        {
+            get => TaskLevel.ToString();
+            set => TaskLevel = Enum.Parse<TaskLevel>(value);
+        }
         public Priority Priority { get; set; }
+        [NotMapped]
+        public string PriorityName 
+        {
+            get => Priority.ToString();
+            set => Priority = Enum.Parse<Priority>(value);
+        }
         public TaskStatus Status { get; set; }
+        [NotMapped]
+        public string StatusName 
+        {
+            get => Status.ToString();
+            set => Status = Enum.Parse<TaskStatus>(value);
+        }
         public Double EstimatedHours { get; set; }
         public int Progress { get; set; }
         public string Note { get; set; } = String.Empty;

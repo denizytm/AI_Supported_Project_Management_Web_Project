@@ -57,6 +57,7 @@ namespace backend.Data
                     .RuleFor(t => t.Priority, f => f.PickRandom<Priority>())
                     .RuleFor(t => t.Status, f => f.PickRandom<TaskStatus>())
                     .RuleFor(t => t.ProjectId, f => f.Random.Int(1, 50))
+                    .RuleFor(t => t.Progress, f => f.Random.Int(1, 100))
                     .RuleFor(t => t.EstimatedHours, f => f.Random.Double(1, 100));
 
                 var tasks = taskFaker.Generate(100);

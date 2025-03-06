@@ -2,21 +2,31 @@
 
 import { TaskType } from "@/types/taskType";
 import axios from "axios";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import React, { useEffect, useState } from "react";
 
 export default function TaskManagement() {
-
-  const [tasks, setTasks] = useState<TaskType>();
+  const [tasks, setTasks] = useState<Array<TaskType>>();
+  const [ready, setReady] = useState(false);
 
   const router = useRouter();
+  const searchParams = useSearchParams();
 
-  useEffect(()=> {
-    ( async () => {
-        const response = await axios.get("");
-    } )();
-  },[]);
+  useEffect(() => {
+    (async () => {
+      const id = searchParams.get("id");
+      const response = await axios.get(
+        `http://localhost:5110/api/tasks/get?projectId=${id}`
+      );
 
+      if (response.status) {
+        setTasks(response.data);
+        setReady(true);
+      }
+    })();
+  }, []);
+
+  if (!ready) return <div>Loading...</div>;
   return (
     <div className="p-6 bg-gray-100 dark:bg-gray-900 min-h-screen">
       {/* Başlık */}
@@ -24,9 +34,10 @@ export default function TaskManagement() {
         <h2 className="text-2xl font-bold text-gray-700 dark:text-white">
           Task Management
         </h2>
-        <button 
-        onClick={()=> router.back()}
-        className="px-4 py-2 bg-gray-300 dark:bg-gray-700 text-gray-900 dark:text-white rounded">
+        <button
+          onClick={() => router.back()}
+          className="px-4 py-2 bg-gray-300 dark:bg-gray-700 text-gray-900 dark:text-white rounded"
+        >
           Go Back
         </button>
       </div>
@@ -50,17 +61,20 @@ export default function TaskManagement() {
               </tr>
             </thead>
             <tbody>
-              <tr className="border-b">
-                <td className="p-2">Market Research</td>
-                <td className="p-2">Research</td>
-                <td className="p-2 text-green-500">Beginner</td>
-                <td className="p-2 text-red-500">High</td>
-                <td className="p-2">John Doe</td>
-                <td className="p-2 text-blue-500">In Progress</td>
-                <td className="p-2">50%</td>
-                <td className="p-2 text-green-500">Low</td>
-                <td className="p-2 text-blue-400 cursor-pointer">See</td>
-              </tr>
+              {tasks &&
+                tasks.map((task) => (
+                  <tr className="border-b">
+                    <td className="p-2">{task.taskName}</td>
+                    <td className="p-2">{task.label}</td>
+                    <td className="p-2 text-green-500">{task.taskLevelName}</td>
+                    <td className="p-2 text-red-500">{task.priorityName}</td>
+                    <td className="p-2">Deniz</td>
+                    <td className="p-2 text-blue-500">{task.statusName}</td>
+                    <td className="p-2">{task.progress}%</td>
+                    <td className="p-2 text-green-500">{task.risk}</td>
+                    <td className="p-2 text-blue-400 cursor-pointer">See</td>
+                  </tr>
+                ))}
               {/* Diğer satırlar buraya eklenebilir */}
             </tbody>
           </table>

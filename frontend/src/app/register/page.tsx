@@ -1,10 +1,8 @@
 "use client";
 
-import { setUser } from "@/redux/slices/userSlice";
 import axios from "axios";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { useDispatch } from "react-redux";
 
 export default function RegisterPage() {
   const [formData, setFormData] = useState({
@@ -15,8 +13,11 @@ export default function RegisterPage() {
     confirm_password: "",
   });
 
-  const dispatch = useDispatch();
   const router = useRouter();
+
+  useEffect(() => {
+    if (localStorage.getItem("id")) router.push("/home");
+  });
 
   const handleRegister = async (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
@@ -27,10 +28,10 @@ export default function RegisterPage() {
       password: formData.password,
     });
 
-    if(response.data){
-      localStorage.setItem('id',response.data.id);
+    if (response.data) {
+      localStorage.setItem("id", response.data.id);
       window.location.reload();
-      router.push('/home');
+      router.push("/home");
     }
   };
 

@@ -1,11 +1,8 @@
 "use client";
 
-import Navbar from "@/components/Navbar";
-import { setUser } from "@/redux/slices/userSlice";
 import axios from "axios";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { useDispatch } from "react-redux";
 
 export default function LoginPage() {
   const [formData, setFormData] = useState({
@@ -13,26 +10,24 @@ export default function LoginPage() {
     password: "",
   });
 
-  const dispatch = useDispatch();
   const router = useRouter();
 
-  useEffect(()=>{
-    if(localStorage.getItem('id')) router.push("/home");
+  useEffect(() => {
+    if (localStorage.getItem("id")) router.push("/home");
   });
 
-  const handleLogin = async (e : React.MouseEvent<HTMLButtonElement>) => {
+  const handleLogin = async (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
-    const response = await axios.post('http://localhost:5110/api/users/login',{
-        email : formData.email,
-        password : formData.password
+    const response = await axios.post("http://localhost:5110/api/users/login", {
+      email: formData.email,
+      password: formData.password,
     });
 
-    if(response.data){
-      localStorage.setItem('id',response.data.id);
+    if (response.data) {
+      localStorage.setItem("id", response.data.id);
       window.location.reload();
-      router.push('/home');
+      router.push("/home");
     }
-
   };
 
   return (
@@ -92,7 +87,7 @@ export default function LoginPage() {
             <button
               type="submit"
               className="w-full rounded-md bg-gray-700 p-2 text-white hover:bg-gray-900"
-              onClick={(e)=> handleLogin(e)}
+              onClick={(e) => handleLogin(e)}
             >
               Log In
             </button>
