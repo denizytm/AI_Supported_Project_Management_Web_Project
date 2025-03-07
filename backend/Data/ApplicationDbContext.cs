@@ -41,5 +41,6 @@ namespace backend.Data
         public DbSet<backend.Models.Task> Tasks { get; set; }
         public DbSet<Technology> Technologies { get; set; }
         public DbSet<User> Users { get; set; }
+        public DbSet<TaskLabel> TaskLabels { get; set; }
     }
 }

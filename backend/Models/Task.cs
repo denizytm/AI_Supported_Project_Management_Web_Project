@@ -26,13 +26,26 @@ public enum TaskLevel
     Expert
 }
 
+public enum TaskType {
+    resarch,
+    development,
+    bugfix,
+    testing
+}
+
 namespace backend.Models
 {
     public class Task
     {
         public int Id { get; set; }
         public string TaskName { get; set; } = String.Empty;
-        public string Label { get; set; } = String.Empty;
+        public TaskType Type { get; set; } 
+        public string TypeName {
+            get => Type.ToString();
+            set => Type = Enum.Parse<TaskType>(value);
+        }
+        public int TaskLabelId { get; set; }
+        public TaskLabel TaskLabel { get; set; } = null!;
         public DateTime DueDate { get; set; }
         public TaskLevel TaskLevel { get; set; }
         [NotMapped]

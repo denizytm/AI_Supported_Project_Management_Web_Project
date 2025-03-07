@@ -136,7 +136,7 @@ export default function ProjectManagement() {
                     <td className="p-2">{project.name}</td>
                     <td className="p-2">{project.manager.name} {project.manager.lastName}</td>
                     <td className="p-2">{project.deadline.slice(0, 10)}</td>
-                    <td className="p-2">{project.progress}</td>
+                    <td className="p-2">{project.progress}%</td>
                     <td className="p-2">{project.statusName}</td>
                     <td className="p-2">{project.priorityName}</td>
                     <td

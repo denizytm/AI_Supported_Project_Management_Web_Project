@@ -39,6 +39,7 @@ namespace backend.Data
                     .RuleFor(p => p.Deadline, f => f.Date.Future(1))
                     .RuleFor(p => p.Progress, f => f.Random.Int(1, 100))
                     .RuleFor(p => p.Status, f => f.PickRandom<ProjectStatus>())
+                    .RuleFor(p => p.Priority, f => f.PickRandom<ProjectPriority>())
                     .RuleFor(p => p.ProjectType, f => f.PickRandom<ProjectType>())
                     .RuleFor(t => t.UserId, f => f.Random.Int(1, 20))
                     .RuleFor(p => p.Budget, f => f.Random.Decimal(100, 1000));
@@ -48,11 +49,25 @@ namespace backend.Data
                 context.SaveChanges();
             }
 
+            if (!context.TaskLabels.Any())
+            {
+                var labels = new List<TaskLabel>
+                    {
+                        new TaskLabel { Label = "design" },
+                        new TaskLabel { Label = "frontend" },
+                        new TaskLabel { Label = "backend" },
+                        new TaskLabel { Label = "database" }
+                    };
+
+                context.TaskLabels.AddRange(labels);
+                context.SaveChanges(); 
+            }
+
             if (!context.Tasks.Any())
             {
                 var users = context.Users.ToList();
                 var taskFaker = new Faker<backend.Models.Task>()
-                    .RuleFor(t => t.Label, f => f.Lorem.Sentence())
+                    .RuleFor(t => t.Type, f => f.PickRandom<TaskType>())
                     .RuleFor(t => t.TaskName, f => f.Lorem.Sentence())
                     .RuleFor(t => t.DueDate, f => f.Date.Future())
                     .RuleFor(t => t.TaskLevel, f => f.PickRandom<TaskLevel>())
@@ -60,6 +75,7 @@ namespace backend.Data
                     .RuleFor(t => t.Status, f => f.PickRandom<TaskStatus>())
                     .RuleFor(t => t.ProjectId, f => f.PickRandom(context.Projects.Select(p => p.Id).ToList()))
                     .RuleFor(t => t.Progress, f => f.Random.Int(1, 100))
+                    .RuleFor(t => t.TaskLabelId, f => f.Random.Int(1, 4))
                     .RuleFor(t => t.EstimatedHours, f => f.Random.Double(1, 100))
                     .RuleFor(t => t.UserId, f => f.PickRandom(context.Users.Select(p => p.Id).ToList()));
 

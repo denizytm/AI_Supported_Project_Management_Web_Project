@@ -178,10 +178,6 @@ namespace backend.Migrations
                     b.Property<double>("EstimatedHours")
                         .HasColumnType("float");
 
-                    b.Property<string>("Label")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<string>("Note")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -201,10 +197,20 @@ namespace backend.Migrations
                     b.Property<int?>("TaskId")
                         .HasColumnType("int");
 
+                    b.Property<int>("TaskLabelId")
+                        .HasColumnType("int");
+
                     b.Property<int>("TaskLevel")
                         .HasColumnType("int");
 
                     b.Property<string>("TaskName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("Type")
+                        .HasColumnType("int");
+
+                    b.Property<string>("TypeName")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
@@ -217,9 +223,28 @@ namespace backend.Migrations
 
                     b.HasIndex("ProjectId");
 
+                    b.HasIndex("TaskLabelId");
+
                     b.HasIndex("UserId");
 
                     b.ToTable("Tasks");
+                });
+
+            modelBuilder.Entity("backend.Models.TaskLabel", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Label")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("TaskLabels");
                 });
 
             modelBuilder.Entity("backend.Models.Technology", b =>
@@ -374,6 +399,12 @@ namespace backend.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("backend.Models.TaskLabel", "TaskLabel")
+                        .WithMany()
+                        .HasForeignKey("TaskLabelId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.HasOne("backend.Models.User", "AssignedUser")
                         .WithMany("Tasks")
                         .HasForeignKey("UserId")
@@ -385,6 +416,8 @@ namespace backend.Migrations
                     b.Navigation("DependingTask");
 
                     b.Navigation("Project");
+
+                    b.Navigation("TaskLabel");
                 });
 
             modelBuilder.Entity("backend.Models.UserProject", b =>

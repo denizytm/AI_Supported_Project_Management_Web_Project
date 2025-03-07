@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using backend.Data;
+using backend.Mappers;
 using backend.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -25,8 +26,14 @@ namespace backend.Controllers
         {
             try
             {
-                var tasks = await _context.Tasks.ToListAsync();
-                return Ok(tasks);
+                var tasks = await _context.Tasks
+                .Include(t => t.AssignedUser)
+                .Include(t => t.TaskLabel)
+                .ToListAsync();
+
+                var taskDtos = tasks.Select(t => t.ToTaskDto());
+
+                return Ok(taskDtos);
             }
             catch (Exception ex)
             {
@@ -42,8 +49,15 @@ namespace backend.Controllers
         {
             try
             {
-                var tasks = _context.Tasks.Where(d => d.ProjectId == projectId).ToList();
-                return Ok(tasks);
+                var tasks = _context.Tasks
+                .Where(d => d.ProjectId == projectId)
+                .Include(t => t.AssignedUser)
+                .Include(t => t.TaskLabel)
+                .ToList();
+
+                var taskDtos = tasks.Select(t => t.ToTaskDto());
+
+                return Ok(taskDtos);
             }
             catch (Exception ex)
             {

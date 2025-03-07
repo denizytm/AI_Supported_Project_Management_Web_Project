@@ -20,6 +20,7 @@ export default function TaskManagement() {
       );
 
       if (response.status) {
+        console.log(response.data);
         setTasks(response.data);
         setReady(true);
       }
@@ -51,12 +52,12 @@ export default function TaskManagement() {
               <tr className="bg-gray-200 dark:bg-gray-700">
                 <th className="p-2">Task Name</th>
                 <th className="p-2">Label</th>
+                <th className="p-2">Due Date</th>
                 <th className="p-2">Task Level</th>
                 <th className="p-2">Priority</th>
                 <th className="p-2">Assigned</th>
                 <th className="p-2">Status</th>
                 <th className="p-2">Progress</th>
-                <th className="p-2">Risk</th>
                 <th className="p-2">Note</th>
               </tr>
             </thead>
@@ -64,14 +65,16 @@ export default function TaskManagement() {
               {tasks &&
                 tasks.map((task) => (
                   <tr className="border-b">
-                    <td className="p-2">{task.taskName}</td>
-                    <td className="p-2">{task.label}</td>
+                    <td className="p-2">{task.taskName.slice(0,15)}...</td>
+                    <td className="p-2">{task.label.slice(0,15)}...</td>
+                    <td className="p-2">{task.dueDate.toString().slice(0,10)}</td>
                     <td className="p-2 text-green-500">{task.taskLevelName}</td>
                     <td className="p-2 text-red-500">{task.priorityName}</td>
-                    <td className="p-2">Deniz</td>
+                    <td className="p-2">
+                      {task.assignedUser.name} {task.assignedUser.lastName}
+                    </td>
                     <td className="p-2 text-blue-500">{task.statusName}</td>
                     <td className="p-2">{task.progress}%</td>
-                    <td className="p-2 text-green-500">{task.risk}</td>
                     <td className="p-2 text-blue-400 cursor-pointer">See</td>
                   </tr>
                 ))}

@@ -7,9 +7,9 @@ export interface TaskType {
     taskLevelName : string,
     priority : string,
     priorityName : string,
-    assigned : UserType,
+    assignedUser : UserType,
     status : string,
     statusName : string,
     progress : number,
-    risk : string,
+    dueDate : Date
 }
