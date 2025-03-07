@@ -1,7 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using backend.Models;
 using Bogus;
 
@@ -23,9 +19,10 @@ namespace backend.Data
                     .RuleFor(u => u.Status, f => f.PickRandom<AvailabilityStatus>())
                     .RuleFor(u => u.UserProjects, f => new List<UserProject>())
                     .RuleFor(u => u.Technologies, f => new List<Technology>())
+                    .RuleFor(u => u.TaskRole, f => f.PickRandom<TaskRole>())
                     .RuleFor(u => u.Tasks, f => new List<backend.Models.Task>());
 
-                var users = faker.Generate(20);
+                var users = faker.Generate(100);
                 context.Users.AddRange(users);
                 context.SaveChanges();
             }
@@ -41,10 +38,10 @@ namespace backend.Data
                     .RuleFor(p => p.Status, f => f.PickRandom<ProjectStatus>())
                     .RuleFor(p => p.Priority, f => f.PickRandom<ProjectPriority>())
                     .RuleFor(p => p.ProjectType, f => f.PickRandom<ProjectType>())
-                    .RuleFor(t => t.UserId, f => f.Random.Int(1, 20))
+                    .RuleFor(t => t.UserId, f => f.Random.Int(1, context.Users.ToList().Count))
                     .RuleFor(p => p.Budget, f => f.Random.Decimal(100, 1000));
 
-                var projects = projectFaker.Generate(50);
+                var projects = projectFaker.Generate(12);
                 context.Projects.AddRange(projects);
                 context.SaveChanges();
             }
@@ -60,7 +57,7 @@ namespace backend.Data
                     };
 
                 context.TaskLabels.AddRange(labels);
-                context.SaveChanges(); 
+                context.SaveChanges();
             }
 
             if (!context.Tasks.Any())
@@ -73,13 +70,13 @@ namespace backend.Data
                     .RuleFor(t => t.TaskLevel, f => f.PickRandom<TaskLevel>())
                     .RuleFor(t => t.Priority, f => f.PickRandom<Priority>())
                     .RuleFor(t => t.Status, f => f.PickRandom<TaskStatus>())
-                    .RuleFor(t => t.ProjectId, f => f.PickRandom(context.Projects.Select(p => p.Id).ToList()))
+                    .RuleFor(t => t.ProjectId, f => f.Random.Int(1, context.Projects.ToList().Count))
                     .RuleFor(t => t.Progress, f => f.Random.Int(1, 100))
-                    .RuleFor(t => t.TaskLabelId, f => f.Random.Int(1, 4))
+                    .RuleFor(t => t.TaskLabelId, f => f.Random.Int(1, context.TaskLabels.ToList().Count))
                     .RuleFor(t => t.EstimatedHours, f => f.Random.Double(1, 100))
-                    .RuleFor(t => t.UserId, f => f.PickRandom(context.Users.Select(p => p.Id).ToList()));
+                    .RuleFor(t => t.UserId, f => f.Random.Int(1, context.Users.ToList().Count));
 
-                var tasks = taskFaker.Generate(100);
+                var tasks = taskFaker.Generate(150);
                 context.Tasks.AddRange(tasks);
                 context.SaveChanges();
             }
@@ -110,13 +107,31 @@ namespace backend.Data
             {
                 var messageFaker = new Faker<ChatMessage>()
                     .RuleFor(m => m.Content, f => f.Lorem.Sentence())
-                    .RuleFor(t => t.UserId, f => f.Random.Int(1, 20))
-                    .RuleFor(t => t.ProjectId, f => f.PickRandom(context.Projects.Select(p => p.Id).ToList()))
+                    .RuleFor(t => t.UserId, f => f.Random.Int(1, context.Users.ToList().Count))
+                    .RuleFor(t => t.ProjectId, f => f.Random.Int(1, context.Projects.ToList().Count))
                     .RuleFor(m => m.SentAt, f => f.Date.Recent());
 
                 var messages = messageFaker.Generate(200);
                 context.ChatMessages.AddRange(messages);
                 context.SaveChanges();
+            }
+
+            if (!context.UserProjects.Any())
+            {
+
+                var users = context.Users.ToList();
+                var projects = context.Projects.ToList();
+
+                var faker = new Faker();
+
+                foreach (User user in users)
+                {
+                    var randomProject = faker.PickRandom(projects);
+                    user.UserProjects.Add(new UserProject { UserId = user.Id, ProjectId = randomProject.Id });
+                }
+
+                context.SaveChanges();
+
             }
 
         }

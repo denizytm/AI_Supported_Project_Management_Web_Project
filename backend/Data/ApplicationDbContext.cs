@@ -27,7 +27,6 @@ namespace backend.Data
                 .HasForeignKey(up => up.ProjectId)
                 .OnDelete(DeleteBehavior.Restrict);
 
-            // Proje yöneticisi ilişkisini tanımla
             modelBuilder.Entity<Project>()
                 .HasOne(p => p.Manager)
                 .WithMany()
@@ -41,6 +40,7 @@ namespace backend.Data
         public DbSet<backend.Models.Task> Tasks { get; set; }
         public DbSet<Technology> Technologies { get; set; }
         public DbSet<User> Users { get; set; }
+        public DbSet<UserProject> UserProjects { get; set; } = null!;
         public DbSet<TaskLabel> TaskLabels { get; set; }
     }
 }

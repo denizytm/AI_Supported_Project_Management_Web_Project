@@ -1,8 +1,9 @@
+import { TaskLabelType } from "./taskLabelType";
 import { UserType } from "./userType";
 
 export interface TaskType {
+    id : number,
     taskName : string,
-    label : string,
     taskLevel : string,
     taskLevelName : string,
     priority : string,
@@ -11,5 +12,7 @@ export interface TaskType {
     status : string,
     statusName : string,
     progress : number,
-    dueDate : Date
+    dueDate : Date,
+    typeName : string,
+    taskLabel : TaskLabelType
 }

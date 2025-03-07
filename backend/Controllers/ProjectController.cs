@@ -55,11 +55,17 @@ namespace backend.Controllers
             try
             {
                 var project = await _context.Projects.FindAsync(id);
+
+                var projectUsers = _context.UserProjects.Include(up => up.User).Where(up => up.ProjectId == id).ToList();
+
                 if (project == null)
                 {
                     return BadRequest(new { message = $"No project found with the id value : {id}" });
                 }
-                return Ok(project);
+                return Ok(new {
+                    project,
+                    projectUsers
+                });
             }
             catch (Exception ex)
             {

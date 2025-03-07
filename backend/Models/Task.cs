@@ -27,10 +27,10 @@ public enum TaskLevel
 }
 
 public enum TaskType {
-    resarch,
-    development,
-    bugfix,
-    testing
+    Resarch,
+    Development,
+    Bugfix,
+    Testing
 }
 
 namespace backend.Models

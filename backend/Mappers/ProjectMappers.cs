@@ -25,7 +25,6 @@ namespace backend.Mappers
                 Tasks = project.Tasks,
                 Technologies = project.Technologies,
                 UserId = project.UserId,
-                UserProjects = project.UserProjects
             };
         }
     }

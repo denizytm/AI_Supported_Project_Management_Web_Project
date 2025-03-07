@@ -19,7 +19,8 @@ namespace backend.Mappers
                 LastName = user.LastName,
                 ProficiencyLevelName = user.ProficiencyLevelName,
                 RoleName = user.RoleName,
-                StatusName = user.StatusName
+                TaskRoleName = user.TaskRoleName,
+                StatusName = user.StatusName,
             };
         }
 
@@ -49,6 +50,7 @@ namespace backend.Mappers
                 Password = updateUserDto.Password,
                 ProficiencyLevel = updateUserDto.ProficiencyLevel,
                 Role = updateUserDto.Role,
+                TaskRoleName = updateUserDto.TaskRoleName,
                 Status = updateUserDto.Status,
             };
         }

@@ -33,12 +33,12 @@ var app = builder.Build(); // building the app
 using (var scope = app.Services.CreateScope())
 {
     var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-    context.Database.Migrate(); 
-    DbSeeder.Seed(context); 
+    context.Database.Migrate();
+    DbSeeder.Seed(context);
 }
 
-app.UseCors("CorsPolicy"); 
-app.MapControllers(); 
-app.ConfigureSignalREndpoints(); 
+app.UseCors("CorsPolicy");
+app.MapControllers();
+app.ConfigureSignalREndpoints();
 
 app.Run();

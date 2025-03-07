@@ -4,6 +4,7 @@ import { TaskType } from "@/types/taskType";
 import axios from "axios";
 import { useRouter, useSearchParams } from "next/navigation";
 import React, { useEffect, useState } from "react";
+import { Plus, Pencil, Trash2 } from "lucide-react";
 
 export default function TaskManagement() {
   const [tasks, setTasks] = useState<Array<TaskType>>();
@@ -20,7 +21,7 @@ export default function TaskManagement() {
       );
 
       if (response.status) {
-        console.log(response.data);
+        /* console.log(response.data.project); */
         setTasks(response.data);
         setReady(true);
       }
@@ -31,10 +32,7 @@ export default function TaskManagement() {
   return (
     <div className="p-6 bg-gray-100 dark:bg-gray-900 min-h-screen">
       {/* Başlık */}
-      <div className="flex justify-between items-center mb-4">
-        <h2 className="text-2xl font-bold text-gray-700 dark:text-white">
-          Task Management
-        </h2>
+      <div className="flex justify-end items-center mb-4">
         <button
           onClick={() => router.back()}
           className="px-4 py-2 bg-gray-300 dark:bg-gray-700 text-gray-900 dark:text-white rounded"
@@ -47,38 +45,58 @@ export default function TaskManagement() {
       <div className="grid grid-cols-3 gap-4">
         {/* Sol Taraf (Task Table) */}
         <div className="col-span-2 bg-white dark:bg-gray-800 p-4 shadow-md rounded-md overflow-auto">
-          <table className="w-full text-left">
+          <div className="flex bg-gray-200 dark:bg-gray-700 p-2 rounded-md">
+            <div className="w-1/6 flex gap-2">
+              <button className="p-2 bg-white dark:bg-gray-800 shadow-md rounded-lg hover:bg-gray-100">
+                <Plus size={20} />
+              </button>
+              <button className="p-2 bg-white dark:bg-gray-800 shadow-md rounded-lg hover:bg-gray-100">
+                <Pencil size={20} />
+              </button>
+              <button className="p-2 bg-white dark:bg-gray-800 shadow-md rounded-lg hover:bg-gray-100">
+                <Trash2 size={20} />
+              </button>
+            </div>
+            <div className="title w-3/5">
+              <h2 className="text-2xl text-center font-bold text-gray-700 dark:text-white">
+                Task Management
+              </h2>
+            </div>
+          </div>
+
+          <table className="w-full text-left border-collapse">
             <thead>
               <tr className="bg-gray-200 dark:bg-gray-700">
-                <th className="p-2">Task Name</th>
-                <th className="p-2">Label</th>
-                <th className="p-2">Due Date</th>
-                <th className="p-2">Task Level</th>
-                <th className="p-2">Priority</th>
-                <th className="p-2">Assigned</th>
-                <th className="p-2">Status</th>
-                <th className="p-2">Progress</th>
-                <th className="p-2">Note</th>
+                <th className="p-3 border">Task Name</th>
+                <th className="p-3 border">Label</th>
+                <th className="p-3 border">Priority</th>
+                <th className="p-3 border">Assigned</th>
+                <th className="p-3 border">Status</th>
+                <th className="p-3 border">Progress</th>
+                <th className="p-3 border">Note</th>
               </tr>
             </thead>
             <tbody>
               {tasks &&
                 tasks.map((task) => (
-                  <tr className="border-b">
-                    <td className="p-2">{task.taskName.slice(0,15)}...</td>
-                    <td className="p-2">{task.label.slice(0,15)}...</td>
-                    <td className="p-2">{task.dueDate.toString().slice(0,10)}</td>
-                    <td className="p-2 text-green-500">{task.taskLevelName}</td>
-                    <td className="p-2 text-red-500">{task.priorityName}</td>
-                    <td className="p-2">
+                  <tr key={task.id} className="border-b">
+                    <td
+                      className={`p-3 ${
+                        task.taskLevelName === "High" ? "font-bold" : ""
+                      }`}
+                    >
+                      {task.id ? ` ${task.id}. ` : ""} {task.taskName}
+                    </td>
+                    <td className="p-3">{task.taskLabel.label}</td>
+                    <td className="p-3 text-red-500">{task.priorityName}</td>
+                    <td className="p-3">
                       {task.assignedUser.name} {task.assignedUser.lastName}
                     </td>
-                    <td className="p-2 text-blue-500">{task.statusName}</td>
-                    <td className="p-2">{task.progress}%</td>
-                    <td className="p-2 text-blue-400 cursor-pointer">See</td>
+                    <td className="p-3 text-blue-500">{task.statusName}</td>
+                    <td className="p-3">{task.progress}%</td>
+                    <td className="p-3 text-blue-400 cursor-pointer">See</td>
                   </tr>
                 ))}
-              {/* Diğer satırlar buraya eklenebilir */}
             </tbody>
           </table>
         </div>
@@ -137,19 +155,16 @@ export default function TaskManagement() {
               <tr className="bg-gray-200 dark:bg-gray-700">
                 <th className="p-2">Name</th>
                 <th className="p-2">Role</th>
-                <th className="p-2">Task</th>
               </tr>
             </thead>
             <tbody>
               <tr className="border-b">
                 <td className="p-2">John Doe</td>
                 <td className="p-2">Team Leader</td>
-                <td className="p-2">Market Analysis</td>
               </tr>
               <tr className="border-b">
                 <td className="p-2">Jane Smith</td>
                 <td className="p-2">Frontend</td>
-                <td className="p-2">Target Markets</td>
               </tr>
             </tbody>
           </table>
