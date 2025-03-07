@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using backend.Data;
+using backend.Dtos.Project;
+using backend.Mappers;
 using backend.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -25,14 +27,17 @@ namespace backend.Controllers
         {
             try
             {
-                int perPage = 10;  
+                int perPage = 10;
 
                 var projects = await _context.Projects
                     .Skip((page - 1) * perPage)
-                    .Take(perPage) 
+                    .Take(perPage)
+                    .Include(p => p.Manager)
                     .ToListAsync();
 
-                return Ok(projects);
+                var projectDtos = projects.Select(p => p.ToProjectDto());
+
+                return Ok(projectDtos);
             }
             catch (Exception ex)
             {

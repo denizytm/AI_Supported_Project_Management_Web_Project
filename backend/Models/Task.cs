@@ -36,21 +36,21 @@ namespace backend.Models
         public DateTime DueDate { get; set; }
         public TaskLevel TaskLevel { get; set; }
         [NotMapped]
-        public string TaskLevelName 
+        public string TaskLevelName
         {
             get => TaskLevel.ToString();
             set => TaskLevel = Enum.Parse<TaskLevel>(value);
         }
         public Priority Priority { get; set; }
         [NotMapped]
-        public string PriorityName 
+        public string PriorityName
         {
             get => Priority.ToString();
             set => Priority = Enum.Parse<Priority>(value);
         }
         public TaskStatus Status { get; set; }
         [NotMapped]
-        public string StatusName 
+        public string StatusName
         {
             get => Status.ToString();
             set => Status = Enum.Parse<TaskStatus>(value);
@@ -62,7 +62,7 @@ namespace backend.Models
         public Project Project { get; set; } = null!;
         public int? TaskId { get; set; }
         public Task? DependingTask { get; set; } = null!;
-        public int? AssignedUserId { get; set; }
-        public List<User> AssignedUser { get; set; } = null!;
+        public int UserId { get; set; }
+        public User AssignedUser { get; set; } = null!;
     }
 }

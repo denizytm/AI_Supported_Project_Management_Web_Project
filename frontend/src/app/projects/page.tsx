@@ -1,5 +1,7 @@
 "use client";
 
+import { ProjectType } from "@/types/projectType";
+import { UserType } from "@/types/userType";
 import axios from "axios";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -12,15 +14,7 @@ export default function ProjectManagement() {
     Number(searchParams.get("page")) || 1
   );
   const [projects, setProjects] = useState<
-    Array<{
-      id : string,
-      name: string;
-      manager: string;
-      deadline: string;
-      process: string;
-      status: string;
-      priority: string;
-    }>
+    Array<ProjectType>
   >([]);
 
   useEffect(() => {
@@ -30,7 +24,7 @@ export default function ProjectManagement() {
       );
       if (response.status) {
         if (!response.data.length) setSelectedPage(selectedPage - 1);
-        setProjects(response.data);
+        setProjects(response.data); 
       }
     })();
   }, [selectedPage]);
@@ -127,7 +121,7 @@ export default function ProjectManagement() {
                   <th className="p-2">Project</th>
                   <th className="p-2">Manager</th>
                   <th className="p-2">Deadline</th>
-                  <th className="p-2">Process</th>
+                  <th className="p-2">Progress</th>
                   <th className="p-2">Status</th>
                   <th className="p-2">Priority</th>
                   <th className="p-2">Action</th>
@@ -140,11 +134,11 @@ export default function ProjectManagement() {
                     className="border-b hover:bg-gray-200 dark:hover:bg-gray-700"
                   >
                     <td className="p-2">{project.name}</td>
-                    <td className="p-2">{project.manager}</td>
+                    <td className="p-2">{project.manager.name} {project.manager.lastName}</td>
                     <td className="p-2">{project.deadline.slice(0, 10)}</td>
-                    <td className="p-2">{project.process}</td>
-                    <td className="p-2">{project.status}</td>
-                    <td className="p-2">{project.priority}</td>
+                    <td className="p-2">{project.progress}</td>
+                    <td className="p-2">{project.statusName}</td>
+                    <td className="p-2">{project.priorityName}</td>
                     <td
                      onClick={()=>router.push(`/projects/management?id=${project.id}`)}
                      className="p-2 text-blue-500 cursor-pointer">

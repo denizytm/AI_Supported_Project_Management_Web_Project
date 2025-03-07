@@ -49,14 +49,14 @@ namespace backend.Repository
             userData.Role = updateUserDto?.Role ?? userData.Role;
             userData.Status = updateUserDto?.Status ?? userData.Status;
 
-            if (updateUserDto?.Projects != null && updateUserDto.Projects.Any())
-                userData.Projects = updateUserDto.Projects;
+            if (updateUserDto?.UserProjects != null && updateUserDto.UserProjects.Any())
+                userData.UserProjects = updateUserDto.UserProjects;
 
             if (updateUserDto?.Technologies != null && updateUserDto.Technologies.Any())
                 userData.Technologies = updateUserDto.Technologies;
 
-            if (updateUserDto?.AssignedTask != null && updateUserDto.AssignedTask.Any())
-                userData.AssignedTask = updateUserDto.AssignedTask;
+            if (updateUserDto?.Tasks != null && updateUserDto.Tasks.Any())
+                userData.Tasks = updateUserDto.Tasks;
 
             await _context.SaveChangesAsync();
 

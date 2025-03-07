@@ -20,6 +20,12 @@ public enum ProjectType
     Application
 }
 
+public enum ProjectPriority {
+    low,
+    medium,
+    high 
+}
+
 namespace backend.Models
 {
     public class Project
@@ -27,17 +33,32 @@ namespace backend.Models
         public int Id { get; set; }
         public string Name { get; set; } = String.Empty;
         public string Description { get; set; } = String.Empty;
-        public int ProjectTypeId { get; set; }
         public List<Technology> Technologies { get; set; } = new List<Technology>();
         public ProjectType ProjectType { get; set; }
+        public string ProjectTypeName {
+            get => ProjectType.ToString();
+            set => ProjectType = Enum.Parse<ProjectType>(value);
+        }
         public DateTime StartDate { get; set; }
         public DateTime Deadline { get; set; }
-        public string Process { get; set; } = String.Empty;
+        public int Progress { get; set; } 
+        public ProjectPriority Priority { get; set; }
+        [NotMapped]
+        public string PriorityName { 
+            get => Priority.ToString();
+            set => Priority = Enum.Parse<ProjectPriority>(value);
+        }
         public ProjectStatus Status { get; set; }
+        [NotMapped]
+        public string StatusName {
+            get => Status.ToString();
+            set => Status = Enum.Parse<ProjectStatus>(value);
+        }
         [Column(TypeName = "decimal(10,2)")]
         public decimal Budget { get; set; }
         public List<Task> Tasks { get; set; } = new List<Task>();
-        public User Manager = null!;
-        public List<User> AssignedUsers { get; set; } = new List<User>();
+        public List<UserProject> UserProjects { get; set; } = new List<UserProject>();
+        public int UserId { get; set; }
+        public User Manager { get; set; } = null!;
     }
 }

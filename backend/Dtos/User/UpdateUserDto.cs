@@ -18,8 +18,8 @@ namespace backend.Dtos.User
         public ProficiencyLevel ProficiencyLevel { get; set; }
         public Role Role { get; set; }
         public AvailabilityStatus Status { get; set; }
-        public List<Project>? Projects { get; set; }
+        public List<UserProject> UserProjects { get; set; } = new List<UserProject>();
         public List<Technology>? Technologies { get; set; }
-        public List<backend.Models.Task>? AssignedTask { get; set; }
+        public List<backend.Models.Task>? Tasks { get; set; }
     }
 }

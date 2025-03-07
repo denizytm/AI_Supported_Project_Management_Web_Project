@@ -37,36 +37,6 @@ namespace backend.Migrations
                     b.ToTable("ProjectTechnology");
                 });
 
-            modelBuilder.Entity("ProjectUser", b =>
-                {
-                    b.Property<int>("AssignedUsersId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("ProjectsId")
-                        .HasColumnType("int");
-
-                    b.HasKey("AssignedUsersId", "ProjectsId");
-
-                    b.HasIndex("ProjectsId");
-
-                    b.ToTable("ProjectUser");
-                });
-
-            modelBuilder.Entity("TaskUser", b =>
-                {
-                    b.Property<int>("AssignedTaskId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("AssignedUserId")
-                        .HasColumnType("int");
-
-                    b.HasKey("AssignedTaskId", "AssignedUserId");
-
-                    b.HasIndex("AssignedUserId");
-
-                    b.ToTable("TaskUser");
-                });
-
             modelBuilder.Entity("TechnologyUser", b =>
                 {
                     b.Property<int>("TechnologiesId")
@@ -134,15 +104,18 @@ namespace backend.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("Process")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<int>("Priority")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Progress")
+                        .HasColumnType("int");
 
                     b.Property<int>("ProjectType")
                         .HasColumnType("int");
 
-                    b.Property<int>("ProjectTypeId")
-                        .HasColumnType("int");
+                    b.Property<string>("ProjectTypeName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime>("StartDate")
                         .HasColumnType("datetime2");
@@ -150,7 +123,12 @@ namespace backend.Migrations
                     b.Property<int>("Status")
                         .HasColumnType("int");
 
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
+
                     b.HasKey("Id");
+
+                    b.HasIndex("UserId");
 
                     b.ToTable("Projects");
                 });
@@ -191,9 +169,6 @@ namespace backend.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<int?>("AssignedUserId")
-                        .HasColumnType("int");
-
                     b.Property<int?>("DependingTaskId")
                         .HasColumnType("int");
 
@@ -233,11 +208,16 @@ namespace backend.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
+
                     b.HasKey("Id");
 
                     b.HasIndex("DependingTaskId");
 
                     b.HasIndex("ProjectId");
+
+                    b.HasIndex("UserId");
 
                     b.ToTable("Tasks");
                 });
@@ -297,6 +277,24 @@ namespace backend.Migrations
                     b.ToTable("Users");
                 });
 
+            modelBuilder.Entity("backend.Models.UserProject", b =>
+                {
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("ProjectId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("id")
+                        .HasColumnType("int");
+
+                    b.HasKey("UserId", "ProjectId");
+
+                    b.HasIndex("ProjectId");
+
+                    b.ToTable("UserProject");
+                });
+
             modelBuilder.Entity("ProjectTechnology", b =>
                 {
                     b.HasOne("backend.Models.Project", null)
@@ -308,36 +306,6 @@ namespace backend.Migrations
                     b.HasOne("backend.Models.Technology", null)
                         .WithMany()
                         .HasForeignKey("TechnologiesId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
-            modelBuilder.Entity("ProjectUser", b =>
-                {
-                    b.HasOne("backend.Models.User", null)
-                        .WithMany()
-                        .HasForeignKey("AssignedUsersId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("backend.Models.Project", null)
-                        .WithMany()
-                        .HasForeignKey("ProjectsId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
-            modelBuilder.Entity("TaskUser", b =>
-                {
-                    b.HasOne("backend.Models.Task", null)
-                        .WithMany()
-                        .HasForeignKey("AssignedTaskId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("backend.Models.User", null)
-                        .WithMany()
-                        .HasForeignKey("AssignedUserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
@@ -374,6 +342,17 @@ namespace backend.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("backend.Models.Project", b =>
+                {
+                    b.HasOne("backend.Models.User", "Manager")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Manager");
+                });
+
             modelBuilder.Entity("backend.Models.Resource", b =>
                 {
                     b.HasOne("backend.Models.Project", "AssignedProject")
@@ -395,14 +374,50 @@ namespace backend.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("backend.Models.User", "AssignedUser")
+                        .WithMany("Tasks")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("AssignedUser");
+
                     b.Navigation("DependingTask");
 
                     b.Navigation("Project");
                 });
 
+            modelBuilder.Entity("backend.Models.UserProject", b =>
+                {
+                    b.HasOne("backend.Models.Project", "Project")
+                        .WithMany("UserProjects")
+                        .HasForeignKey("ProjectId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("backend.Models.User", "User")
+                        .WithMany("UserProjects")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Project");
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("backend.Models.Project", b =>
                 {
                     b.Navigation("Tasks");
+
+                    b.Navigation("UserProjects");
+                });
+
+            modelBuilder.Entity("backend.Models.User", b =>
+                {
+                    b.Navigation("Tasks");
+
+                    b.Navigation("UserProjects");
                 });
 #pragma warning restore 612, 618
         }

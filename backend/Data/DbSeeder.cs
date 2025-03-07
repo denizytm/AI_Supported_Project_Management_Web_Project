@@ -21,12 +21,11 @@ namespace backend.Data
                     .RuleFor(u => u.ProficiencyLevel, f => f.PickRandom<ProficiencyLevel>())
                     .RuleFor(u => u.Role, f => f.PickRandom<Role>())
                     .RuleFor(u => u.Status, f => f.PickRandom<AvailabilityStatus>())
-                    .RuleFor(u => u.Projects, f => new List<Project>())
+                    .RuleFor(u => u.UserProjects, f => new List<UserProject>())
                     .RuleFor(u => u.Technologies, f => new List<Technology>())
-                    .RuleFor(u => u.AssignedTask, f => new List<backend.Models.Task>());
+                    .RuleFor(u => u.Tasks, f => new List<backend.Models.Task>());
 
                 var users = faker.Generate(20);
-
                 context.Users.AddRange(users);
                 context.SaveChanges();
             }
@@ -38,8 +37,10 @@ namespace backend.Data
                     .RuleFor(p => p.Description, f => f.Lorem.Paragraph())
                     .RuleFor(p => p.StartDate, f => f.Date.Past(1))
                     .RuleFor(p => p.Deadline, f => f.Date.Future(1))
-                    .RuleFor(p => p.Process, f => f.Lorem.Word())
+                    .RuleFor(p => p.Progress, f => f.Random.Int(1, 100))
                     .RuleFor(p => p.Status, f => f.PickRandom<ProjectStatus>())
+                    .RuleFor(p => p.ProjectType, f => f.PickRandom<ProjectType>())
+                    .RuleFor(t => t.UserId, f => f.Random.Int(1, 20))
                     .RuleFor(p => p.Budget, f => f.Random.Decimal(100, 1000));
 
                 var projects = projectFaker.Generate(50);
@@ -49,6 +50,7 @@ namespace backend.Data
 
             if (!context.Tasks.Any())
             {
+                var users = context.Users.ToList();
                 var taskFaker = new Faker<backend.Models.Task>()
                     .RuleFor(t => t.Label, f => f.Lorem.Sentence())
                     .RuleFor(t => t.TaskName, f => f.Lorem.Sentence())
@@ -56,9 +58,10 @@ namespace backend.Data
                     .RuleFor(t => t.TaskLevel, f => f.PickRandom<TaskLevel>())
                     .RuleFor(t => t.Priority, f => f.PickRandom<Priority>())
                     .RuleFor(t => t.Status, f => f.PickRandom<TaskStatus>())
-                    .RuleFor(t => t.ProjectId, f => f.Random.Int(1, 50))
+                    .RuleFor(t => t.ProjectId, f => f.PickRandom(context.Projects.Select(p => p.Id).ToList()))
                     .RuleFor(t => t.Progress, f => f.Random.Int(1, 100))
-                    .RuleFor(t => t.EstimatedHours, f => f.Random.Double(1, 100));
+                    .RuleFor(t => t.EstimatedHours, f => f.Random.Double(1, 100))
+                    .RuleFor(t => t.UserId, f => f.PickRandom(context.Users.Select(p => p.Id).ToList()));
 
                 var tasks = taskFaker.Generate(100);
                 context.Tasks.AddRange(tasks);
@@ -92,7 +95,7 @@ namespace backend.Data
                 var messageFaker = new Faker<ChatMessage>()
                     .RuleFor(m => m.Content, f => f.Lorem.Sentence())
                     .RuleFor(t => t.UserId, f => f.Random.Int(1, 20))
-                    .RuleFor(t => t.ProjectId, f => f.Random.Int(1, 50))
+                    .RuleFor(t => t.ProjectId, f => f.PickRandom(context.Projects.Select(p => p.Id).ToList()))
                     .RuleFor(m => m.SentAt, f => f.Date.Recent());
 
                 var messages = messageFaker.Generate(200);

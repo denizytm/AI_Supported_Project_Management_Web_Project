@@ -9,12 +9,37 @@ namespace backend.Data
         : base(options)
         {
         }
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            // UserProject Many-to-Many ilişkiyi tanımla
+            modelBuilder.Entity<UserProject>()
+                .HasKey(up => new { up.UserId, up.ProjectId });
+
+            modelBuilder.Entity<UserProject>()
+                .HasOne(up => up.User)
+                .WithMany(u => u.UserProjects)
+                .HasForeignKey(up => up.UserId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<UserProject>()
+                .HasOne(up => up.Project)
+                .WithMany(p => p.UserProjects)
+                .HasForeignKey(up => up.ProjectId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            // Proje yöneticisi ilişkisini tanımla
+            modelBuilder.Entity<Project>()
+                .HasOne(p => p.Manager)
+                .WithMany()
+                .HasForeignKey(p => p.UserId)
+                .OnDelete(DeleteBehavior.Restrict);
+        }
 
         public DbSet<ChatMessage> ChatMessages { get; set; }
         public DbSet<Project> Projects { get; set; }
         public DbSet<Resource> Resources { get; set; }
         public DbSet<backend.Models.Task> Tasks { get; set; }
-        public DbSet<Technology> Technologies { get; set; } 
+        public DbSet<Technology> Technologies { get; set; }
         public DbSet<User> Users { get; set; }
     }
 }
