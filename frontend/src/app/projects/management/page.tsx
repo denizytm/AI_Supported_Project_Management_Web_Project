@@ -8,7 +8,10 @@ import { Plus, Pencil, Trash2 } from "lucide-react";
 
 export default function TaskManagement() {
   const [tasks, setTasks] = useState<Array<TaskType>>();
-  const [ready, setReady] = useState(false);
+  const [taskMap, setTaskMap] = useState(new Map<string, Array<TaskType>>());
+  const [taskTypes, setTaskTypes] = useState<Array<string>>([]);
+  const [ready1, setReady1] = useState(false);
+  const [ready2, setReady2] = useState(false);
 
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -21,14 +24,37 @@ export default function TaskManagement() {
       );
 
       if (response.status) {
-        /* console.log(response.data.project); */
+        const data: Array<TaskType> = response.data;
+
+        let types: Array<string> = [];
+
+        for (let i = 0; i < data.length; i++)
+          if (!types.includes(data[i].typeName)) types.push(data[i].typeName);
+
+        setTaskTypes(types);
         setTasks(response.data);
-        setReady(true);
+        setReady1(true);
       }
     })();
   }, []);
 
-  if (!ready) return <div>Loading...</div>;
+  useEffect(() => {
+    if (ready1 && tasks && tasks.length && taskTypes && taskTypes.length) {
+      const newTaskMap = new Map<string, Array<TaskType>>();
+
+      for (let typeName of taskTypes) {
+        newTaskMap.set(
+          typeName,
+          tasks.filter((task) => task.typeName == typeName)
+        );
+      }
+
+      setTaskMap(newTaskMap);
+      setReady2(true);
+    }
+  }, [taskTypes]);
+
+  if (!ready2) return <div>Loading...</div>;
   return (
     <div className="p-6 bg-gray-100 dark:bg-gray-900 min-h-screen">
       {/* Başlık */}
@@ -67,6 +93,7 @@ export default function TaskManagement() {
           <table className="w-full text-left border-collapse">
             <thead>
               <tr className="bg-gray-200 dark:bg-gray-700">
+                <th className="p-3 border">Type</th>
                 <th className="p-3 border">Task Name</th>
                 <th className="p-3 border">Label</th>
                 <th className="p-3 border">Priority</th>
@@ -78,24 +105,45 @@ export default function TaskManagement() {
             </thead>
             <tbody>
               {tasks &&
-                tasks.map((task) => (
-                  <tr key={task.id} className="border-b">
-                    <td
-                      className={`p-3 ${
-                        task.taskLevelName === "High" ? "font-bold" : ""
-                      }`}
-                    >
-                      {task.id ? ` ${task.id}. ` : ""} {task.taskName}
-                    </td>
-                    <td className="p-3">{task.taskLabel.label}</td>
-                    <td className="p-3 text-red-500">{task.priorityName}</td>
-                    <td className="p-3">
-                      {task.assignedUser.name} {task.assignedUser.lastName}
-                    </td>
-                    <td className="p-3 text-blue-500">{task.statusName}</td>
-                    <td className="p-3">{task.progress}%</td>
-                    <td className="p-3 text-blue-400 cursor-pointer">See</td>
-                  </tr>
+                taskTypes.map((type, topIndex) => (
+                  <>
+                    <tr key={topIndex} className="border-b">
+                      <td>{type}</td>
+                      <td></td>
+                      <td className="p-3"></td>
+                      <td className="p-3 text-red-500"></td>
+                      <td className="p-3"></td>
+                      <td className="p-3 text-blue-500"></td>
+                      <td className="p-3"></td>
+                      <td className="p-3 text-blue-400 cursor-pointer">See</td>
+                    </tr>
+                    {taskMap.get(type)?.map((task, innerIndex) => (
+                      <tr key={task.id} className="border-b">
+                        <td>
+                          {topIndex + 1}.{innerIndex + 1}
+                        </td>
+                        <td
+                          className={`p-3 ${
+                            task.taskLevelName === "High" ? "font-bold" : ""
+                          }`}
+                        >
+                          {task.id ? ` ${task.id}. ` : ""} {task.taskName}
+                        </td>
+                        <td className="p-3">{task.taskLabel.label}</td>
+                        <td className="p-3 text-red-500">
+                          {task.priorityName}
+                        </td>
+                        <td className="p-3">
+                          {task.assignedUser.name} {task.assignedUser.lastName}
+                        </td>
+                        <td className="p-3 text-blue-500">{task.statusName}</td>
+                        <td className="p-3">{task.progress}%</td>
+                        <td className="p-3 text-blue-400 cursor-pointer">
+                          See
+                        </td>
+                      </tr>
+                    ))}
+                  </>
                 ))}
             </tbody>
           </table>

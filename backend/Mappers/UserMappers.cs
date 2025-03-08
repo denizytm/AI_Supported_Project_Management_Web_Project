@@ -20,7 +20,7 @@ namespace backend.Mappers
                 ProficiencyLevelName = user.ProficiencyLevelName,
                 RoleName = user.RoleName,
                 TaskRoleName = user.TaskRoleName,
-                StatusName = user.StatusName,
+                StatusName = user.StatusName
             };
         }
 

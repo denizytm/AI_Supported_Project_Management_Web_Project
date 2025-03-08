@@ -4,6 +4,8 @@ using System.Linq;
 using System.Threading.Tasks;
 using backend.Data;
 using backend.Dtos.Project;
+using backend.Dtos.User;
+using backend.Dtos.UserProject;
 using backend.Mappers;
 using backend.Models;
 using Microsoft.AspNetCore.Mvc;
@@ -54,17 +56,65 @@ namespace backend.Controllers
         {
             try
             {
-                var project = await _context.Projects.FindAsync(id);
-
-                var projectUsers = _context.UserProjects.Include(up => up.User).Where(up => up.ProjectId == id).ToList();
+                var project = await _context.Projects.Include(p => p.Manager).Where(p => p.Id == id).FirstAsync();
 
                 if (project == null)
                 {
                     return BadRequest(new { message = $"No project found with the id value : {id}" });
                 }
-                return Ok(new {
+                return Ok(project.ToProjectDto());
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new
+                {
+                    message = $"There was an error when fetching the project : {ex.Message}"
+                });
+            }
+        }
+
+        [HttpGet("management")]
+        public async Task<IActionResult> GetProjectWithTasksAndUsers(int id)
+        {
+            try
+            {
+                var project = await _context.Projects.FindAsync(id);
+
+                if (project == null)
+                {
+                    return BadRequest(new { message = $"No project found with the id value : {id}" });
+                }
+                
+                var projectUsers = _context.UserProjects.Where(up => up.ProjectId == id).Select(up=> new UserProjectDto{
+                    id = project.Id,
+                    User = up.User.ToUserDto(),
+                    
+                }).ToList(); // get the map of user id and project id N-N
+                
+                return Ok(projectUsers);
+
+                var users = new List<UserDto>(); // list to get all the user info of the selected project id
+
+
+              /*   for (var i = 0; i < projectUsers.Count; i++)
+                {
+                    var userId = projectUsers[i].UserId;
+                    users.Add(_context.Users.Where(u => u.Id == userId).First().ToUserDto()); // insert userDto value to the users list
+                } */
+/* 
+                var tasks = _context.Tasks
+                .Where(d => d.ProjectId == id)
+                .Include(t => t.AssignedUser)
+                .Include(t => t.TaskLabel)
+                .ToList(); // get all the tasks for the selected project id
+
+                var taskDtos = tasks.Select(t => t.ToTaskDto()); // turn the tasks into dto values */
+
+                return Ok(new
+                {
                     project,
-                    projectUsers
+                    users,
+                /*     taskDtos */
                 });
             }
             catch (Exception ex)

@@ -23,7 +23,6 @@ namespace backend.Dtos.Project
         [Column(TypeName = "decimal(10,2)")]
         public decimal Budget { get; set; }
         public List<backend.Models.Task> Tasks { get; set; } = new List<backend.Models.Task>();
-        public List<UserProject> UserProjects { get; set; } = new List<UserProject>();
         public int UserId { get; set; }
         public UserDto Manager { get; set; } = null!;
     }

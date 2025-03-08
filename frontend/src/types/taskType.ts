@@ -14,5 +14,5 @@ export interface TaskType {
     progress : number,
     dueDate : Date,
     typeName : string,
-    taskLabel : TaskLabelType
+    taskLabel : TaskLabelType,
 }

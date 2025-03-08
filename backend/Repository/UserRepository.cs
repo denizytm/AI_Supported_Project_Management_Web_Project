@@ -49,8 +49,8 @@ namespace backend.Repository
             userData.Role = updateUserDto?.Role ?? userData.Role;
             userData.Status = updateUserDto?.Status ?? userData.Status;
 
-            if (updateUserDto?.UserProjects != null && updateUserDto.UserProjects.Any())
-                userData.UserProjects = updateUserDto.UserProjects;
+           /*  if (updateUserDto?.UserProjects != null && updateUserDto.UserProjects.Any())
+                userData.UserProjects = updateUserDto.UserProjects; */
 
             if (updateUserDto?.Technologies != null && updateUserDto.Technologies.Any())
                 userData.Technologies = updateUserDto.Technologies;

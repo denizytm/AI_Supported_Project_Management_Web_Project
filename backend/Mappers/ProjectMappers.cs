@@ -11,11 +11,11 @@ namespace backend.Mappers
     {
         public static ProjectDto ToProjectDto(this Project project){
             return new ProjectDto {
+                Id = project.Id,
                 Budget = project.Budget,
                 Deadline = project.Deadline,
                 Description = project.Description,
-                Id = project.Id,
-                Manager = project.Manager.ToUserDto(),
+                Manager = project.Manager != null ? project.Manager.ToUserDto() : null,
                 Name = project.Name,
                 PriorityName = project.PriorityName,
                 Progress = project.Progress,
@@ -24,7 +24,7 @@ namespace backend.Mappers
                 StatusName = project.StatusName,
                 Tasks = project.Tasks,
                 Technologies = project.Technologies,
-                UserId = project.UserId,
+                UserId = project.UserId
             };
         }
     }
