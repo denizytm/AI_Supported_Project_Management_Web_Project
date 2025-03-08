@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using backend.Data;
+using backend.Dtos.Task;
 using backend.Mappers;
 using backend.Models;
 using Microsoft.AspNetCore.Mvc;
@@ -90,11 +91,11 @@ namespace backend.Controllers
         }
 
         [HttpPost("add")]
-        public async Task<IActionResult> CreateTask(backend.Models.Task task)
+        public async Task<IActionResult> CreateTask(CreateTaskDto createTaskDto)
         {
             try
             {
-                var result = await _context.Tasks.AddAsync(task);
+                var result = await _context.Tasks.AddAsync(createTaskDto.fromCreateDtoToTask());
 
                 if (result.Entity != null)
                 {

@@ -9,6 +9,7 @@ import { ProjectType } from "@/types/projectType";
 import { UserType } from "@/types/userType";
 import TasksTable from "@/components/projectManagement/TasksTable";
 import ProjectTeamList from "@/components/projectManagement/ProjectTeamList";
+import CreateTaskModal from "@/components/projectManagement/CreateTaskModal";
 
 export default function TaskManagement() {
   const [projectData, setProjectData] = useState<ProjectType>({
@@ -31,11 +32,15 @@ export default function TaskManagement() {
     statusName : "loading"
   });
   const [usersData, setUsersData] = useState<Array<UserType>>([]);
+
   const [tasks, setTasks] = useState<Array<TaskType>>([]);
   const [taskMap, setTaskMap] = useState(new Map<string, Array<TaskType>>());
   const [taskTypes, setTaskTypes] = useState<Array<string>>([]);
+
   const [ready1, setReady1] = useState(false);
   const [ready2, setReady2] = useState(false);
+
+  const [isModalOpen,setIsModalOpen] = useState(false);
 
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -88,6 +93,7 @@ export default function TaskManagement() {
   if (!ready2) return <div>Loading...</div>;
   return (
     <div className="p-6 bg-gray-100 dark:bg-gray-900 min-h-screen">
+      <CreateTaskModal {...{isModalOpen, setIsModalOpen, usersData, projectId : projectData.id}} />
       {/* Başlık */}
       <div className="flex justify-end items-center mb-4">
         <button
@@ -104,7 +110,7 @@ export default function TaskManagement() {
         <div className="col-span-2 bg-white dark:bg-gray-800 p-4 shadow-md rounded-md overflow-auto">
           <div className="flex bg-gray-200 dark:bg-gray-700 p-2 rounded-md">
             <div className="w-1/6 flex gap-2">
-              <button className="p-2 bg-white dark:bg-gray-800 shadow-md rounded-lg hover:bg-gray-100">
+              <button onClick={()=>setIsModalOpen(true)} className="p-2 bg-white dark:bg-gray-800 shadow-md rounded-lg hover:bg-gray-100">
                 <Plus size={20} />
               </button>
               <button className="p-2 bg-white dark:bg-gray-800 shadow-md rounded-lg hover:bg-gray-100">

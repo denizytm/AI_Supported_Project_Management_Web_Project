@@ -19,6 +19,7 @@ export default function TasksTable({
           <th className="p-3 border">Task Name</th>
           <th className="p-3 border">Label</th>
           <th className="p-3 border">Priority</th>
+          <th className="p-3 border">Task Level</th>
           <th className="p-3 border">Assigned</th>
           <th className="p-3 border">Status</th>
           <th className="p-3 border">Progress</th>
@@ -37,7 +38,7 @@ export default function TasksTable({
                 <td className="p-3"></td>
                 <td className="p-3 text-blue-500"></td>
                 <td className="p-3"></td>
-                <td className="p-3 text-blue-400 cursor-pointer">See</td>
+                <td className="p-8"></td>
               </tr>
               {taskMap.get(type)?.map((task, innerIndex) => (
                 <tr key={task.id} className="border-b">
@@ -49,10 +50,11 @@ export default function TasksTable({
                       task.taskLevelName === "High" ? "font-bold" : ""
                     }`}
                   >
-                    {task.id ? ` ${task.id}. ` : ""} {task.taskName}
+                    {task.taskName}
                   </td>
                   <td className="p-3">{task.taskLabel.label}</td>
                   <td className="p-3 text-red-500">{task.priorityName}</td>
+                  <td className="p-3 text-red-500">{task.taskLevelName}</td>
                   <td className="p-3">
                     {task.assignedUser.name} {task.assignedUser.lastName}
                   </td>

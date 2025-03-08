@@ -30,5 +30,24 @@ namespace backend.Mappers
                 UserId = task.UserId
             };
         }
+
+        public static backend.Models.Task fromCreateDtoToTask(this CreateTaskDto createTaskDto){
+            return new backend.Models.Task {
+                EstimatedHours = createTaskDto.EstimatedHours,
+                DueDate = createTaskDto.DueDate,
+                Note = createTaskDto.Note,
+                PriorityName = createTaskDto.PriorityName,
+                Progress = createTaskDto.Progress,
+                ProjectId = createTaskDto.ProjectId,
+                TaskId = createTaskDto.TaskId,
+                StatusName = createTaskDto.StatusName,
+                TaskLevelName = createTaskDto.TaskLevelName,
+                TypeName = createTaskDto.TypeName,
+                UserId = createTaskDto.UserId,
+                TaskLabelId = createTaskDto.TaskLabelId,
+                TaskName = createTaskDto.TaskName,
+            };
+        }
+
     }
 }
