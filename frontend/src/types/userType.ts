@@ -3,7 +3,7 @@ export interface UserType {
     name: string;
     lastName: string;
     email: string;
-    profficiencyLevelName: number;
+    profficiencyLevelName: string;
     roleName: string;
     statusName: string;
     taskRoleName : string;

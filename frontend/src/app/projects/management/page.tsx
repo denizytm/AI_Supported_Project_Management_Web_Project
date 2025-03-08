@@ -7,11 +7,31 @@ import React, { useEffect, useState } from "react";
 import { Plus, Pencil, Trash2 } from "lucide-react";
 import { ProjectType } from "@/types/projectType";
 import { UserType } from "@/types/userType";
+import TasksTable from "@/components/projectManagement/TasksTable";
+import ProjectTeamList from "@/components/projectManagement/ProjectTeamList";
 
 export default function TaskManagement() {
-  const [projectData, setProjectData] = useState<ProjectType | null>(null);
+  const [projectData, setProjectData] = useState<ProjectType>({
+    id : "0",
+    budget : 0,
+    deadline : "0000-00-00",
+    manager : {
+      id : "0",
+      email : "loading",
+      name : "loading",
+      lastName : "loading",
+      profficiencyLevelName : "loading",
+      roleName : "loading",
+      statusName : "loading",
+      taskRoleName : "loading"
+    },
+    name : "loading",
+    priorityName : "loading",
+    progress : "loading",
+    statusName : "loading"
+  });
   const [usersData, setUsersData] = useState<Array<UserType>>([]);
-  const [tasks, setTasks] = useState<Array<TaskType>>();
+  const [tasks, setTasks] = useState<Array<TaskType>>([]);
   const [taskMap, setTaskMap] = useState(new Map<string, Array<TaskType>>());
   const [taskTypes, setTaskTypes] = useState<Array<string>>([]);
   const [ready1, setReady1] = useState(false);
@@ -100,64 +120,13 @@ export default function TaskManagement() {
               </h2>
             </div>
           </div>
-
-          <table className="w-full text-left border-collapse">
-            <thead>
-              <tr className="bg-gray-200 dark:bg-gray-700">
-                <th className="p-3 border">Type</th>
-                <th className="p-3 border">Task Name</th>
-                <th className="p-3 border">Label</th>
-                <th className="p-3 border">Priority</th>
-                <th className="p-3 border">Assigned</th>
-                <th className="p-3 border">Status</th>
-                <th className="p-3 border">Progress</th>
-                <th className="p-3 border">Note</th>
-              </tr>
-            </thead>
-            <tbody>
-              {tasks &&
-                taskTypes.map((type, topIndex) => (
-                  <>
-                    <tr key={topIndex} className="border-b">
-                      <td>{type}</td>
-                      <td></td>
-                      <td className="p-3"></td>
-                      <td className="p-3 text-red-500"></td>
-                      <td className="p-3"></td>
-                      <td className="p-3 text-blue-500"></td>
-                      <td className="p-3"></td>
-                      <td className="p-3 text-blue-400 cursor-pointer">See</td>
-                    </tr>
-                    {taskMap.get(type)?.map((task, innerIndex) => (
-                      <tr key={task.id} className="border-b">
-                        <td>
-                          {topIndex + 1}.{innerIndex + 1}
-                        </td>
-                        <td
-                          className={`p-3 ${
-                            task.taskLevelName === "High" ? "font-bold" : ""
-                          }`}
-                        >
-                          {task.id ? ` ${task.id}. ` : ""} {task.taskName}
-                        </td>
-                        <td className="p-3">{task.taskLabel.label}</td>
-                        <td className="p-3 text-red-500">
-                          {task.priorityName}
-                        </td>
-                        <td className="p-3">
-                          {task.assignedUser.name} {task.assignedUser.lastName}
-                        </td>
-                        <td className="p-3 text-blue-500">{task.statusName}</td>
-                        <td className="p-3">{task.progress}%</td>
-                        <td className="p-3 text-blue-400 cursor-pointer">
-                          See
-                        </td>
-                      </tr>
-                    ))}
-                  </>
-                ))}
-            </tbody>
-          </table>
+          <TasksTable
+            {...{
+              taskMap,
+              tasks,
+              taskTypes,
+            }}
+          />
         </div>
 
         {/* Sağ Taraf - Genel Bilgiler */}
@@ -204,41 +173,10 @@ export default function TaskManagement() {
 
       {/* Alt Kısım - Project Team & Client Requests */}
       <div className="grid grid-cols-2 gap-4 mt-4">
-        {/* Project Team */}
-        <div className="bg-white dark:bg-gray-800 p-4 shadow-md rounded-md">
-          <h3 className="font-bold text-gray-700 dark:text-white mb-2">
-            Project Team
-          </h3>
-          <table className="w-full text-left">
-            <thead>
-              <tr className="bg-gray-200 dark:bg-gray-700">
-                <th className="p-2">Name</th>
-                <th className="p-2">Role</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr className="border-b">
-                <td className="p-2">
-                  {projectData?.manager.name} {projectData?.manager.lastName}
-                </td>
-                <td className="p-2">Project Manager</td>
-              </tr>
-              {usersData.map((user, index) => (
-                <tr className="border-b">
-                  <td className="p-2">
-                    {user.name} {user.lastName}
-                  </td>
-                  <td className="p-2">{user.taskRoleName}</td>
-                </tr>
-              ))}
-              <tr className="border-b">
-                <td className="p-2">Jane Smith</td>
-                <td className="p-2">Frontend</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
 
+        {/* Project Team */}
+        <ProjectTeamList {...{ projectData, usersData }} />
+        
         {/* Client Requests */}
         <div className="bg-white dark:bg-gray-800 p-4 shadow-md rounded-md">
           <h3 className="font-bold text-gray-700 dark:text-white mb-2">
