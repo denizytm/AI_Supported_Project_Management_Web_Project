@@ -1,13 +1,13 @@
 import { ProjectType } from "@/types/projectType";
 import { useRouter } from "next/navigation";
 
-interface ProjectListTableInterface {
+interface ProjectListTableProps {
   projects: Array<ProjectType>;
 }
 
 export default function ProjectListTable({
   projects,
-}: ProjectListTableInterface) {
+}: ProjectListTableProps) {
   const router = useRouter();
 
   return (

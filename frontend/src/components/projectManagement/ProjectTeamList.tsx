@@ -1,7 +1,9 @@
+"use client";
+
 import { ProjectType } from "@/types/projectType";
 import { UserType } from "@/types/userType";
 
-interface ProjectTeamListInterface {
+interface ProjectTeamListProps {
   projectData: ProjectType;
   usersData: Array<UserType>;
 }
@@ -9,7 +11,7 @@ interface ProjectTeamListInterface {
 export default function ProjectTeamList({
   projectData,
   usersData,
-}: ProjectTeamListInterface) {
+}: ProjectTeamListProps) {
   return (
     <div className="bg-white dark:bg-gray-800 p-4 shadow-md rounded-md">
       <h3 className="font-bold text-gray-700 dark:text-white mb-2">

@@ -1,6 +1,8 @@
+"use client";
+
 import { TaskType } from "@/types/taskType";
 
-interface TasksTableInterface {
+interface TasksTableProps {
   tasks: Array<TaskType>;
   taskTypes: Array<string>;
   taskMap: Map<string, Array<TaskType>>;
@@ -10,7 +12,7 @@ export default function TasksTable({
   taskTypes,
   tasks,
   taskMap,
-}: TasksTableInterface) {
+}: TasksTableProps) {
   return (
     <table className="w-full text-left border-collapse">
       <thead>

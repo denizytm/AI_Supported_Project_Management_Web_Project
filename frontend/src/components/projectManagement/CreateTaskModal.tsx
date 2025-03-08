@@ -1,10 +1,13 @@
+"use client";
+
 import { UserType } from "@/types/userType";
 import axios from "axios";
 import { useState } from "react";
 
-interface TaskModalInterface {
+interface TaskModalProps {
   isModalOpen: boolean;
   setIsModalOpen: React.Dispatch<React.SetStateAction<boolean>>;
+  setIsHidden: React.Dispatch<React.SetStateAction<boolean>>;
   usersData: Array<UserType>;
   projectId: string;
 }
@@ -12,9 +15,10 @@ interface TaskModalInterface {
 export default function CreateTaskModal({
   isModalOpen,
   setIsModalOpen,
+  setIsHidden,
   usersData,
   projectId,
-}: TaskModalInterface) {
+}: TaskModalProps) {
   const [formData, setFormData] = useState({
     taskName: "",
     typeName: "Resarch",
@@ -33,6 +37,7 @@ export default function CreateTaskModal({
 
   const onClose = () => {
     setIsModalOpen(false);
+    setIsHidden(false);
   };
 
   const handleChange = (

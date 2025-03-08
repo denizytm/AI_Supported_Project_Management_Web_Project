@@ -35,10 +35,6 @@ export default function Container({ children }: ContainerProps) {
     setIsReady(true);
   }, []);
 
-  useEffect(() => {
-    console.log(currentUser);
-  }, [currentUser]);
-
   const handleFetchUserData = async (value: string) => {
     const userData = (await getUserById(value)) as UserType;
     setCurrentUser(userData);

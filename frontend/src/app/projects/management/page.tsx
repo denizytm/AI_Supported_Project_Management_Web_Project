@@ -10,26 +10,27 @@ import { UserType } from "@/types/userType";
 import TasksTable from "@/components/projectManagement/TasksTable";
 import ProjectTeamList from "@/components/projectManagement/ProjectTeamList";
 import CreateTaskModal from "@/components/projectManagement/CreateTaskModal";
+import GanttChart from "@/components/projectManagement/GanttChart";
 
 export default function TaskManagement() {
   const [projectData, setProjectData] = useState<ProjectType>({
-    id : "0",
-    budget : 0,
-    deadline : "0000-00-00",
-    manager : {
-      id : "0",
-      email : "loading",
-      name : "loading",
-      lastName : "loading",
-      profficiencyLevelName : "loading",
-      roleName : "loading",
-      statusName : "loading",
-      taskRoleName : "loading"
+    id: "0",
+    budget: 0,
+    deadline: "0000-00-00",
+    manager: {
+      id: "0",
+      email: "loading",
+      name: "loading",
+      lastName: "loading",
+      profficiencyLevelName: "loading",
+      roleName: "loading",
+      statusName: "loading",
+      taskRoleName: "loading",
     },
-    name : "loading",
-    priorityName : "loading",
-    progress : "loading",
-    statusName : "loading"
+    name: "loading",
+    priorityName: "loading",
+    progress: "loading",
+    statusName: "loading",
   });
   const [usersData, setUsersData] = useState<Array<UserType>>([]);
 
@@ -40,7 +41,8 @@ export default function TaskManagement() {
   const [ready1, setReady1] = useState(false);
   const [ready2, setReady2] = useState(false);
 
-  const [isModalOpen,setIsModalOpen] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isHidden,setIsHidden] = useState(false);
 
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -93,8 +95,15 @@ export default function TaskManagement() {
   if (!ready2) return <div>Loading...</div>;
   return (
     <div className="p-6 bg-gray-100 dark:bg-gray-900 min-h-screen">
-      <CreateTaskModal {...{isModalOpen, setIsModalOpen, usersData, projectId : projectData.id}} />
-      {/* Başlık */}
+      <CreateTaskModal
+        {...{
+          isModalOpen,
+          setIsModalOpen,
+          setIsHidden,
+          usersData,
+          projectId: projectData.id,
+        }}
+      />
       <div className="flex justify-end items-center mb-4">
         <button
           onClick={() => router.back()}
@@ -104,13 +113,18 @@ export default function TaskManagement() {
         </button>
       </div>
 
-      {/* Task Table ve Gantt Chart Container */}
-      <div className="grid grid-cols-3 gap-4">
-        {/* Sol Taraf (Task Table) */}
-        <div className="col-span-2 bg-white dark:bg-gray-800 p-4 shadow-md rounded-md overflow-auto">
+      {/* Task Table and Gantt Chart */}
+      <div className="grid grid-cols-8 gap-4">
+        <div className="col-span-12 bg-white dark:bg-gray-800 p-4 shadow-md rounded-md overflow-auto">
           <div className="flex bg-gray-200 dark:bg-gray-700 p-2 rounded-md">
             <div className="w-1/6 flex gap-2">
-              <button onClick={()=>setIsModalOpen(true)} className="p-2 bg-white dark:bg-gray-800 shadow-md rounded-lg hover:bg-gray-100">
+              <button
+                onClick={() => {
+                  setIsModalOpen(true);
+                  setIsHidden(true);
+                }}
+                className="p-2 bg-white dark:bg-gray-800 shadow-md rounded-lg hover:bg-gray-100"
+              >
                 <Plus size={20} />
               </button>
               <button className="p-2 bg-white dark:bg-gray-800 shadow-md rounded-lg hover:bg-gray-100">
@@ -126,63 +140,53 @@ export default function TaskManagement() {
               </h2>
             </div>
           </div>
-          <TasksTable
-            {...{
-              taskMap,
-              tasks,
-              taskTypes,
-            }}
-          />
-        </div>
-
-        {/* Sağ Taraf - Genel Bilgiler */}
-        <div className="col-span-1 space-y-4">
-          {/* General Information */}
-          <div className="bg-white dark:bg-gray-800 p-4 shadow-md rounded-md">
-            <h3 className="font-bold text-gray-700 dark:text-white mb-2">
-              General Information
-            </h3>
-            <p className="text-gray-500 dark:text-gray-300">
-              <strong>Project Name:</strong> Cloud Infrastructure Migration
-            </p>
-            <p className="text-gray-500 dark:text-gray-300">
-              <strong>Project Code:</strong> IT-CIM-2024
-            </p>
-            <p className="text-gray-500 dark:text-gray-300">
-              <strong>Project Manager:</strong> Michael Reed
-            </p>
-            <p className="text-gray-500 dark:text-gray-300">
-              <strong>Completion:</strong> 62%
-            </p>
-          </div>
-
-          {/* Client Information */}
-          <div className="bg-white dark:bg-gray-800 p-4 shadow-md rounded-md">
-            <h3 className="font-bold text-gray-700 dark:text-white mb-2">
-              Client Information
-            </h3>
-            <p className="text-gray-500 dark:text-gray-300">
-              <strong>Name:</strong> John Doe
-            </p>
-            <p className="text-gray-500 dark:text-gray-300">
-              <strong>Company:</strong> Tech Solutions Inc.
-            </p>
-            <p className="text-gray-500 dark:text-gray-300">
-              <strong>Email:</strong> john.doe@example.com
-            </p>
-            <p className="text-gray-500 dark:text-gray-300">
-              <strong>Phone:</strong> +123 456 7890
-            </p>
-          </div>
+          {isHidden ? (<></>) : (<GanttChart {...{ taskMap, taskTypes }} />) }
         </div>
       </div>
 
-      {/* Alt Kısım - Project Team & Client Requests */}
-      <div className="grid grid-cols-2 gap-4 mt-4">
+      {/* Bottom Section */}
+      <div className="grid grid-cols-4 gap-4 mt-4">
+        {/* General Information */}
+        <div className="bg-white dark:bg-gray-800 p-4 shadow-md rounded-md">
+          <h3 className="font-bold text-gray-700 dark:text-white mb-2">
+            General Information
+          </h3>
+          <p className="text-gray-500 dark:text-gray-300">
+            <strong>Project Name:</strong> Cloud Infrastructure Migration
+          </p>
+          <p className="text-gray-500 dark:text-gray-300">
+            <strong>Project Code:</strong> IT-CIM-2024
+          </p>
+          <p className="text-gray-500 dark:text-gray-300">
+            <strong>Project Manager:</strong> Michael Reed
+          </p>
+          <p className="text-gray-500 dark:text-gray-300">
+            <strong>Completion:</strong> 62%
+          </p>
+        </div>
+
+        {/* Client Information */}
+        <div className="bg-white dark:bg-gray-800 p-4 shadow-md rounded-md">
+          <h3 className="font-bold text-gray-700 dark:text-white mb-2">
+            Client Information
+          </h3>
+          <p className="text-gray-500 dark:text-gray-300">
+            <strong>Name:</strong> John Doe
+          </p>
+          <p className="text-gray-500 dark:text-gray-300">
+            <strong>Company:</strong> Tech Solutions Inc.
+          </p>
+          <p className="text-gray-500 dark:text-gray-300">
+            <strong>Email:</strong> john.doe@example.com
+          </p>
+          <p className="text-gray-500 dark:text-gray-300">
+            <strong>Phone:</strong> +123 456 7890
+          </p>
+        </div>
 
         {/* Project Team */}
         <ProjectTeamList {...{ projectData, usersData }} />
-        
+
         {/* Client Requests */}
         <div className="bg-white dark:bg-gray-800 p-4 shadow-md rounded-md">
           <h3 className="font-bold text-gray-700 dark:text-white mb-2">

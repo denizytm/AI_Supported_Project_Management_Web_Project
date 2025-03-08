@@ -20,7 +20,7 @@ export default function Navbar() {
   };
 
   return (
-    <nav className="fixed w-full flex items-center justify-between bg-gray-200 dark:bg-gray-800 p-4 py-6 shadow-md">
+    <nav className="fixed w-full flex items-center justify-between bg-gray-200 dark:bg-gray-800 p-4 py-6" style={{zIndex : "99999999999999999999"}}>
       <div className="flex items-center gap-4">
         <h1 className="text-xl font-bold dark:text-white">ERP</h1>
         <div

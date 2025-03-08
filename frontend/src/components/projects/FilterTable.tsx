@@ -1,4 +1,4 @@
-interface FilterTableInterface {}
+interface FilterTableProps {}
 
 export default function FilterTable() {
   return (

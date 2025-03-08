@@ -31,7 +31,7 @@ export default function RegisterPage() {
     if (response.data) {
       localStorage.setItem("id", response.data.id);
       window.location.reload();
-      router.push("/home");
+      router.push("/dashboard");
     }
   };
 
