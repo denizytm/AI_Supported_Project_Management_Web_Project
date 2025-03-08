@@ -428,13 +428,13 @@ namespace backend.Migrations
                     b.HasOne("backend.Models.Project", "Project")
                         .WithMany("UserProjects")
                         .HasForeignKey("ProjectId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("backend.Models.User", "User")
                         .WithMany("UserProjects")
                         .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Project");

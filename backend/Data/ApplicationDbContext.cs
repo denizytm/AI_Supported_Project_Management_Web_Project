@@ -15,7 +15,7 @@ namespace backend.Data
             modelBuilder.Entity<UserProject>()
                 .HasKey(up => new { up.UserId, up.ProjectId });
 
-            modelBuilder.Entity<UserProject>()
+            /* modelBuilder.Entity<UserProject>()
                 .HasOne(up => up.User)
                 .WithMany(u => u.UserProjects)
                 .HasForeignKey(up => up.UserId)
@@ -25,7 +25,7 @@ namespace backend.Data
                 .HasOne(up => up.Project)
                 .WithMany(p => p.UserProjects)
                 .HasForeignKey(up => up.ProjectId)
-                .OnDelete(DeleteBehavior.Restrict);
+                .OnDelete(DeleteBehavior.Restrict); */
 
             modelBuilder.Entity<Project>()
                 .HasOne(p => p.Manager)

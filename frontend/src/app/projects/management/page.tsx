@@ -5,8 +5,12 @@ import axios from "axios";
 import { useRouter, useSearchParams } from "next/navigation";
 import React, { useEffect, useState } from "react";
 import { Plus, Pencil, Trash2 } from "lucide-react";
+import { ProjectType } from "@/types/projectType";
+import { UserType } from "@/types/userType";
 
 export default function TaskManagement() {
+  const [projectData, setProjectData] = useState<ProjectType | null>(null);
+  const [usersData, setUsersData] = useState<Array<UserType>>([]);
   const [tasks, setTasks] = useState<Array<TaskType>>();
   const [taskMap, setTaskMap] = useState(new Map<string, Array<TaskType>>());
   const [taskTypes, setTaskTypes] = useState<Array<string>>([]);
@@ -20,11 +24,14 @@ export default function TaskManagement() {
     (async () => {
       const id = searchParams.get("id");
       const response = await axios.get(
-        `http://localhost:5110/api/tasks/get?projectId=${id}`
+        `http://localhost:5110/api/projects/management?id=${id}`
       );
 
       if (response.status) {
-        const data: Array<TaskType> = response.data;
+        const data: Array<TaskType> = response.data.taskDtos;
+
+        setProjectData(response.data.project);
+        setUsersData(response.data.users);
 
         let types: Array<string> = [];
 
@@ -32,7 +39,7 @@ export default function TaskManagement() {
           if (!types.includes(data[i].typeName)) types.push(data[i].typeName);
 
         setTaskTypes(types);
-        setTasks(response.data);
+        setTasks(data);
         setReady1(true);
       }
     })();
@@ -53,6 +60,10 @@ export default function TaskManagement() {
       setReady2(true);
     }
   }, [taskTypes]);
+
+  useEffect(() => {
+    console.log(usersData);
+  }, [usersData]);
 
   if (!ready2) return <div>Loading...</div>;
   return (
@@ -207,9 +218,19 @@ export default function TaskManagement() {
             </thead>
             <tbody>
               <tr className="border-b">
-                <td className="p-2">John Doe</td>
-                <td className="p-2">Team Leader</td>
+                <td className="p-2">
+                  {projectData?.manager.name} {projectData?.manager.lastName}
+                </td>
+                <td className="p-2">Project Manager</td>
               </tr>
+              {usersData.map((user, index) => (
+                <tr className="border-b">
+                  <td className="p-2">
+                    {user.name} {user.lastName}
+                  </td>
+                  <td className="p-2">{user.taskRoleName}</td>
+                </tr>
+              ))}
               <tr className="border-b">
                 <td className="p-2">Jane Smith</td>
                 <td className="p-2">Frontend</td>

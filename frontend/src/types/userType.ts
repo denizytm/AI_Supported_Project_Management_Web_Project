@@ -6,4 +6,5 @@ export interface UserType {
     profficiencyLevelName: number;
     roleName: string;
     statusName: string;
+    taskRoleName : string;
   }
