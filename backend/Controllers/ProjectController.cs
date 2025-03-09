@@ -3,6 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using backend.Data;
+using backend.Dtos.Project;
+using backend.Dtos.User;
+using backend.Dtos.UserProject;
+using backend.Mappers;
 using backend.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -21,33 +25,96 @@ namespace backend.Controllers
         }
 
         [HttpGet("all")]
-        public async Task<IActionResult> GetProjects()
+        public async Task<IActionResult> GetProjects(int page = 1)
         {
             try
             {
-                var projects = await _context.Projects.ToListAsync();
-                return Ok(projects);
+                int perPage = 10;
+
+                var projects = await _context.Projects
+                    .Skip((page - 1) * perPage)
+                    .Take(perPage)
+                    .Include(p => p.Manager)
+                    .ToListAsync();
+
+                var projectDtos = projects.Select(p => p.ToProjectDto());
+
+                return Ok(projectDtos);
             }
             catch (Exception ex)
             {
                 return BadRequest(new
                 {
-                    message = $"There was an error when fetching the projects : {ex.Message}"
+                    message = $"There was an error when fetching the projects: {ex.Message}"
                 });
             }
         }
+
 
         [HttpGet("find")]
         public async Task<IActionResult> GetProject(int id)
         {
             try
             {
-                var project = await _context.Projects.FindAsync(id);
+                var project = await _context.Projects.Include(p => p.Manager).Where(p => p.Id == id).FirstAsync();
+
                 if (project == null)
                 {
                     return BadRequest(new { message = $"No project found with the id value : {id}" });
                 }
-                return Ok(project);
+                return Ok(project.ToProjectDto());
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new
+                {
+                    message = $"There was an error when fetching the project : {ex.Message}"
+                });
+            }
+        }
+
+        [HttpGet("management")]
+        public async Task<IActionResult> GetProjectWithTasksAndUsers(int id)
+        {
+            try
+            {
+                var project = await _context.Projects.Include(p => p.Manager).Where(p => p.Id == id).FirstAsync();
+
+                if (project == null)
+                {
+                    return BadRequest(new { message = $"No project found with the id value : {id}" });
+                }
+
+                var projectUsers = _context.UserProjects.Where(up => up.ProjectId == id).Select(up => new UserProjectDto
+                {
+                    id = project.Id,
+                    User = up.User.ToUserDto(),
+                    ProjectId = up.ProjectId
+                }).ToList(); // get the map of user id and project id N-N
+
+                var users = new List<UserDto>(); // list to get all the user info of the selected project id
+
+                for (var i = 0; i < projectUsers.Count; i++)
+                {
+                    var userId = projectUsers[i].User.Id;
+                    users.Add(_context.Users.Where(u => u.Id == userId).First().ToUserDto()); // insert userDto value to the users list
+                }
+
+                var tasks = _context.Tasks
+                .Where(d => d.ProjectId == id)
+                .Include(t => t.AssignedUser)
+                .Include(t => t.TaskLabel)
+                .AsNoTracking()
+                .ToList(); // get all the tasks for the selected project id
+
+                var taskDtos = tasks.Select(t => t.ToTaskDto()); // turn the tasks into dto values 
+
+                return Ok(new
+                {
+                    project,
+                    users,
+                    taskDtos
+                });
             }
             catch (Exception ex)
             {

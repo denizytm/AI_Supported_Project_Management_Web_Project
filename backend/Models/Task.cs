@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -25,26 +26,56 @@ public enum TaskLevel
     Expert
 }
 
+public enum TaskType {
+    Resarch,
+    Development,
+    Bugfix,
+    Testing
+}
+
 namespace backend.Models
 {
     public class Task
     {
         public int Id { get; set; }
-        public string Title { get; set; } = String.Empty;
-        public string Description { get; set; } = String.Empty;
+        public string TaskName { get; set; } = String.Empty;
+        public TaskType Type { get; set; } 
+        public string TypeName {
+            get => Type.ToString();
+            set => Type = Enum.Parse<TaskType>(value);
+        }
+        public int TaskLabelId { get; set; }
+        public TaskLabel TaskLabel { get; set; } = null!;
         public DateTime DueDate { get; set; }
         public TaskLevel TaskLevel { get; set; }
+        [NotMapped]
+        public string TaskLevelName
+        {
+            get => TaskLevel.ToString();
+            set => TaskLevel = Enum.Parse<TaskLevel>(value);
+        }
         public Priority Priority { get; set; }
+        [NotMapped]
+        public string PriorityName
+        {
+            get => Priority.ToString();
+            set => Priority = Enum.Parse<Priority>(value);
+        }
         public TaskStatus Status { get; set; }
+        [NotMapped]
+        public string StatusName
+        {
+            get => Status.ToString();
+            set => Status = Enum.Parse<TaskStatus>(value);
+        }
         public Double EstimatedHours { get; set; }
-
+        public int Progress { get; set; }
+        public string Note { get; set; } = String.Empty;
         public int ProjectId { get; set; }
         public Project Project { get; set; } = null!;
-
         public int? TaskId { get; set; }
         public Task? DependingTask { get; set; } = null!;
-
-        public int? AssignedUserId { get; set; }
-        public List<User> AssignedUser { get; set; } = null!;
+        public int UserId { get; set; }
+        public User AssignedUser { get; set; } = null!;
     }
 }

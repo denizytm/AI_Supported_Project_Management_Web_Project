@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using backend.Data;
+using backend.Dtos.Task;
+using backend.Mappers;
 using backend.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -25,8 +27,38 @@ namespace backend.Controllers
         {
             try
             {
-                var tasks = await _context.Tasks.ToListAsync();
-                return Ok(tasks);
+                var tasks = await _context.Tasks
+                .Include(t => t.AssignedUser)
+                .Include(t => t.TaskLabel)
+                .ToListAsync();
+
+                var taskDtos = tasks.Select(t => t.ToTaskDto());
+
+                return Ok(taskDtos);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new
+                {
+                    message = $"There was an error when fetching the tasks: {ex.Message}"
+                });
+            }
+        }
+
+        [HttpGet("get")]
+        public IActionResult GetTasksByProjectId(int projectId)
+        {
+            try
+            {
+                var tasks = _context.Tasks
+                .Where(d => d.ProjectId == projectId)
+                .Include(t => t.AssignedUser)
+                .Include(t => t.TaskLabel)
+                .ToList();
+
+                var taskDtos = tasks.Select(t => t.ToTaskDto());
+
+                return Ok(taskDtos);
             }
             catch (Exception ex)
             {
@@ -59,11 +91,11 @@ namespace backend.Controllers
         }
 
         [HttpPost("add")]
-        public async Task<IActionResult> CreateTask(backend.Models.Task task)
+        public async Task<IActionResult> CreateTask(CreateTaskDto createTaskDto)
         {
             try
             {
-                var result = await _context.Tasks.AddAsync(task);
+                var result = await _context.Tasks.AddAsync(createTaskDto.fromCreateDtoToTask());
 
                 if (result.Entity != null)
                 {

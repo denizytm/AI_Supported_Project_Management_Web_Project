@@ -1,6 +1,7 @@
 "use client";
 
 import axios from "axios";
+import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
 export default function RegisterPage() {
@@ -12,6 +13,12 @@ export default function RegisterPage() {
     confirm_password: "",
   });
 
+  const router = useRouter();
+
+  useEffect(() => {
+    if (localStorage.getItem("id")) router.push("/home");
+  });
+
   const handleRegister = async (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
     const response = await axios.post("http://localhost:5110/api/users/add", {
@@ -21,7 +28,11 @@ export default function RegisterPage() {
       password: formData.password,
     });
 
-    console.log(response.data);
+    if (response.data) {
+      localStorage.setItem("id", response.data.id);
+      window.location.reload();
+      router.push("/dashboard");
+    }
   };
 
   return (

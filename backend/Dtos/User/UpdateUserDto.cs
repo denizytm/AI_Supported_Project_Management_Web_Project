@@ -12,13 +12,14 @@ namespace backend.Dtos.User
     {
         public int Id { get; set; }
         public string Name { get; set; } = String.Empty;
+        public string LastName { get; set; } = String.Empty;
         public string Email { get; set; } = String.Empty;
         public string Password { get; set; } = String.Empty;
         public ProficiencyLevel ProficiencyLevel { get; set; }
         public Role Role { get; set; }
         public AvailabilityStatus Status { get; set; }
-        public List<Project>? Projects { get; set; }
+        public string TaskRoleName { get; set; } = String.Empty;
         public List<Technology>? Technologies { get; set; }
-        public List<backend.Models.Task>? AssignedTask { get; set; }
+        public List<backend.Models.Task>? Tasks { get; set; }
     }
 }

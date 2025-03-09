@@ -1,7 +1,7 @@
 "use client";
 
-import Navbar from "@/components/Navbar";
 import axios from "axios";
+import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
 export default function LoginPage() {
@@ -10,15 +10,24 @@ export default function LoginPage() {
     password: "",
   });
 
-  const handleLogin = async (e : React.MouseEvent<HTMLButtonElement>) => {
+  const router = useRouter();
+
+  useEffect(() => {
+    if (localStorage.getItem("id")) router.push("/home");
+  });
+
+  const handleLogin = async (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
-    const response = await axios.post('http://localhost:5110/api/users/login',{
-        email : formData.email,
-        password : formData.password
+    const response = await axios.post("http://localhost:5110/api/users/login", {
+      email: formData.email,
+      password: formData.password,
     });
 
-    console.log(response.data);
-
+    if (response.data) {
+      localStorage.setItem("id", response.data.id);
+      window.location.reload();
+      router.push("/dashboard");
+    }
   };
 
   return (
@@ -78,7 +87,7 @@ export default function LoginPage() {
             <button
               type="submit"
               className="w-full rounded-md bg-gray-700 p-2 text-white hover:bg-gray-900"
-              onClick={(e)=> handleLogin(e)}
+              onClick={(e) => handleLogin(e)}
             >
               Log In
             </button>

@@ -12,6 +12,14 @@ public enum Role
     Developer
 }
 
+public enum TaskRole {
+    Frontend,
+    Designer,
+    Backend,
+    AI,
+    Mobile
+}
+
 public enum ProficiencyLevel
 {
     Beginner,
@@ -56,8 +64,14 @@ namespace backend.Models
             get => Status.ToString();
             set => Status = Enum.Parse<AvailabilityStatus>(value);
         }
-        public List<Project>? Projects { get; set; }
-        public List<Technology>? Technologies { get; set; }
-        public List<Task>? AssignedTask { get; set; } 
+        public TaskRole? TaskRole { get; set; }
+        [NotMapped]
+        public string? TaskRoleName {
+            get => TaskRole.ToString();
+            set => TaskRole = Enum.Parse<TaskRole>(value);
+        } 
+        public List<UserProject> UserProjects { get; set; } = new List<UserProject>();
+        public List<Technology> Technologies { get; set; } = new List<Technology>();
+        public List<Task> Tasks { get; set; } = new List<Task>();
     }
 }

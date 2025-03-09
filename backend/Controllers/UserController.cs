@@ -88,14 +88,11 @@ namespace backend.Controllers
 
                 var userData = createUserDto.ToUser();
 
-                var result = await _userContext.CreateAsync(userData);
+                var newUserData = await _userContext.CreateAsync(userData);
 
-                if (result != null)
+                if (newUserData != null)
                 {
-                    return Ok(new
-                    {
-                        message = "User has been created."
-                    });
+                    return Ok(newUserData);
                 }
                 return BadRequest();
             }
