@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 using backend.Dtos.User;
 using backend.Models;
@@ -14,7 +15,12 @@ namespace backend.Dtos.Task
         public int TaskTypeId { get; set; }
         public TaskLabel TaskLabel { get; set; } = null!;
         public string TypeName { get; set; } = String.Empty;
+        [JsonIgnore]
+        public DateTime StartDate { get; set; }
+        public string StartDateString => this.StartDate.ToString("yyyy-MM-dd");
+        [JsonIgnore]
         public DateTime DueDate { get; set; }
+        public string DueDateString => this.DueDate.ToString("yyyy-MM-dd");
         public string TaskLevelName { get; set; } = String.Empty;
         public string PriorityName { get; set; } = String.Empty;
         public string StatusName { get; set; } = String.Empty;

@@ -109,11 +109,16 @@ namespace backend.Controllers
 
                 var taskDtos = tasks.Select(t => t.ToTaskDto()); // turn the tasks into dto values 
 
+                var minStartDate = taskDtos.Min(t => t.StartDateString);
+                var maxDueDate = taskDtos.Max(t => t.DueDateString);
+
                 return Ok(new
                 {
                     project,
                     users,
-                    taskDtos
+                    taskDtos,
+                    minStartDate,
+                    maxDueDate
                 });
             }
             catch (Exception ex)

@@ -12,7 +12,9 @@ export interface TaskType {
     status : string,
     statusName : string,
     progress : number,
-    dueDate : Date,
+    startDateString : string,
+    dueDateString : string,
     typeName : string,
     taskLabel : TaskLabelType,
+    taskId ?: number
 }

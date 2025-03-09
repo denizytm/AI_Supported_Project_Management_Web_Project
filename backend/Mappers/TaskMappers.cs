@@ -14,6 +14,7 @@ namespace backend.Mappers
                 AssignedUser = task.AssignedUser.ToUserDto(),
                 TaskLabel = task.TaskLabel,
                 DependingTask = task.DependingTask,
+                StartDate = task.StartDate,
                 DueDate = task.DueDate,
                 EstimatedHours = task.EstimatedHours,
                 Id = task.Id,
@@ -34,6 +35,7 @@ namespace backend.Mappers
         public static backend.Models.Task fromCreateDtoToTask(this CreateTaskDto createTaskDto){
             return new backend.Models.Task {
                 EstimatedHours = createTaskDto.EstimatedHours,
+                StartDate = createTaskDto.StartDate,
                 DueDate = createTaskDto.DueDate,
                 Note = createTaskDto.Note,
                 PriorityName = createTaskDto.PriorityName,

@@ -4,6 +4,7 @@ import {
   Selection,
   ColumnsDirective,
   ColumnDirective,
+  Toolbar,
 } from "@syncfusion/ej2-react-gantt";
 import { TaskType } from "@/types/taskType";
 import { useEffect, useState } from "react";
@@ -11,37 +12,47 @@ import { useEffect, useState } from "react";
 interface GanttChartProps {
   taskMap: Map<string, TaskType[]>;
   taskTypes: string[];
+  minStartDate: string;
+  maxDueDate: string;
 }
 
-export default function GanttChart({ taskTypes, taskMap }: GanttChartProps) {
+export default function GanttChart({
+  taskTypes,
+  taskMap,
+  maxDueDate,
+  minStartDate,
+}: GanttChartProps) {
   const [ready, setReady] = useState(false);
   const [data, setData] = useState<any[]>();
+  const [taskData, setTaskData] = useState([]);
+
+  useEffect(() => {
+    console.log(minStartDate);
+    console.log(maxDueDate);
+  }, []);
 
   useEffect(() => {
     if (taskTypes.length > 0 && taskMap.size > 0) {
       const formattedData = taskTypes
-        .map((type) => {
+        .map((type, index) => {
           const taskData = taskMap.get(type);
           if (taskData?.length) {
             return {
-              TaskID: 1,
+              TaskID: index + 1,
               TaskName: type,
-              StartDate: new Date("04/02/2025"),
-              EndDate: new Date("04/21/2025"),
-              subtasks: [
-                ...taskData.map((task, index) => ({
-                  TaskID: task.id,
-                  TaskName: task.taskName,
-                  StartDate: new Date(task.dueDate),
-                  Duration: 3,
-                  Progress: task.progress,
-                  Priority: task.priorityName,
-                  Assigned:
-                    task.assignedUser.name + " " + task.assignedUser.lastName,
-                  Status: task.statusName,
-                  Predecessor: "1",
-                })),
-              ],
+              subtasks: taskData.map((task) => ({
+                TaskID: task.id,
+                TaskName: task.taskName,
+                LabelName: task.taskLabel.label,
+                StartDate: new Date(task.startDateString),
+                EndDate: new Date(task.dueDateString),
+                Progress: task.progress,
+                Priority: task.priorityName,
+                Assigned:
+                  task.assignedUser.name + " " + task.assignedUser.lastName,
+                Status: task.statusName,
+                Predecessor: task?.taskId?.toString() || "", 
+              })),
             };
           }
           return null;
@@ -53,9 +64,14 @@ export default function GanttChart({ taskTypes, taskMap }: GanttChartProps) {
     }
   }, [taskMap, taskTypes]);
 
+  useEffect(() => {
+    console.log(data);
+  }, [data]);
+
   const taskFields: any = {
     id: "TaskID",
     name: "TaskName",
+    label: "LabelName",
     startDate: "StartDate",
     endDate: "EndDate",
     duration: "Duration",
@@ -67,49 +83,75 @@ export default function GanttChart({ taskTypes, taskMap }: GanttChartProps) {
     dependency: "Predecessor",
   };
 
-  if (!ready || !data) {
-    return <>Loading...</>;
-  }
+  const toolbar: string[] = [
+    "Add",
+    "Edit",
+    "Update",
+    "Delete",
+    "Cancel",
+    "ExpandAll",
+    "CollapseAll",
+    "Indent",
+    "Outdent",
+  ];
 
   const labelSettings: any = {
     leftLabel: "TaskName",
   };
-  const projectStartDate: Date = new Date("04/01/2025");
-  const projectEndDate: Date = new Date("01/01/2026");
+
+  if (!ready || !data) {
+    return <>Loading...</>;
+  }
 
   return (
     <div className="control-pane">
       <div className="control-section">
         <GanttComponent
-          id="Default"
+          id="Editing"
           dataSource={data}
           treeColumnIndex={1}
           taskFields={taskFields}
           labelSettings={labelSettings}
           height="800px"
-          projectStartDate={projectStartDate}
-          projectEndDate={projectEndDate}
+          toolbar={toolbar}
+          projectStartDate={
+            new Date(
+              new Date(minStartDate).setDate(
+                new Date(minStartDate).getDate() - 15
+              )
+            )
+          }
+          projectEndDate={
+            new Date(
+              new Date(maxDueDate).setDate(new Date(maxDueDate).getDate() + 15)
+            )
+          }
         >
           <ColumnsDirective>
-            <ColumnDirective field="TaskID" width="80"></ColumnDirective>
+            <ColumnDirective
+              field="TaskID"
+              width="80"
+              headerText=" "
+            ></ColumnDirective>
             <ColumnDirective
               field="TaskName"
               headerText="Task Name"
               width="250"
-              clipMode="EllipsisWithTooltip"
             ></ColumnDirective>
+            <ColumnDirective field="LabelName"></ColumnDirective>
             <ColumnDirective field="StartDate"></ColumnDirective>
+            <ColumnDirective field="EndDate"></ColumnDirective>
             <ColumnDirective field="Duration"></ColumnDirective>
             <ColumnDirective field="Assigned"></ColumnDirective>
             <ColumnDirective field="Progress"></ColumnDirective>
-            <ColumnDirective field="Status"></ColumnDirective>
+            <ColumnDirective field="Dependency"></ColumnDirective>
             <ColumnDirective
               field="Priority"
               headerText="Priority"
               width="120"
             ></ColumnDirective>
           </ColumnsDirective>
-          <Inject services={[Selection]} />
+          <Inject services={[Selection, Toolbar]} />
         </GanttComponent>
       </div>
     </div>

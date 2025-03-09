@@ -10,6 +10,7 @@ namespace backend.Dtos.Task
         public string TaskName { get; set; } = String.Empty;
         public string TypeName { get; set; } = String.Empty;
         public int TaskLabelId { get; set; }
+        public DateTime StartDate { get; set; }
         public DateTime DueDate { get; set; }
         public string TaskLevelName { get; set; } = String.Empty;
         public string PriorityName { get; set; } = String.Empty;

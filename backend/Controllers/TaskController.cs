@@ -52,13 +52,21 @@ namespace backend.Controllers
             {
                 var tasks = _context.Tasks
                 .Where(d => d.ProjectId == projectId)
-                .Include(t => t.AssignedUser)
                 .Include(t => t.TaskLabel)
+                .Include(t => t.AssignedUser)
+                .AsNoTracking()
                 .ToList();
 
                 var taskDtos = tasks.Select(t => t.ToTaskDto());
 
-                return Ok(taskDtos);
+                var minStartDate = taskDtos.Min(t => t.StartDate);
+                var maxDueDate = taskDtos.Max(t => t.DueDate);
+
+                return Ok(new {
+                    taskDtos,
+                    minStartDate,
+                    maxDueDate
+                });
             }
             catch (Exception ex)
             {

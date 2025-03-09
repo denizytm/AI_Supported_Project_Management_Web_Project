@@ -11,7 +11,6 @@ namespace backend.Data
         }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            // UserProject Many-to-Many ilişkiyi tanımla
             modelBuilder.Entity<UserProject>()
                 .HasKey(up => new { up.UserId, up.ProjectId });
 

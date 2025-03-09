@@ -38,6 +38,9 @@ export default function TaskManagement() {
   const [taskMap, setTaskMap] = useState(new Map<string, Array<TaskType>>());
   const [taskTypes, setTaskTypes] = useState<Array<string>>([]);
 
+  const [minStartDate,setMinStartDate] = useState("");
+  const [maxDueDate,setMaxDueDate] = useState("");
+
   const [ready1, setReady1] = useState(false);
   const [ready2, setReady2] = useState(false);
 
@@ -57,8 +60,12 @@ export default function TaskManagement() {
       if (response.status) {
         const data: Array<TaskType> = response.data.taskDtos;
 
+        console.log(response.data);
+
         setProjectData(response.data.project);
         setUsersData(response.data.users);
+        setMinStartDate(response.data.minStartDate);
+        setMaxDueDate(response.data.maxDueDate);
 
         let types: Array<string> = [];
 
@@ -140,7 +147,7 @@ export default function TaskManagement() {
               </h2>
             </div>
           </div>
-          {isHidden ? (<></>) : (<GanttChart {...{ taskMap, taskTypes }} />) }
+          {isHidden ? (<></>) : (<GanttChart {...{ taskMap, taskTypes, maxDueDate, minStartDate }} />) }
         </div>
       </div>
 

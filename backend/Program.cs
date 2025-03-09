@@ -1,3 +1,4 @@
+using System.Text.Json.Serialization;
 using backend.Data;
 using backend.Extensions;
 using backend.Interfaces;
@@ -10,7 +11,12 @@ var configuration = builder.Configuration; // get config for the appsettings.jso
 
 // adding the services
 builder.Services.ConfigureSignalR();
-builder.Services.AddControllers();
+builder.Services.AddControllers()
+    .AddJsonOptions(options =>
+    {
+        options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
+    });
+
 builder.Services.ConfigureCors();
 builder.Services.AddHttpClient();
 
