@@ -46,6 +46,7 @@ namespace backend.Models
         }
         public int TaskLabelId { get; set; }
         public TaskLabel TaskLabel { get; set; } = null!;
+        public DateTime StartDate { get; set; }
         public DateTime DueDate { get; set; }
         public TaskLevel TaskLevel { get; set; }
         [NotMapped]

@@ -66,7 +66,8 @@ namespace backend.Data
                 var taskFaker = new Faker<backend.Models.Task>()
                     .RuleFor(t => t.Type, f => f.PickRandom<TaskType>())
                     .RuleFor(t => t.TaskName, f => f.Lorem.Sentence())
-                    .RuleFor(t => t.DueDate, f => f.Date.Future())
+                    .RuleFor(t => t.StartDate, f => f.Date.Between(new DateTime(2025, 1, 1), new DateTime(2025, 12, 31)))
+                    .RuleFor(t => t.DueDate, (f, t) => f.Date.Between(t.StartDate.AddDays(1), t.StartDate.AddDays(30)))
                     .RuleFor(t => t.TaskLevel, f => f.PickRandom<TaskLevel>())
                     .RuleFor(t => t.Priority, f => f.PickRandom<Priority>())
                     .RuleFor(t => t.Status, f => f.PickRandom<TaskStatus>())
@@ -78,6 +79,31 @@ namespace backend.Data
 
                 var tasks = taskFaker.Generate(150);
                 context.Tasks.AddRange(tasks);
+                context.SaveChanges();
+
+                var projects = context.Projects.ToList();
+                var random = new Random();
+
+                foreach (var project in projects)
+                {
+                    var projectTasks = tasks.Where(t => t.ProjectId == project.Id).ToList();
+
+                    foreach (var task in projectTasks)
+                    {
+                        if (projectTasks.Count > 1 && random.NextDouble() < 0.7) 
+                        {
+                            var potentialPredecessors = projectTasks
+                                .Where(t => t.Id != task.Id && t.DueDate < task.StartDate && task.TypeName == t.TypeName) 
+                                .ToList();
+
+                            if (potentialPredecessors.Any())
+                            {
+                                task.TaskId = potentialPredecessors.OrderBy(_ => Guid.NewGuid()).First().Id;
+                            }
+                        }
+                    }
+                }
+
                 context.SaveChanges();
             }
 

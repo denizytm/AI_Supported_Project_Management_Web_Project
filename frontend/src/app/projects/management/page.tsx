@@ -11,6 +11,7 @@ import TasksTable from "@/components/projectManagement/TasksTable";
 import ProjectTeamList from "@/components/projectManagement/ProjectTeamList";
 import CreateTaskModal from "@/components/projectManagement/CreateTaskModal";
 import GanttChart from "@/components/projectManagement/GanttChart";
+import EditTaskModal from "@/components/projectManagement/EditTaskModal";
 
 export default function TaskManagement() {
   const [projectData, setProjectData] = useState<ProjectType>({
@@ -38,11 +39,17 @@ export default function TaskManagement() {
   const [taskMap, setTaskMap] = useState(new Map<string, Array<TaskType>>());
   const [taskTypes, setTaskTypes] = useState<Array<string>>([]);
 
+  const [minStartDate, setMinStartDate] = useState("");
+  const [maxDueDate, setMaxDueDate] = useState("");
+
   const [ready1, setReady1] = useState(false);
   const [ready2, setReady2] = useState(false);
 
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [isHidden,setIsHidden] = useState(false);
+  const [modalVisibleStatus, setModalVisibleStatus] = useState({
+    create: false,
+    edit: false,
+  });
+  const [isHidden, setIsHidden] = useState(false);
 
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -59,6 +66,8 @@ export default function TaskManagement() {
 
         setProjectData(response.data.project);
         setUsersData(response.data.users);
+        setMinStartDate(response.data.minStartDate);
+        setMaxDueDate(response.data.maxDueDate);
 
         let types: Array<string> = [];
 
@@ -88,20 +97,27 @@ export default function TaskManagement() {
     }
   }, [taskTypes]);
 
-  useEffect(() => {
-    console.log(usersData);
-  }, [usersData]);
-
   if (!ready2) return <div>Loading...</div>;
   return (
     <div className="p-6 bg-gray-100 dark:bg-gray-900 min-h-screen">
       <CreateTaskModal
         {...{
-          isModalOpen,
-          setIsModalOpen,
+          modalVisibleStatus,
+          setModalVisibleStatus,
           setIsHidden,
           usersData,
           projectId: projectData.id,
+          tasks,
+        }}
+      />
+      <EditTaskModal
+        {...{
+          modalVisibleStatus,
+          setModalVisibleStatus,
+          setIsHidden,
+          usersData,
+          projectId: projectData.id,
+          tasks,
         }}
       />
       <div className="flex justify-end items-center mb-4">
@@ -120,14 +136,26 @@ export default function TaskManagement() {
             <div className="w-1/6 flex gap-2">
               <button
                 onClick={() => {
-                  setIsModalOpen(true);
+                  setModalVisibleStatus((oD) => ({
+                    ...oD,
+                    create: true,
+                  }));
                   setIsHidden(true);
                 }}
                 className="p-2 bg-white dark:bg-gray-800 shadow-md rounded-lg hover:bg-gray-100"
               >
                 <Plus size={20} />
               </button>
-              <button className="p-2 bg-white dark:bg-gray-800 shadow-md rounded-lg hover:bg-gray-100">
+              <button
+                onClick={() => {
+                  setModalVisibleStatus((oD) => ({
+                    ...oD,
+                    edit: true,
+                  }));
+                  setIsHidden(true);
+                }}
+                className="p-2 bg-white dark:bg-gray-800 shadow-md rounded-lg hover:bg-gray-100"
+              >
                 <Pencil size={20} />
               </button>
               <button className="p-2 bg-white dark:bg-gray-800 shadow-md rounded-lg hover:bg-gray-100">
@@ -140,7 +168,11 @@ export default function TaskManagement() {
               </h2>
             </div>
           </div>
-          {isHidden ? (<></>) : (<GanttChart {...{ taskMap, taskTypes }} />) }
+          {isHidden ? (
+            <></>
+          ) : (
+            <GanttChart {...{ taskMap, taskTypes, maxDueDate, minStartDate }} />
+          )}
         </div>
       </div>
 

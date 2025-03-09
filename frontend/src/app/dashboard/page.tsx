@@ -1,6 +1,5 @@
 "use client";
 
-import GanttChart from "@/components/projectManagement/GanttChart"
 import { ProjectType } from "@/types/projectType";
 import { TaskType } from "@/types/taskType";
 import { UserType } from "@/types/userType";
@@ -86,7 +85,7 @@ export default function Dashboard (){
 
     return (
         <div className="w-11/12 mx-auto">
-            <GanttChart {...{taskMap,taskTypes}} />
+          Dashboard
         </div>
     )
 }

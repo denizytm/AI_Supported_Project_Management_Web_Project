@@ -3,24 +3,26 @@
 import { TaskType } from "@/types/taskType";
 import { UserType } from "@/types/userType";
 import axios from "axios";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 interface TaskModalProps {
   modalVisibleStatus: {
-    create : boolean,
-    edit : boolean
+    create: boolean;
+    edit: boolean;
   };
-  setModalVisibleStatus: React.Dispatch<React.SetStateAction<{
-    create : boolean,
-    edit : boolean
-  }>>;
+  setModalVisibleStatus: React.Dispatch<
+    React.SetStateAction<{
+      create: boolean;
+      edit: boolean;
+    }>
+  >;
   setIsHidden: React.Dispatch<React.SetStateAction<boolean>>;
   usersData: UserType[];
   projectId: string;
   tasks: TaskType[];
 }
 
-export default function CreateTaskModal({
+export default function EditTaskModal({
   modalVisibleStatus,
   setIsHidden,
   setModalVisibleStatus,
@@ -28,6 +30,8 @@ export default function CreateTaskModal({
   projectId,
   tasks,
 }: TaskModalProps) {
+  const [selectedTask, setSelectedTask] = useState<TaskType | null>();
+
   const [formData, setFormData] = useState({
     taskName: "",
     taskLabelId: 1,
@@ -42,13 +46,13 @@ export default function CreateTaskModal({
     note: "",
     projectId,
     taskId: null,
-    userId : null
+    userId: 0,
   });
 
   const onClose = () => {
-    setModalVisibleStatus(oD => ({
+    setModalVisibleStatus((oD) => ({
       ...oD,
-      create : false
+      edit: false,
     }));
     setIsHidden(false);
   };
@@ -72,12 +76,67 @@ export default function CreateTaskModal({
     onClose();
   };
 
-  if (!modalVisibleStatus.create) return null;
+  useEffect(() => {
+    console.log(selectedTask)
+    if (selectedTask) {
+      setFormData({
+        taskName: selectedTask.taskName,
+        dueDate: selectedTask.dueDateString,
+        estimatedHours: 0.0,
+        note: "",
+        priorityName: selectedTask.priorityName,
+        progress: selectedTask.progress,
+        startDate: selectedTask.startDateString,
+        statusName: selectedTask.statusName,
+        projectId,
+        taskId: null,
+        taskLevelName:
+          selectedTask.taskLevelName == "Beginner"
+            ? 1
+            : selectedTask.taskLevelName == "Expert"
+            ? 3
+            : 2,
+        typeName: selectedTask.typeName,
+        taskLabelId: 0,
+        userId: +selectedTask.assignedUser.id,
+      });
+    }
+  }, [selectedTask]);
+
+  if (!modalVisibleStatus.edit) return null;
 
   return (
     <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
       <div className="bg-white p-6 rounded-lg shadow-lg w-96">
-        <h2 className="text-xl font-bold mb-4">Add New Task</h2>
+        <h2 className="text-xl font-bold mb-4">Edit Tasks</h2>
+
+        <label htmlFor="statusName">Select Task to Edit</label>
+        <select
+          name="taskId"
+          className="w-full p-2 border rounded mb-2 overflow-scroll"
+          onChange={(e) => {
+            setSelectedTask(tasks.find((task) => task.id == +e.target.value));
+          }}
+        >
+          <option value="">None</option>
+          {tasks.map((task) => (
+            <option
+              className={
+                task.taskLevelName == "Beginner"
+                  ? "text-green-500"
+                  : task.taskLevelName == "Intermediate"
+                  ? "text-yellow-500"
+                  : "text-red-500"
+              }
+              value={task.id}
+            >
+              {task.taskName} ({task.taskLevelName}) ({task.typeName} /{" "}
+              {task.taskLabel.label}) (
+              {task.startDateString + "  " + task.dueDateString})
+            </option>
+          ))}
+        </select>
+
         <label htmlFor="name">Task Name</label>
         <input
           name="taskName"
@@ -85,6 +144,7 @@ export default function CreateTaskModal({
           placeholder="Task Name"
           className="w-full p-2 border rounded mb-2"
           onChange={handleChange}
+          value={formData.taskName}
         />
 
         <label htmlFor="typeName">Task Type</label>
@@ -92,6 +152,7 @@ export default function CreateTaskModal({
           name="typeName"
           className="w-full p-2 border rounded mb-2"
           onChange={handleChange}
+          value={formData.typeName}
         >
           <option value="Resarch">Resarch</option>
           <option value="Development">Development</option>
@@ -104,6 +165,7 @@ export default function CreateTaskModal({
           name="taskLabelId"
           className="w-full p-2 border rounded mb-2"
           onChange={handleChange}
+          value={formData.taskLabelId}
         >
           <option value={1}>design</option>
           <option value={2}>frontend</option>
@@ -116,6 +178,7 @@ export default function CreateTaskModal({
           name="startDate"
           type="date"
           className="w-full p-2 border rounded mb-2"
+          value={formData.startDate}
           onChange={handleChange}
         />
 
@@ -124,6 +187,7 @@ export default function CreateTaskModal({
           name="dueDate"
           type="date"
           className="w-full p-2 border rounded mb-2"
+          value={formData.dueDate}
           onChange={handleChange}
         />
 
@@ -131,6 +195,7 @@ export default function CreateTaskModal({
         <select
           name="priorityName"
           className="w-full p-2 border rounded mb-2"
+          value={formData.priorityName}
           onChange={handleChange}
         >
           <option value="Low">Low</option>
@@ -142,6 +207,7 @@ export default function CreateTaskModal({
         <select
           name="taskLevelName"
           className="w-full p-2 border rounded mb-2"
+          value={formData.taskLevelName}
           onChange={handleChange}
         >
           <option value={1}>Beginner</option>
@@ -153,6 +219,7 @@ export default function CreateTaskModal({
         <select
           name="userId"
           className="w-full p-2 border rounded mb-2"
+          value={formData.userId}
           onChange={handleChange}
         >
           <option value="">Select User</option>
@@ -167,6 +234,7 @@ export default function CreateTaskModal({
         <select
           name="statusName"
           className="w-full p-2 border rounded mb-2"
+          value={formData.statusName}
           onChange={handleChange}
         >
           <option value="ToDo">To do</option>
@@ -178,6 +246,7 @@ export default function CreateTaskModal({
         <select
           name="taskId"
           className="w-full p-2 border rounded mb-2 overflow-scroll"
+          value={formData.statusName}
           onChange={handleChange}
         >
           <option value="">None</option>
@@ -186,9 +255,9 @@ export default function CreateTaskModal({
                 .filter((task) => task.taskLevelName == "Beginner")
                 .map((task) => (
                   <option className="text-green-500" value={task.id}>
-                    {task.taskName} ({task.taskLevelName}) 
-                    ({task.typeName} / {task.taskLabel.label})
-                    ({task.startDateString + "-" + task.dueDateString})
+                    {task.taskName} ({task.taskLevelName}) ({task.typeName} /{" "}
+                    {task.taskLabel.label}) (
+                    {task.startDateString + "-" + task.dueDateString})
                   </option>
                 ))
             : formData.taskLevelName == 2
@@ -203,9 +272,9 @@ export default function CreateTaskModal({
                     }
                     value={task.id}
                   >
-                    {task.taskName} ({task.taskLevelName}) 
-                    ({task.typeName} / {task.taskLabel.label})
-                    ({task.startDateString + "-" + task.dueDateString})
+                    {task.taskName} ({task.taskLevelName}) ({task.typeName} /{" "}
+                    {task.taskLabel.label}) (
+                    {task.startDateString + "-" + task.dueDateString})
                   </option>
                 ))
             : tasks.map((task) => (
@@ -219,9 +288,9 @@ export default function CreateTaskModal({
                   }
                   value={task.id}
                 >
-                  {task.taskName} ({task.taskLevelName}) 
-                  ({task.typeName} / {task.taskLabel.label})
-                  ({task.startDateString + "  " + task.dueDateString})
+                  {task.taskName} ({task.taskLevelName}) ({task.typeName} /{" "}
+                  {task.taskLabel.label}) (
+                  {task.startDateString + "  " + task.dueDateString})
                 </option>
               ))}
         </select>

@@ -13,7 +13,7 @@ export default function ProjectTeamList({
   usersData,
 }: ProjectTeamListProps) {
   return (
-    <div className="bg-white dark:bg-gray-800 p-4 shadow-md rounded-md">
+    <div className="bg-white dark:bg-gray-800 p-4 shadow-md rounded-md h-96 overflow-y-scroll">
       <h3 className="font-bold text-gray-700 dark:text-white mb-2">
         Project Team
       </h3>
@@ -24,7 +24,7 @@ export default function ProjectTeamList({
             <th className="p-2">Role</th>
           </tr>
         </thead>
-        <tbody>
+        <tbody >
           <tr className="border-b">
             <td className="p-2">
               {projectData?.manager.name} {projectData?.manager.lastName}
