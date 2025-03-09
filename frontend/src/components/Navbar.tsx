@@ -1,5 +1,6 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 import {
   FaRegSun,
@@ -14,6 +15,8 @@ export default function Navbar() {
   const [darkMode, setDarkMode] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
 
+  const router = useRouter();
+
   const handleLogOut = () => {
     localStorage.removeItem("id");
     window.location.reload();
@@ -22,7 +25,9 @@ export default function Navbar() {
   return (
     <nav className="fixed w-full flex items-center justify-between bg-gray-200 dark:bg-gray-800 p-4 py-6" style={{zIndex : "99999999999999999999"}}>
       <div className="flex items-center gap-4">
+        <button onClick={()=>router.push("/dashboard")} >
         <h1 className="text-xl font-bold dark:text-white">ERP</h1>
+        </button>
         <div
           className="flex items-center gap-2 cursor-pointer"
           onClick={() => setDarkMode(!darkMode)}

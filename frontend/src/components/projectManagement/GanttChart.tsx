@@ -40,19 +40,24 @@ export default function GanttChart({
             return {
               TaskID: index + 1,
               TaskName: type,
-              subtasks: taskData.map((task) => ({
-                TaskID: task.id,
-                TaskName: task.taskName,
-                LabelName: task.taskLabel.label,
-                StartDate: new Date(task.startDateString),
-                EndDate: new Date(task.dueDateString),
-                Progress: task.progress,
-                Priority: task.priorityName,
-                Assigned:
-                  task.assignedUser.name + " " + task.assignedUser.lastName,
-                Status: task.statusName,
-                Predecessor: task?.taskId?.toString() || "", 
-              })),
+              subtasks: taskData.map((task) => {
+                console.log(task.taskName,task.startDateString,task.dueDateString)
+                return (
+                  {
+                    TaskID: task.id,
+                    TaskName: task.taskName,
+                    LabelName: task.taskLabel.label,
+                    StartDate: new Date(task.startDateString),
+                    EndDate: new Date(task.dueDateString),
+                    Progress: task.progress,
+                    Priority: task.priorityName,
+                    Assigned:
+                      task.assignedUser.name + " " + task.assignedUser.lastName,
+                    Status: task.statusName,
+                    Predecessor: task?.taskId?.toString() || "", 
+                  }
+                )
+              }),
             };
           }
           return null;
@@ -68,6 +73,19 @@ export default function GanttChart({
     console.log(data);
   }, [data]);
 
+  /* let dataSource = [
+    {
+        TaskID: 1,
+        TaskName: 'Project Initiation',
+        StartDate: new Date('04/02/2019'),
+        EndDate: new Date('05/21/2019'),
+        subtasks: [
+            { TaskID: 2, TaskName: 'Identify Site location', StartDate: new Date('04/02/2019'), Duration: 4, Progress: 50 },
+            { TaskID: 3, TaskName: 'Perform Soil test', StartDate: new Date('04/29/2019'), Duration: 6, Progress: 50, Predecessor: 2 }
+        ]
+    },
+  ]; */
+
   const taskFields: any = {
     id: "TaskID",
     name: "TaskName",
@@ -80,7 +98,7 @@ export default function GanttChart({
     priority: "Priority",
     status: "Status",
     assigned: "Assigned",
-    dependency: "Predecessor",
+    dependency: "Predecessor", 
   };
 
   const toolbar: string[] = [
@@ -114,18 +132,7 @@ export default function GanttChart({
           labelSettings={labelSettings}
           height="800px"
           toolbar={toolbar}
-          projectStartDate={
-            new Date(
-              new Date(minStartDate).setDate(
-                new Date(minStartDate).getDate() - 15
-              )
-            )
-          }
-          projectEndDate={
-            new Date(
-              new Date(maxDueDate).setDate(new Date(maxDueDate).getDate() + 15)
-            )
-          }
+       
         >
           <ColumnsDirective>
             <ColumnDirective
@@ -144,7 +151,6 @@ export default function GanttChart({
             <ColumnDirective field="Duration"></ColumnDirective>
             <ColumnDirective field="Assigned"></ColumnDirective>
             <ColumnDirective field="Progress"></ColumnDirective>
-            <ColumnDirective field="Dependency"></ColumnDirective>
             <ColumnDirective
               field="Priority"
               headerText="Priority"

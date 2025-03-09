@@ -4,7 +4,6 @@ import { UserType } from "./userType";
 export interface TaskType {
     id : number,
     taskName : string,
-    taskLevel : string,
     taskLevelName : string,
     priority : string,
     priorityName : string,
