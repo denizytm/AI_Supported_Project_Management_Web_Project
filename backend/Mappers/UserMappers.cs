@@ -29,30 +29,27 @@ namespace backend.Mappers
             return new User
             {
                 Email = createUserDto.Email,
-                Id = createUserDto.Id,
                 Name = createUserDto.Name,
                 LastName = createUserDto.LastName,
                 Password = createUserDto.Password,
-                ProficiencyLevel = createUserDto.ProficiencyLevel,
-                Role = createUserDto.Role,
-                Status = createUserDto.Status,
+                ProficiencyLevelName = createUserDto.ProficiencyLevelName,
+                RoleName = createUserDto.RoleName,
+                StatusName = createUserDto.StatusName,
             };
         }
 
         public static User UpdateDtoToUser(this UpdateUserDto updateUserDto, User userData)
         {
-            return new User
-            {
-                Email = updateUserDto.Email,
-                Id = updateUserDto.Id,
-                Name = updateUserDto.Name,
-                LastName = updateUserDto.LastName,
-                Password = updateUserDto.Password,
-                ProficiencyLevel = updateUserDto.ProficiencyLevel,
-                Role = updateUserDto.Role,
-                TaskRoleName = updateUserDto.TaskRoleName,
-                Status = updateUserDto.Status,
-            };
+            userData.Email = string.IsNullOrWhiteSpace(updateUserDto.Email) ? userData.Email : updateUserDto.Email;
+            userData.Name = string.IsNullOrWhiteSpace(updateUserDto.Name) ? userData.Name : updateUserDto.Name;
+            userData.LastName = string.IsNullOrWhiteSpace(updateUserDto.LastName) ? userData.LastName : updateUserDto.LastName;
+            userData.Password = string.IsNullOrWhiteSpace(updateUserDto.Password) ? userData.Password : updateUserDto.Password;
+            userData.ProficiencyLevelName = string.IsNullOrWhiteSpace(updateUserDto.ProficiencyLevelName) ? userData.ProficiencyLevelName : updateUserDto.ProficiencyLevelName;
+            userData.RoleName = string.IsNullOrWhiteSpace(updateUserDto.RoleName) ? userData.RoleName : updateUserDto.RoleName;
+            userData.TaskRoleName = string.IsNullOrWhiteSpace(updateUserDto.TaskRoleName) ? userData.TaskRoleName : updateUserDto.TaskRoleName;
+            userData.StatusName = string.IsNullOrWhiteSpace(updateUserDto.StatusName) ? userData.StatusName : updateUserDto.StatusName;
+
+            return userData;
         }
 
 

@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using backend.Data;
 using backend.Dtos.Task;
+using backend.Interfaces;
 using backend.Mappers;
 using backend.Models;
 using Microsoft.AspNetCore.Mvc;
@@ -16,10 +17,12 @@ namespace backend.Controllers
     public class TaskController : ControllerBase
     {
         private readonly ApplicationDbContext _context;
+        private readonly ITaskRepository _taskRepository;
 
-        public TaskController(ApplicationDbContext context)
+        public TaskController(ApplicationDbContext context, ITaskRepository taskRepository)
         {
             _context = context;
+            _taskRepository = taskRepository;
         }
 
         [HttpGet("all")]
@@ -125,7 +128,7 @@ namespace backend.Controllers
         }
 
         [HttpPut("update")]
-        public async Task<IActionResult> UpdateTask(backend.Models.Task taskData, int id)
+        public async Task<IActionResult> UpdateTask(UpdateTaskDto updateTaskDto, int id)
         {
             try
             {
@@ -135,13 +138,8 @@ namespace backend.Controllers
                     return BadRequest(new { message = $"No task found with the id value : {id}" });
                 }
 
-                /* task.Name = taskData?.Name ?? task.Name;
-                task.Description = taskData?.Description ?? task.Description;
-                task.Status = taskData?.Status ?? task.Status;
-                task.AssignedTo = taskData?.AssignedTo ?? task.AssignedTo;
-                task.DueDate = taskData?.DueDate ?? task.DueDate; */
-
-                await _context.SaveChangesAsync();
+                await _taskRepository.UpdateAsync(id,updateTaskDto);
+                
                 return Ok("The task has been updated");
             }
             catch (Exception ex)
