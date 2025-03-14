@@ -13,7 +13,7 @@ namespace backend.Repository
     {
         public ApplicationDbContext _context;
 
-        TaskRepository(ApplicationDbContext context)
+        public TaskRepository(ApplicationDbContext context)
         {
             _context = context;
         }
@@ -58,6 +58,20 @@ namespace backend.Repository
             }
 
             var updatedTaskData = updateTaskDto.fromUpdateDtoToTask();
+
+            taskData.EstimatedHours = updateTaskDto.EstimatedHours;
+            taskData.StartDate = updateTaskDto.StartDate;
+            taskData.DueDate = updateTaskDto.DueDate;
+            taskData.Note = updateTaskDto.Note;
+            taskData.PriorityName = updateTaskDto.PriorityName;
+            taskData.Progress = updateTaskDto.Progress;
+            taskData.TaskId = updateTaskDto.TaskId;
+            taskData.StatusName = updateTaskDto.StatusName;
+            taskData.TaskLevelName = updateTaskDto.TaskLevelName;
+            taskData.TypeName = updateTaskDto.TypeName;
+            taskData.UserId = updateTaskDto.UserId;
+            taskData.TaskLabelId = updateTaskDto.TaskLabelId;
+            taskData.TaskName = updateTaskDto.TaskName;
 
             await _context.SaveChangesAsync();
 

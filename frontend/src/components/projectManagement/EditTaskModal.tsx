@@ -64,20 +64,24 @@ export default function EditTaskModal({
   };
 
   const handleSubmit = async () => {
-    const result = await axios.post("http://localhost:5110/api/tasks/add", {
-      ...formData,
-      taskLevelName:
-        formData.taskLevelName == 1
-          ? "Beginner"
-          : formData.taskLevelName == 2
-          ? "Intermediate"
-          : "Expert",
-    });
-    onClose();
+    if (selectedTask) {
+      const result = await axios.put(
+        `http://localhost:5110/api/tasks/update?id=${selectedTask.id}`,
+        {
+          ...formData,
+          taskLevelName:
+            formData.taskLevelName == 1
+              ? "Beginner"
+              : formData.taskLevelName == 2
+              ? "Intermediate"
+              : "Expert",
+        }
+      );
+      onClose();
+    }
   };
 
   useEffect(() => {
-    console.log(selectedTask)
     if (selectedTask) {
       setFormData({
         taskName: selectedTask.taskName,
@@ -97,7 +101,7 @@ export default function EditTaskModal({
             ? 3
             : 2,
         typeName: selectedTask.typeName,
-        taskLabelId: 0,
+        taskLabelId: selectedTask.taskLabel.id,
         userId: +selectedTask.assignedUser.id,
       });
     }
@@ -180,6 +184,8 @@ export default function EditTaskModal({
           className="w-full p-2 border rounded mb-2"
           value={formData.startDate}
           onChange={handleChange}
+          min="2020-01-01"
+          max="2030-12-31"
         />
 
         <label htmlFor="dueDate">Due Date</label>
@@ -189,6 +195,8 @@ export default function EditTaskModal({
           className="w-full p-2 border rounded mb-2"
           value={formData.dueDate}
           onChange={handleChange}
+          min="2020-01-01"
+          max="2030-12-31"
         />
 
         <label htmlFor="priorityName">Priority</label>
