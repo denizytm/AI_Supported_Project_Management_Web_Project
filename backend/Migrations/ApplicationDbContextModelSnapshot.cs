@@ -179,9 +179,6 @@ namespace backend.Migrations
                     b.Property<DateTime>("DueDate")
                         .HasColumnType("datetime2");
 
-                    b.Property<double>("EstimatedHours")
-                        .HasColumnType("float");
-
                     b.Property<string>("Note")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");

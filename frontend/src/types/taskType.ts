@@ -16,5 +16,7 @@ export interface TaskType {
     startDateString : string,
     dueDateString : string,
     taskLabel : TaskLabelType,
-    taskId ?: number
+    taskId ?: number,
+    taskTypeId : number,
+    userId : number
 }

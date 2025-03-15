@@ -1,6 +1,8 @@
 "use client";
 
+import { TaskLabelType } from "@/types/taskLabelType";
 import { TaskType } from "@/types/taskType";
+import { TasktypeType } from "@/types/tasktypeType";
 import { UserType } from "@/types/userType";
 import axios from "axios";
 import { useEffect, useState } from "react";
@@ -33,21 +35,59 @@ export default function EditTaskModal({
   const [selectedTask, setSelectedTask] = useState<TaskType | null>();
 
   const [formData, setFormData] = useState({
-    taskName: "",
-    taskType : "",
+    description: "",
+    taskTypeId: 1,
     taskLabelId: 1,
     startDate: "",
     dueDate: "",
-    taskLevelName: 1,
+    taskLevelName: "Beginner",
     priorityName: "Low",
     statusName: "ToDo",
-    estimatedHours: 0.0,
     progress: 0,
     note: "",
     projectId,
     taskId: null,
     userId: 0,
   });
+
+  const [ready, setReady] = useState(false);
+  const [taskTypes, setTaskTypes] = useState<TasktypeType[]>([]);
+  const [taskLabels, setTaskLabels] = useState<TaskLabelType[]>([]);
+
+  useEffect(() => {
+    (async () => {
+      const response = await axios.get(
+        "http://localhost:5110/api/tasks/formData"
+      );
+
+      if (response.status) {
+        setTaskLabels(response.data.taskLabels);
+        setTaskTypes(response.data.taskTypes);
+        setReady(true);
+      }
+    })();
+  }, []);
+
+  useEffect(() => {
+    if (selectedTask) {
+      console.log(selectedTask);
+      setFormData({
+        description: selectedTask.description,
+        dueDate: selectedTask.dueDateString,
+        note: "",
+        priorityName: selectedTask.priorityName,
+        progress: selectedTask.progress,
+        startDate: selectedTask.startDateString,
+        statusName: selectedTask.statusName,
+        projectId,
+        taskId: null,
+        taskLabelId: selectedTask.taskLabel.id,
+        taskLevelName: selectedTask.taskLevelName,
+        userId: selectedTask.userId,
+        taskTypeId: selectedTask.taskTypeId,
+      });
+    }
+  }, [selectedTask]);
 
   const onClose = () => {
     setModalVisibleStatus((oD) => ({
@@ -67,47 +107,18 @@ export default function EditTaskModal({
     if (selectedTask) {
       const result = await axios.put(
         `http://localhost:5110/api/tasks/update?id=${selectedTask.id}`,
-        {
-          ...formData,
-          taskLevelName:
-            formData.taskLevelName == 1
-              ? "Beginner"
-              : formData.taskLevelName == 2
-              ? "Intermediate"
-              : "Expert",
-        }
+        formData
       );
       onClose();
     }
   };
 
   useEffect(() => {
-    if (selectedTask) {
-      setFormData({
-        taskName: selectedTask.taskType.name,
-        dueDate: selectedTask.dueDateString,
-        estimatedHours: 0.0,
-        note: "",
-        priorityName: selectedTask.priorityName,
-        progress: selectedTask.progress,
-        startDate: selectedTask.startDateString,
-        statusName: selectedTask.statusName,
-        projectId,
-        taskId: null,
-        taskLevelName:
-          selectedTask.taskLevelName == "Beginner"
-            ? 1
-            : selectedTask.taskLevelName == "Expert"
-            ? 3
-            : 2,
-       
-        taskLabelId: selectedTask.taskLabel.id,
-        userId: +selectedTask.assignedUser.id,
-        taskType : selectedTask.taskType.name
-      });
-    }
-  }, [selectedTask]);
+    console.log(usersData);
+    console.log(tasks);
+  }, [usersData]);
 
+  if (!ready) return <div>Loading...</div>;
   if (!modalVisibleStatus.edit) return null;
 
   return (
@@ -135,7 +146,7 @@ export default function EditTaskModal({
               }
               value={task.id}
             >
-              {task.taskType.name} ({task.taskLevelName}) ({task.taskType.name} /{" "}
+              {task.description} ({task.taskLevelName}) ({task.taskType.name} /{" "}
               {task.taskLabel.label}) (
               {task.startDateString + "  " + task.dueDateString})
             </option>
@@ -144,25 +155,24 @@ export default function EditTaskModal({
 
         <label htmlFor="name">Task Name</label>
         <input
-          name="taskName"
+          name="description"
           type="text"
           placeholder="Task Name"
           className="w-full p-2 border rounded mb-2"
           onChange={handleChange}
-          value={formData.taskType}
+          value={formData.description}
         />
 
         <label htmlFor="typeName">Task Type</label>
         <select
-          name="typeName"
+          name="taskTypeId"
           className="w-full p-2 border rounded mb-2"
           onChange={handleChange}
-          value={formData.taskType}
+          value={formData.taskTypeId}
         >
-          <option value="Resarch">Resarch</option>
-          <option value="Development">Development</option>
-          <option value="Bugfix">Bug Fix</option>
-          <option value="Testing">Testing</option>
+          {taskTypes.map((type) => (
+            <option value={type.id}>{type.name}</option>
+          ))}
         </select>
 
         <label htmlFor="taksLabelId">Task Label</label>
@@ -172,10 +182,9 @@ export default function EditTaskModal({
           onChange={handleChange}
           value={formData.taskLabelId}
         >
-          <option value={1}>design</option>
-          <option value={2}>frontend</option>
-          <option value={3}>backend</option>
-          <option value={4}>database</option>
+          {taskLabels.map((label) => (
+            <option value={label.id}>{label.label}</option>
+          ))}
         </select>
 
         <label htmlFor="startDate">Start Date</label>
@@ -219,9 +228,9 @@ export default function EditTaskModal({
           value={formData.taskLevelName}
           onChange={handleChange}
         >
-          <option value={1}>Beginner</option>
-          <option value={2}>Intermediate</option>
-          <option value={3}>Expert</option>
+          <option value="Beginner">Beginner</option>
+          <option value="Intermediate">Intermediate</option>
+          <option value="Expert">Expert</option>
         </select>
 
         <label htmlFor="userId">Assign to</label>
@@ -232,11 +241,40 @@ export default function EditTaskModal({
           onChange={handleChange}
         >
           <option value="">Select User</option>
-          {usersData.map((user) => (
-            <option key={user.id} value={user.id}>
-              {user.name} {user.lastName}
-            </option>
-          ))}
+          {formData.taskLevelName == "Beginner"
+            ? usersData.map((user) => (
+                <option
+                  className={
+                    user.proficiencyLevelName == "Beginner"
+                      ? "text-green-500"
+                      : user.proficiencyLevelName == "Intermediate"
+                      ? "text-yellow-500"
+                      : "text-red-500"
+                  }
+                  value={user.id}
+                >
+                  {user.name} {user.lastName} ({user.proficiencyLevelName})
+                </option>
+              ))
+            : formData.taskLevelName == "Intermediate"
+            ? usersData
+                .filter((user) => user.proficiencyLevelName != "Beginner")
+                .map((user) => (
+                  <option className={
+                    user.proficiencyLevelName == "Intermediate"
+                      ? "text-yellow-500"
+                      : "text-red-500"
+                  } value={user.id}>
+                    {user.name} {user.lastName} ({user.proficiencyLevelName})
+                  </option>
+                ))
+            : usersData
+                .filter((user) => user.proficiencyLevelName == "Expert")
+                .map((user) => (
+                  <option className="text-red-500" value={user.id}>
+                    {user.name} {user.lastName} ({user.proficiencyLevelName})
+                  </option>
+                ))}
         </select>
 
         <label htmlFor="statusName">Status</label>
@@ -259,17 +297,17 @@ export default function EditTaskModal({
           onChange={handleChange}
         >
           <option value="">None</option>
-          {formData.taskLevelName == 1
+          {formData.taskLevelName == "Beginner"
             ? tasks
                 .filter((task) => task.taskLevelName == "Beginner")
                 .map((task) => (
                   <option className="text-green-500" value={task.id}>
-                    {task.taskType.name} ({task.taskLevelName}) ({task.taskType.name} /{" "}
-                    {task.taskLabel.label}) (
+                    {task.taskType.name} ({task.taskLevelName}) (
+                    {task.taskType.name} / {task.taskLabel.label}) (
                     {task.startDateString + "-" + task.dueDateString})
                   </option>
                 ))
-            : formData.taskLevelName == 2
+            : formData.taskLevelName == "Intermediate"
             ? tasks
                 .filter((task) => task.taskLevelName != "Expert")
                 .map((task) => (
@@ -281,8 +319,8 @@ export default function EditTaskModal({
                     }
                     value={task.id}
                   >
-                    {task.taskType.name} ({task.taskLevelName}) ({task.taskType.name} /{" "}
-                    {task.taskLabel.label}) (
+                    {task.taskType.name} ({task.taskLevelName}) (
+                    {task.taskType.name} / {task.taskLabel.label}) (
                     {task.startDateString + "-" + task.dueDateString})
                   </option>
                 ))
@@ -297,8 +335,8 @@ export default function EditTaskModal({
                   }
                   value={task.id}
                 >
-                  {task.taskType.name} ({task.taskLevelName}) ({task.taskType.name} /{" "}
-                  {task.taskLabel.label}) (
+                  {task.taskType.name} ({task.taskLevelName}) (
+                  {task.taskType.name} / {task.taskLabel.label}) (
                   {task.startDateString + "  " + task.dueDateString})
                 </option>
               ))}

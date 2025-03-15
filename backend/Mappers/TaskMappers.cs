@@ -17,7 +17,6 @@ namespace backend.Mappers
                 DependingTask = task.DependingTask,
                 StartDate = task.StartDate,
                 DueDate = task.DueDate,
-                EstimatedHours = task.EstimatedHours,
                 Id = task.Id,
                 Note = task.Note,
                 PriorityName = task.PriorityName,
@@ -36,7 +35,6 @@ namespace backend.Mappers
         public static backend.Models.Task fromCreateDtoToTask(this CreateTaskDto createTaskDto){
             return new backend.Models.Task {
                 Description = createTaskDto.Description,
-                EstimatedHours = createTaskDto.EstimatedHours,
                 StartDate = createTaskDto.StartDate,
                 DueDate = createTaskDto.DueDate,
                 Note = createTaskDto.Note,
@@ -56,7 +54,6 @@ namespace backend.Mappers
 
             return new Models.Task {
                 Description = updateTaskDto.Description,
-                EstimatedHours = updateTaskDto.EstimatedHours,
                 StartDate = updateTaskDto.StartDate,
                 DueDate = updateTaskDto.DueDate,
                 Note = updateTaskDto.Note,
@@ -67,7 +64,7 @@ namespace backend.Mappers
                 TaskLevelName = updateTaskDto.TaskLevelName,
                 UserId = updateTaskDto.UserId,
                 TaskLabelId = updateTaskDto.TaskLabelId,
-                TaskType = updateTaskDto.TaskType,
+                TaskTypeId = updateTaskDto.TaskTypeId
             };
         }
 

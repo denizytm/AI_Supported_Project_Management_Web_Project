@@ -62,6 +62,7 @@ export default function TaskManagement() {
 
       if (response.status) {
     
+        setTasks(response.data.tasks),
         setTaskMap(response.data.groupedTasks);
         setProjectData(response.data.project);
         setUsersData(response.data.users);
@@ -73,9 +74,7 @@ export default function TaskManagement() {
     })();
   }, []);
 
-  useEffect(()=>{
-    console.log(taskMap)
-  },[taskMap])
+
 
   if (!ready1) return <div>Loading...</div>;
   return (

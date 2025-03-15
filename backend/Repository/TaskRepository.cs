@@ -59,7 +59,7 @@ namespace backend.Repository
 
             var updatedTaskData = updateTaskDto.fromUpdateDtoToTask();
 
-            taskData.EstimatedHours = updateTaskDto.EstimatedHours;
+            taskData.Description = updateTaskDto.Description;
             taskData.StartDate = updateTaskDto.StartDate;
             taskData.DueDate = updateTaskDto.DueDate;
             taskData.Note = updateTaskDto.Note;

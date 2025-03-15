@@ -12,7 +12,7 @@ using backend.Data;
 namespace backend.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20250315094845_Init")]
+    [Migration("20250315113957_Init")]
     partial class Init
     {
         /// <inheritdoc />
@@ -181,9 +181,6 @@ namespace backend.Migrations
 
                     b.Property<DateTime>("DueDate")
                         .HasColumnType("datetime2");
-
-                    b.Property<double>("EstimatedHours")
-                        .HasColumnType("float");
 
                     b.Property<string>("Note")
                         .IsRequired()

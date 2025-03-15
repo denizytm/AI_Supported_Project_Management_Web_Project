@@ -208,7 +208,6 @@ namespace backend.Migrations
                     TaskLevel = table.Column<int>(type: "int", nullable: false),
                     Priority = table.Column<int>(type: "int", nullable: false),
                     Status = table.Column<int>(type: "int", nullable: false),
-                    EstimatedHours = table.Column<double>(type: "float", nullable: false),
                     Progress = table.Column<int>(type: "int", nullable: false),
                     Note = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     ProjectId = table.Column<int>(type: "int", nullable: false),

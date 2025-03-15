@@ -107,6 +107,30 @@ namespace backend.Controllers
             }
         }
 
+        [HttpGet("formData")]
+        public IActionResult GetFormDataForTask()
+        {
+
+            try
+            {
+                var taskTypes = _context.TaskTypes.ToList();
+                var taskLabels = _context.TaskLabels.ToList();
+
+                return Ok(new
+                {
+                    taskLabels,
+                    taskTypes
+                });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new
+                {
+                    message = $"There was an error when fetching the types and labels : {ex.Message}"
+                });
+            }
+        }
+
         [HttpPost("add")]
         public async Task<IActionResult> CreateTask(CreateTaskDto createTaskDto)
         {

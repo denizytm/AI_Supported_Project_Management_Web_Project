@@ -13,7 +13,6 @@ namespace backend.Dtos.Task
         public int Id { get; set; }
         public string Description { get; set; } = String.Empty;
         public TaskLabel TaskLabel { get; set; } = null!;
-        public string TypeName { get; set; } = String.Empty;
         [JsonIgnore]
         public DateTime StartDate { get; set; }
         public string StartDateString => this.StartDate.ToString("yyyy-MM-dd");
@@ -23,7 +22,6 @@ namespace backend.Dtos.Task
         public string TaskLevelName { get; set; } = String.Empty;
         public string PriorityName { get; set; } = String.Empty;
         public string StatusName { get; set; } = String.Empty;
-        public Double EstimatedHours { get; set; }
         public int Progress { get; set; }
         public string Note { get; set; } = String.Empty;
         public int ProjectId { get; set; }

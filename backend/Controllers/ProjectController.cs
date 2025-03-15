@@ -73,6 +73,24 @@ namespace backend.Controllers
             }
         }
 
+        [HttpGet("projectUsers")]
+        public IActionResult GetUsersByProjectID(int projectId)
+        {
+            try
+            {
+                var users = _context.UserProjects.Where( up => up.ProjectId == projectId).Include(up => up.User).ToList();
+
+                return Ok(users.Count);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new
+                {
+                    message = $"There was an error when fetching the project : {ex.Message}"
+                });
+            }
+        }
+
         [HttpGet("management")]
         public async Task<IActionResult> GetProjectWithTasksAndUsers(int id)
         {
@@ -118,6 +136,7 @@ namespace backend.Controllers
 
                 return Ok(new
                 {
+                    tasks = taskDtos,
                     groupedTasks,
                     project,
                     users,

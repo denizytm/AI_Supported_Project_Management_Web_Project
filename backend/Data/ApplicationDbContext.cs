@@ -13,19 +13,7 @@ namespace backend.Data
         {
             modelBuilder.Entity<UserProject>()
                 .HasKey(up => new { up.UserId, up.ProjectId });
-
-            /* modelBuilder.Entity<UserProject>()
-                .HasOne(up => up.User)
-                .WithMany(u => u.UserProjects)
-                .HasForeignKey(up => up.UserId)
-                .OnDelete(DeleteBehavior.Restrict);
-
-            modelBuilder.Entity<UserProject>()
-                .HasOne(up => up.Project)
-                .WithMany(p => p.UserProjects)
-                .HasForeignKey(up => up.ProjectId)
-                .OnDelete(DeleteBehavior.Restrict); */
-
+                
             modelBuilder.Entity<Project>()
                 .HasOne(p => p.Manager)
                 .WithMany()
