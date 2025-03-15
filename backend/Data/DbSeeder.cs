@@ -46,14 +46,33 @@ namespace backend.Data
                 context.SaveChanges();
             }
 
+
+            if (!context.TaskTypes.Any())
+            {
+                var names = new List<TaskType>
+                    {
+                        new TaskType { Name = "Research" },
+                        new TaskType { Name = "Design" },
+                        new TaskType { Name = "Development" },
+                        new TaskType { Name = "Testing" },
+                        new TaskType { Name = "Bugfix" },
+                    };
+
+                context.TaskTypes.AddRange(names);
+                context.SaveChanges();
+            }
+
+
             if (!context.TaskLabels.Any())
             {
                 var labels = new List<TaskLabel>
                     {
-                        new TaskLabel { Label = "design" },
-                        new TaskLabel { Label = "frontend" },
-                        new TaskLabel { Label = "backend" },
-                        new TaskLabel { Label = "database" }
+                        new TaskLabel { Label = "Frontend" },
+                        new TaskLabel { Label = "Backend" },
+                        new TaskLabel { Label = "AI" },
+                        new TaskLabel { Label = "Mobile" },
+                        new TaskLabel { Label = "UX/UI" },
+                        new TaskLabel { Label = "Database" }
                     };
 
                 context.TaskLabels.AddRange(labels);
@@ -64,8 +83,8 @@ namespace backend.Data
             {
                 var users = context.Users.ToList();
                 var taskFaker = new Faker<backend.Models.Task>()
-                    .RuleFor(t => t.Type, f => f.PickRandom<TaskType>())
-                    .RuleFor(t => t.TaskName, f => f.Lorem.Sentence())
+                    .RuleFor(t => t.Description, f => f.Lorem.Sentence()) 
+                    .RuleFor(t => t.TaskTypeId, f => f.Random.Int(1, context.TaskTypes.ToList().Count))
                     .RuleFor(t => t.StartDate, f => f.Date.Between(new DateTime(2025, 1, 1), new DateTime(2025, 12, 31)))
                     .RuleFor(t => t.DueDate, (f, t) => f.Date.Between(t.StartDate.AddDays(1), t.StartDate.AddDays(30)))
                     .RuleFor(t => t.TaskLevel, f => f.PickRandom<TaskLevel>())
@@ -90,10 +109,10 @@ namespace backend.Data
 
                     foreach (var task in projectTasks)
                     {
-                        if (projectTasks.Count > 1 && random.NextDouble() < 0.7) 
+                        if (projectTasks.Count > 1 && random.NextDouble() < 0.7)
                         {
                             var potentialPredecessors = projectTasks
-                                .Where(t => t.Id != task.Id && t.DueDate < task.StartDate && task.TypeName == t.TypeName) 
+                                .Where(t => t.Id != task.Id && t.DueDate < task.StartDate && task.TaskTypeId == t.TaskTypeId)
                                 .ToList();
 
                             if (potentialPredecessors.Any())

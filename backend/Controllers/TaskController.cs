@@ -33,6 +33,7 @@ namespace backend.Controllers
                 var tasks = await _context.Tasks
                 .Include(t => t.AssignedUser)
                 .Include(t => t.TaskLabel)
+                .Include(t => t.TaskType)
                 .ToListAsync();
 
                 var taskDtos = tasks.Select(t => t.ToTaskDto());
@@ -54,19 +55,24 @@ namespace backend.Controllers
             try
             {
                 var tasks = _context.Tasks
-                .Where(d => d.ProjectId == projectId)
-                .Include(t => t.TaskLabel)
-                .Include(t => t.AssignedUser)
-                .AsNoTracking()
-                .ToList();
+                    .Where(d => d.ProjectId == projectId)
+                    .Include(t => t.TaskLabel)
+                    .Include(t => t.AssignedUser)
+                    .Include(t => t.TaskType)
+                    .ToList();
 
-                var taskDtos = tasks.Select(t => t.ToTaskDto());
+                var taskDtos = tasks.Select(t => t.ToTaskDto()).ToList(); // get the task dto's
 
                 var minStartDate = taskDtos.Min(t => t.StartDate);
                 var maxDueDate = taskDtos.Max(t => t.DueDate);
 
-                return Ok(new {
-                    taskDtos,
+                var groupedTasks = taskDtos
+                    .GroupBy(t => t.TaskType.Name) // group them by their taskName.Name
+                    .ToDictionary(g => g.Key, g => g.ToList()); // and return it as a dict
+
+                return Ok(new
+                {
+                    groupedTasks,
                     minStartDate,
                     maxDueDate
                 });
@@ -138,8 +144,8 @@ namespace backend.Controllers
                     return BadRequest(new { message = $"No task found with the id value : {id}" });
                 }
 
-                await _taskRepository.UpdateAsync(id,updateTaskDto);
-                
+                await _taskRepository.UpdateAsync(id, updateTaskDto);
+
                 return Ok("The task has been updated");
             }
             catch (Exception ex)

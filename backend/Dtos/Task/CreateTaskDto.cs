@@ -7,8 +7,8 @@ namespace backend.Dtos.Task
 {
     public class CreateTaskDto
     {
-        public string TaskName { get; set; } = String.Empty;
-        public string TypeName { get; set; } = String.Empty;
+        public string Description { get; set; } = String.Empty;
+        public int TaskTypeId { get; set; } 
         public int TaskLabelId { get; set; }
         public DateTime StartDate { get; set; }
         public DateTime DueDate { get; set; }

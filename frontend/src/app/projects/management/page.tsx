@@ -43,7 +43,6 @@ export default function TaskManagement() {
   const [maxDueDate, setMaxDueDate] = useState("");
 
   const [ready1, setReady1] = useState(false);
-  const [ready2, setReady2] = useState(false);
 
   const [modalVisibleStatus, setModalVisibleStatus] = useState({
     create: false,
@@ -62,42 +61,23 @@ export default function TaskManagement() {
       );
 
       if (response.status) {
-        const data: Array<TaskType> = response.data.taskDtos;
-
+    
+        setTaskMap(response.data.groupedTasks);
         setProjectData(response.data.project);
         setUsersData(response.data.users);
         setMinStartDate(response.data.minStartDate);
         setMaxDueDate(response.data.maxDueDate);
 
-        let types: Array<string> = [];
-
-        for (let i = 0; i < data.length; i++)
-          if (!types.includes(data[i].typeName)) types.push(data[i].typeName);
-
-        setTaskTypes(types);
-        setTasks(data);
         setReady1(true);
       }
     })();
   }, []);
 
-  useEffect(() => {
-    if (ready1 && tasks && tasks.length && taskTypes && taskTypes.length) {
-      const newTaskMap = new Map<string, Array<TaskType>>();
+  useEffect(()=>{
+    console.log(taskMap)
+  },[taskMap])
 
-      for (let typeName of taskTypes) {
-        newTaskMap.set(
-          typeName,
-          tasks.filter((task) => task.typeName == typeName)
-        );
-      }
-
-      setTaskMap(newTaskMap);
-      setReady2(true);
-    }
-  }, [taskTypes]);
-
-  if (!ready2) return <div>Loading...</div>;
+  if (!ready1) return <div>Loading...</div>;
   return (
     <div className="p-6 bg-gray-100 dark:bg-gray-900 min-h-screen">
       <CreateTaskModal

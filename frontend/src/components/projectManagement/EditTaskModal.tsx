@@ -34,10 +34,10 @@ export default function EditTaskModal({
 
   const [formData, setFormData] = useState({
     taskName: "",
+    taskType : "",
     taskLabelId: 1,
     startDate: "",
     dueDate: "",
-    typeName: "Resarch",
     taskLevelName: 1,
     priorityName: "Low",
     statusName: "ToDo",
@@ -84,7 +84,7 @@ export default function EditTaskModal({
   useEffect(() => {
     if (selectedTask) {
       setFormData({
-        taskName: selectedTask.taskName,
+        taskName: selectedTask.taskType.name,
         dueDate: selectedTask.dueDateString,
         estimatedHours: 0.0,
         note: "",
@@ -100,9 +100,10 @@ export default function EditTaskModal({
             : selectedTask.taskLevelName == "Expert"
             ? 3
             : 2,
-        typeName: selectedTask.typeName,
+       
         taskLabelId: selectedTask.taskLabel.id,
         userId: +selectedTask.assignedUser.id,
+        taskType : selectedTask.taskType.name
       });
     }
   }, [selectedTask]);
@@ -134,7 +135,7 @@ export default function EditTaskModal({
               }
               value={task.id}
             >
-              {task.taskName} ({task.taskLevelName}) ({task.typeName} /{" "}
+              {task.taskType.name} ({task.taskLevelName}) ({task.taskType.name} /{" "}
               {task.taskLabel.label}) (
               {task.startDateString + "  " + task.dueDateString})
             </option>
@@ -148,7 +149,7 @@ export default function EditTaskModal({
           placeholder="Task Name"
           className="w-full p-2 border rounded mb-2"
           onChange={handleChange}
-          value={formData.taskName}
+          value={formData.taskType}
         />
 
         <label htmlFor="typeName">Task Type</label>
@@ -156,7 +157,7 @@ export default function EditTaskModal({
           name="typeName"
           className="w-full p-2 border rounded mb-2"
           onChange={handleChange}
-          value={formData.typeName}
+          value={formData.taskType}
         >
           <option value="Resarch">Resarch</option>
           <option value="Development">Development</option>
@@ -263,7 +264,7 @@ export default function EditTaskModal({
                 .filter((task) => task.taskLevelName == "Beginner")
                 .map((task) => (
                   <option className="text-green-500" value={task.id}>
-                    {task.taskName} ({task.taskLevelName}) ({task.typeName} /{" "}
+                    {task.taskType.name} ({task.taskLevelName}) ({task.taskType.name} /{" "}
                     {task.taskLabel.label}) (
                     {task.startDateString + "-" + task.dueDateString})
                   </option>
@@ -280,7 +281,7 @@ export default function EditTaskModal({
                     }
                     value={task.id}
                   >
-                    {task.taskName} ({task.taskLevelName}) ({task.typeName} /{" "}
+                    {task.taskType.name} ({task.taskLevelName}) ({task.taskType.name} /{" "}
                     {task.taskLabel.label}) (
                     {task.startDateString + "-" + task.dueDateString})
                   </option>
@@ -296,7 +297,7 @@ export default function EditTaskModal({
                   }
                   value={task.id}
                 >
-                  {task.taskName} ({task.taskLevelName}) ({task.typeName} /{" "}
+                  {task.taskType.name} ({task.taskLevelName}) ({task.taskType.name} /{" "}
                   {task.taskLabel.label}) (
                   {task.startDateString + "  " + task.dueDateString})
                 </option>

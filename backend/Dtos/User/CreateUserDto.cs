@@ -12,8 +12,8 @@ namespace backend.Dtos.User
         public string LastName { get; set; } = String.Empty;
         public string Email { get; set; } = String.Empty;
         public string Password { get; set; } = String.Empty;
-        public string ProficiencyLevelName { get; set; } = String.Empty;
-        public string RoleName { get; set; } = String.Empty;
-        public string StatusName { get; set; } = String.Empty;
+        public ProficiencyLevel ProficiencyLevel { get; set; }
+        public Role Role { get; set; } 
+        public AvailabilityStatus Status { get; set; } 
     }
 }

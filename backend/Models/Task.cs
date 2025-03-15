@@ -26,24 +26,13 @@ public enum TaskLevel
     Expert
 }
 
-public enum TaskType {
-    Resarch,
-    Development,
-    Bugfix,
-    Testing
-}
 
 namespace backend.Models
 {
     public class Task
     {
         public int Id { get; set; }
-        public string TaskName { get; set; } = String.Empty;
-        public TaskType Type { get; set; } 
-        public string TypeName {
-            get => Type.ToString();
-            set => Type = Enum.Parse<TaskType>(value);
-        }
+        public string Description { get; set; } = String.Empty;
         public int TaskLabelId { get; set; }
         public TaskLabel TaskLabel { get; set; } = null!;
         public DateTime StartDate { get; set; }
@@ -78,5 +67,7 @@ namespace backend.Models
         public Task? DependingTask { get; set; } = null!;
         public int UserId { get; set; }
         public User AssignedUser { get; set; } = null!;
+        public int TaskTypeId { get; set; }
+        public TaskType TaskType { get; set; } = null!;
     }
 }

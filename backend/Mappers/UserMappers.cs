@@ -32,9 +32,9 @@ namespace backend.Mappers
                 Name = createUserDto.Name,
                 LastName = createUserDto.LastName,
                 Password = createUserDto.Password,
-                ProficiencyLevelName = createUserDto.ProficiencyLevelName,
-                RoleName = createUserDto.RoleName,
-                StatusName = createUserDto.StatusName,
+                ProficiencyLevel = createUserDto.ProficiencyLevel,
+                Role = createUserDto.Role,
+                Status = createUserDto.Status,
             };
         }
 

@@ -2,13 +2,17 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using backend.Models;
 
 namespace backend.Dtos.Task
 {
     public class UpdateTaskDto
     {
-        public string TaskName { get; set; } = String.Empty;
-        public string TypeName { get; set; } = String.Empty;
+        public string Description { get; set; } = String.Empty;
+        public int TaskNameId { get; set; }
+        public int TaskTypeId { get; set; } 
+        public TaskType TaskType { get; set; } = null!;
+        public string TaskTypeName { get; set; } = String.Empty;
         public int TaskLabelId { get; set; }
         public DateTime StartDate { get; set; }
         public DateTime DueDate { get; set; }

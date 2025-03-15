@@ -30,10 +30,10 @@ export default function CreateTaskModal({
 }: TaskModalProps) {
   const [formData, setFormData] = useState({
     taskName: "",
+    taskType : "",
     taskLabelId: 1,
     startDate: "",
     dueDate: "",
-    typeName: "Resarch",
     taskLevelName: 1,
     priorityName: "Low",
     statusName: "ToDo",
@@ -186,8 +186,8 @@ export default function CreateTaskModal({
                 .filter((task) => task.taskLevelName == "Beginner")
                 .map((task) => (
                   <option className="text-green-500" value={task.id}>
-                    {task.taskName} ({task.taskLevelName}) 
-                    ({task.typeName} / {task.taskLabel.label})
+                    {task.taskType.name} ({task.taskLevelName}) 
+                    ({task.taskType.name} / {task.taskLabel.label})
                     ({task.startDateString + "-" + task.dueDateString})
                   </option>
                 ))
@@ -203,8 +203,8 @@ export default function CreateTaskModal({
                     }
                     value={task.id}
                   >
-                    {task.taskName} ({task.taskLevelName}) 
-                    ({task.typeName} / {task.taskLabel.label})
+                    {task.taskType.name} ({task.taskLevelName}) 
+                    ({task.taskType.name} / {task.taskLabel.label})
                     ({task.startDateString + "-" + task.dueDateString})
                   </option>
                 ))
@@ -219,8 +219,8 @@ export default function CreateTaskModal({
                   }
                   value={task.id}
                 >
-                  {task.taskName} ({task.taskLevelName}) 
-                  ({task.typeName} / {task.taskLabel.label})
+                  {task.taskType.name} ({task.taskLevelName}) 
+                  ({task.taskType.name} / {task.taskLabel.label})
                   ({task.startDateString + "  " + task.dueDateString})
                 </option>
               ))}

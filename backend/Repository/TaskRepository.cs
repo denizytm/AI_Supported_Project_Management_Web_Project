@@ -68,10 +68,9 @@ namespace backend.Repository
             taskData.TaskId = updateTaskDto.TaskId;
             taskData.StatusName = updateTaskDto.StatusName;
             taskData.TaskLevelName = updateTaskDto.TaskLevelName;
-            taskData.TypeName = updateTaskDto.TypeName;
             taskData.UserId = updateTaskDto.UserId;
             taskData.TaskLabelId = updateTaskDto.TaskLabelId;
-            taskData.TaskName = updateTaskDto.TaskName;
+            taskData.TaskTypeId = updateTaskDto.TaskTypeId;
 
             await _context.SaveChangesAsync();
 

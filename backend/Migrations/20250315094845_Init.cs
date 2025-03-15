@@ -25,6 +25,19 @@ namespace backend.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "TaskTypes",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_TaskTypes", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Technologies",
                 columns: table => new
                 {
@@ -50,7 +63,7 @@ namespace backend.Migrations
                     ProficiencyLevel = table.Column<int>(type: "int", nullable: false),
                     Role = table.Column<int>(type: "int", nullable: false),
                     Status = table.Column<int>(type: "int", nullable: false),
-                    TaskRole = table.Column<int>(type: "int", nullable: true)
+                    TaskRole = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -188,9 +201,7 @@ namespace backend.Migrations
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    TaskName = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Type = table.Column<int>(type: "int", nullable: false),
-                    TypeName = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Description = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     TaskLabelId = table.Column<int>(type: "int", nullable: false),
                     StartDate = table.Column<DateTime>(type: "datetime2", nullable: false),
                     DueDate = table.Column<DateTime>(type: "datetime2", nullable: false),
@@ -203,7 +214,8 @@ namespace backend.Migrations
                     ProjectId = table.Column<int>(type: "int", nullable: false),
                     TaskId = table.Column<int>(type: "int", nullable: true),
                     DependingTaskId = table.Column<int>(type: "int", nullable: true),
-                    UserId = table.Column<int>(type: "int", nullable: false)
+                    UserId = table.Column<int>(type: "int", nullable: false),
+                    TaskTypeId = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -218,6 +230,12 @@ namespace backend.Migrations
                         name: "FK_Tasks_TaskLabels_TaskLabelId",
                         column: x => x.TaskLabelId,
                         principalTable: "TaskLabels",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_Tasks_TaskTypes_TaskTypeId",
+                        column: x => x.TaskTypeId,
+                        principalTable: "TaskTypes",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
@@ -299,6 +317,11 @@ namespace backend.Migrations
                 column: "TaskLabelId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_Tasks_TaskTypeId",
+                table: "Tasks",
+                column: "TaskTypeId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Tasks_UserId",
                 table: "Tasks",
                 column: "UserId");
@@ -337,6 +360,9 @@ namespace backend.Migrations
 
             migrationBuilder.DropTable(
                 name: "TaskLabels");
+
+            migrationBuilder.DropTable(
+                name: "TaskTypes");
 
             migrationBuilder.DropTable(
                 name: "Technologies");
