@@ -11,53 +11,34 @@ import { useEffect, useState } from "react";
 
 interface GanttChartProps {
   taskMap: Map<string, TaskType[]>;
-  taskTypes: string[];
   minStartDate: string;
   maxDueDate: string;
 }
 
-export default function GanttChart({
-  taskTypes,
-  taskMap,
-  maxDueDate,
-  minStartDate,
-}: GanttChartProps) {
+export default function GanttChart({ taskMap }: GanttChartProps) {
   const [ready, setReady] = useState(false);
   const [data, setData] = useState<any[]>();
-  const [taskData, setTaskData] = useState([]);
 
   useEffect(() => {
-    console.log(minStartDate);
-    console.log(maxDueDate);
-  }, []);
-
-  useEffect(() => {
-    if (taskTypes.length > 0 && taskMap.size > 0) {
-      const formattedData = taskTypes
-        .map((type, index) => {
-          const taskData = taskMap.get(type);
-          if (taskData?.length) {
+   
+      const formattedData = Object.entries(taskMap)
+        .map(([taskType, taskList], index) => {
+          if (taskList.length > 0) {
             return {
               TaskID: index + 1,
-              TaskName: type,
-              subtasks: taskData.map((task) => {
-                console.log(task.taskName,task.startDateString,task.dueDateString)
-                return (
-                  {
-                    TaskID: task.id,
-                    TaskName: task.taskName,
-                    LabelName: task.taskLabel.label,
-                    StartDate: new Date(task.startDateString),
-                    EndDate: new Date(task.dueDateString),
-                    Progress: task.progress,
-                    Priority: task.priorityName,
-                    Assigned:
-                      task.assignedUser.name + " " + task.assignedUser.lastName,
-                    Status: task.statusName,
-                    Predecessor: task?.taskId?.toString() || "", 
-                  }
-                )
-              }),
+              TaskName: taskType,
+              subtasks: taskList.map((task : TaskType) => ({
+                TaskID: task.id,
+                TaskName: task.description, 
+                LabelName: task.taskLabel.label,
+                StartDate: new Date(task.startDateString),
+                EndDate: new Date(task.dueDateString),
+                Progress: task.progress,
+                Priority: task.priorityName,
+                Assigned: `${task.assignedUser.name} ${task.assignedUser.lastName}`,
+                Status: task.statusName,
+                Predecessor: task?.taskId?.toString() || "",
+              })),
             };
           }
           return null;
@@ -66,12 +47,8 @@ export default function GanttChart({
 
       setData(formattedData);
       setReady(true);
-    }
-  }, [taskMap, taskTypes]);
 
-  useEffect(() => {
-    console.log(data);
-  }, [data]);
+  }, [taskMap]);
 
   /* let dataSource = [
     {
@@ -98,7 +75,7 @@ export default function GanttChart({
     priority: "Priority",
     status: "Status",
     assigned: "Assigned",
-    dependency: "Predecessor", 
+    dependency: "Predecessor",
   };
 
   const toolbar: string[] = [
@@ -132,7 +109,6 @@ export default function GanttChart({
           labelSettings={labelSettings}
           height="800px"
           toolbar={toolbar}
-       
         >
           <ColumnsDirective>
             <ColumnDirective

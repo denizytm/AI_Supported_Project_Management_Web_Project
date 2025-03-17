@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using backend.Data;
 using backend.Dtos.Task;
+using backend.Interfaces;
 using backend.Mappers;
 using backend.Models;
 using Microsoft.AspNetCore.Mvc;
@@ -16,10 +17,12 @@ namespace backend.Controllers
     public class TaskController : ControllerBase
     {
         private readonly ApplicationDbContext _context;
+        private readonly ITaskRepository _taskRepository;
 
-        public TaskController(ApplicationDbContext context)
+        public TaskController(ApplicationDbContext context, ITaskRepository taskRepository)
         {
             _context = context;
+            _taskRepository = taskRepository;
         }
 
         [HttpGet("all")]
@@ -30,6 +33,7 @@ namespace backend.Controllers
                 var tasks = await _context.Tasks
                 .Include(t => t.AssignedUser)
                 .Include(t => t.TaskLabel)
+                .Include(t => t.TaskType)
                 .ToListAsync();
 
                 var taskDtos = tasks.Select(t => t.ToTaskDto());
@@ -51,19 +55,24 @@ namespace backend.Controllers
             try
             {
                 var tasks = _context.Tasks
-                .Where(d => d.ProjectId == projectId)
-                .Include(t => t.TaskLabel)
-                .Include(t => t.AssignedUser)
-                .AsNoTracking()
-                .ToList();
+                    .Where(d => d.ProjectId == projectId)
+                    .Include(t => t.TaskLabel)
+                    .Include(t => t.AssignedUser)
+                    .Include(t => t.TaskType)
+                    .ToList();
 
-                var taskDtos = tasks.Select(t => t.ToTaskDto());
+                var taskDtos = tasks.Select(t => t.ToTaskDto()).ToList(); // get the task dto's
 
                 var minStartDate = taskDtos.Min(t => t.StartDate);
                 var maxDueDate = taskDtos.Max(t => t.DueDate);
 
-                return Ok(new {
-                    taskDtos,
+                var groupedTasks = taskDtos
+                    .GroupBy(t => t.TaskType.Name) // group them by their taskName.Name
+                    .ToDictionary(g => g.Key, g => g.ToList()); // and return it as a dict
+
+                return Ok(new
+                {
+                    groupedTasks,
                     minStartDate,
                     maxDueDate
                 });
@@ -98,6 +107,30 @@ namespace backend.Controllers
             }
         }
 
+        [HttpGet("formData")]
+        public IActionResult GetFormDataForTask()
+        {
+
+            try
+            {
+                var taskTypes = _context.TaskTypes.ToList();
+                var taskLabels = _context.TaskLabels.ToList();
+
+                return Ok(new
+                {
+                    taskLabels,
+                    taskTypes
+                });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new
+                {
+                    message = $"There was an error when fetching the types and labels : {ex.Message}"
+                });
+            }
+        }
+
         [HttpPost("add")]
         public async Task<IActionResult> CreateTask(CreateTaskDto createTaskDto)
         {
@@ -125,7 +158,7 @@ namespace backend.Controllers
         }
 
         [HttpPut("update")]
-        public async Task<IActionResult> UpdateTask(backend.Models.Task taskData, int id)
+        public async Task<IActionResult> UpdateTask(UpdateTaskDto updateTaskDto, int id)
         {
             try
             {
@@ -135,13 +168,8 @@ namespace backend.Controllers
                     return BadRequest(new { message = $"No task found with the id value : {id}" });
                 }
 
-                /* task.Name = taskData?.Name ?? task.Name;
-                task.Description = taskData?.Description ?? task.Description;
-                task.Status = taskData?.Status ?? task.Status;
-                task.AssignedTo = taskData?.AssignedTo ?? task.AssignedTo;
-                task.DueDate = taskData?.DueDate ?? task.DueDate; */
+                await _taskRepository.UpdateAsync(id, updateTaskDto);
 
-                await _context.SaveChangesAsync();
                 return Ok("The task has been updated");
             }
             catch (Exception ex)

@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using backend.Data;
 using backend.Dtos.User;
 using backend.Interfaces;
+using backend.Mappers;
 using backend.Models;
 using Microsoft.EntityFrameworkCore;
 
@@ -43,20 +44,7 @@ namespace backend.Repository
 
             if(userData == null) return null;
 
-            userData.Name = updateUserDto.Name ?? userData.Name;
-            userData.Email = updateUserDto.Email ?? userData.Email;
-            userData.ProficiencyLevel = updateUserDto?.ProficiencyLevel ?? userData.ProficiencyLevel;
-            userData.Role = updateUserDto?.Role ?? userData.Role;
-            userData.Status = updateUserDto?.Status ?? userData.Status;
-
-           /*  if (updateUserDto?.UserProjects != null && updateUserDto.UserProjects.Any())
-                userData.UserProjects = updateUserDto.UserProjects; */
-
-            if (updateUserDto?.Technologies != null && updateUserDto.Technologies.Any())
-                userData.Technologies = updateUserDto.Technologies;
-
-            if (updateUserDto?.Tasks != null && updateUserDto.Tasks.Any())
-                userData.Tasks = updateUserDto.Tasks;
+            var newUserData = updateUserDto.UpdateDtoToUser(userData);
 
             await _context.SaveChangesAsync();
 

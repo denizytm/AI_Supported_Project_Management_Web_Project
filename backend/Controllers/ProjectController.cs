@@ -73,6 +73,24 @@ namespace backend.Controllers
             }
         }
 
+        [HttpGet("projectUsers")]
+        public IActionResult GetUsersByProjectID(int projectId)
+        {
+            try
+            {
+                var users = _context.UserProjects.Where( up => up.ProjectId == projectId).Include(up => up.User).ToList();
+
+                return Ok(users.Count);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new
+                {
+                    message = $"There was an error when fetching the project : {ex.Message}"
+                });
+            }
+        }
+
         [HttpGet("management")]
         public async Task<IActionResult> GetProjectWithTasksAndUsers(int id)
         {
@@ -104,19 +122,24 @@ namespace backend.Controllers
                 .Where(d => d.ProjectId == id)
                 .Include(t => t.AssignedUser)
                 .Include(t => t.TaskLabel)
-                .AsNoTracking()
+                .Include(t => t.TaskType)
                 .ToList(); // get all the tasks for the selected project id
 
                 var taskDtos = tasks.Select(t => t.ToTaskDto()); // turn the tasks into dto values 
+
+                var groupedTasks = taskDtos
+                    .GroupBy(t => t.TaskType.Name) // group them by their taskType.Name
+                    .ToDictionary(g => g.Key, g => g.ToList()); // and return it as a dict
 
                 var minStartDate = taskDtos.Min(t => t.StartDateString);
                 var maxDueDate = taskDtos.Max(t => t.DueDateString);
 
                 return Ok(new
                 {
+                    tasks = taskDtos,
+                    groupedTasks,
                     project,
                     users,
-                    taskDtos,
                     minStartDate,
                     maxDueDate
                 });

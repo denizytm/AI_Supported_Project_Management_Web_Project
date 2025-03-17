@@ -11,14 +11,13 @@ namespace backend.Mappers
     {
         public static TaskDto ToTaskDto(this backend.Models.Task task){
             return new TaskDto {
+                Description = task.Description,
                 AssignedUser = task.AssignedUser.ToUserDto(),
                 TaskLabel = task.TaskLabel,
                 DependingTask = task.DependingTask,
                 StartDate = task.StartDate,
                 DueDate = task.DueDate,
-                EstimatedHours = task.EstimatedHours,
                 Id = task.Id,
-                TypeName = task.TypeName,
                 Note = task.Note,
                 PriorityName = task.PriorityName,
                 Progress = task.Progress,
@@ -27,14 +26,15 @@ namespace backend.Mappers
                 StatusName = task.StatusName,
                 TaskId = task.TaskId,
                 TaskLevelName = task.TaskLevelName,
-                TaskName = task.TaskName,
-                UserId = task.UserId
+                TaskTypeId = task.TaskTypeId,
+                UserId = task.UserId,
+                TaskType = task.TaskType
             };
         }
 
         public static backend.Models.Task fromCreateDtoToTask(this CreateTaskDto createTaskDto){
             return new backend.Models.Task {
-                EstimatedHours = createTaskDto.EstimatedHours,
+                Description = createTaskDto.Description,
                 StartDate = createTaskDto.StartDate,
                 DueDate = createTaskDto.DueDate,
                 Note = createTaskDto.Note,
@@ -44,10 +44,27 @@ namespace backend.Mappers
                 TaskId = createTaskDto.TaskId,
                 StatusName = createTaskDto.StatusName,
                 TaskLevelName = createTaskDto.TaskLevelName,
-                TypeName = createTaskDto.TypeName,
                 UserId = createTaskDto.UserId,
                 TaskLabelId = createTaskDto.TaskLabelId,
-                TaskName = createTaskDto.TaskName,
+                TaskTypeId = createTaskDto.TaskTypeId,
+            };
+        }
+
+        public static backend.Models.Task fromUpdateDtoToTask(this UpdateTaskDto updateTaskDto) {
+
+            return new Models.Task {
+                Description = updateTaskDto.Description,
+                StartDate = updateTaskDto.StartDate,
+                DueDate = updateTaskDto.DueDate,
+                Note = updateTaskDto.Note,
+                PriorityName = updateTaskDto.PriorityName,
+                Progress = updateTaskDto.Progress,
+                TaskId = updateTaskDto.TaskId,
+                StatusName = updateTaskDto.StatusName,
+                TaskLevelName = updateTaskDto.TaskLevelName,
+                UserId = updateTaskDto.UserId,
+                TaskLabelId = updateTaskDto.TaskLabelId,
+                TaskTypeId = updateTaskDto.TaskTypeId
             };
         }
 

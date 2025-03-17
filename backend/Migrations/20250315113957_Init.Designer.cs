@@ -12,11 +12,15 @@ using backend.Data;
 namespace backend.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
+<<<<<<< HEAD:backend/Migrations/20250309081603_Init.Designer.cs
 <<<<<<<< HEAD:backend/Migrations/20250309070025_Init.Designer.cs
     [Migration("20250309070025_Init")]
 ========
     [Migration("20250309081603_Init")]
 >>>>>>>> fa7950fc188a4718fc17202c40a7d8de7590bfd2:backend/Migrations/20250309081603_Init.Designer.cs
+=======
+    [Migration("20250315113957_Init")]
+>>>>>>> b23f6b49341695d7bd220b240d52bb3232fed2f9:backend/Migrations/20250315113957_Init.Designer.cs
     partial class Init
     {
         /// <inheritdoc />
@@ -179,11 +183,12 @@ namespace backend.Migrations
                     b.Property<int?>("DependingTaskId")
                         .HasColumnType("int");
 
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<DateTime>("DueDate")
                         .HasColumnType("datetime2");
-
-                    b.Property<double>("EstimatedHours")
-                        .HasColumnType("float");
 
                     b.Property<string>("Note")
                         .IsRequired()
@@ -213,16 +218,8 @@ namespace backend.Migrations
                     b.Property<int>("TaskLevel")
                         .HasColumnType("int");
 
-                    b.Property<string>("TaskName")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("Type")
+                    b.Property<int>("TaskTypeId")
                         .HasColumnType("int");
-
-                    b.Property<string>("TypeName")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("UserId")
                         .HasColumnType("int");
@@ -234,6 +231,8 @@ namespace backend.Migrations
                     b.HasIndex("ProjectId");
 
                     b.HasIndex("TaskLabelId");
+
+                    b.HasIndex("TaskTypeId");
 
                     b.HasIndex("UserId");
 
@@ -255,6 +254,23 @@ namespace backend.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("TaskLabels");
+                });
+
+            modelBuilder.Entity("backend.Models.TaskType", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("TaskTypes");
                 });
 
             modelBuilder.Entity("backend.Models.Technology", b =>
@@ -307,7 +323,7 @@ namespace backend.Migrations
                     b.Property<int>("Status")
                         .HasColumnType("int");
 
-                    b.Property<int?>("TaskRole")
+                    b.Property<int>("TaskRole")
                         .HasColumnType("int");
 
                     b.HasKey("Id");
@@ -418,6 +434,12 @@ namespace backend.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("backend.Models.TaskType", "TaskType")
+                        .WithMany()
+                        .HasForeignKey("TaskTypeId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.HasOne("backend.Models.User", "AssignedUser")
                         .WithMany("Tasks")
                         .HasForeignKey("UserId")
@@ -431,6 +453,8 @@ namespace backend.Migrations
                     b.Navigation("Project");
 
                     b.Navigation("TaskLabel");
+
+                    b.Navigation("TaskType");
                 });
 
             modelBuilder.Entity("backend.Models.UserProject", b =>

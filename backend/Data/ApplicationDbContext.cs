@@ -13,19 +13,7 @@ namespace backend.Data
         {
             modelBuilder.Entity<UserProject>()
                 .HasKey(up => new { up.UserId, up.ProjectId });
-
-            /* modelBuilder.Entity<UserProject>()
-                .HasOne(up => up.User)
-                .WithMany(u => u.UserProjects)
-                .HasForeignKey(up => up.UserId)
-                .OnDelete(DeleteBehavior.Restrict);
-
-            modelBuilder.Entity<UserProject>()
-                .HasOne(up => up.Project)
-                .WithMany(p => p.UserProjects)
-                .HasForeignKey(up => up.ProjectId)
-                .OnDelete(DeleteBehavior.Restrict); */
-
+                
             modelBuilder.Entity<Project>()
                 .HasOne(p => p.Manager)
                 .WithMany()
@@ -41,5 +29,6 @@ namespace backend.Data
         public DbSet<User> Users { get; set; }
         public DbSet<UserProject> UserProjects { get; set; } = null!;
         public DbSet<TaskLabel> TaskLabels { get; set; }
+        public DbSet<TaskType> TaskTypes { get; set; }
     }
 }
