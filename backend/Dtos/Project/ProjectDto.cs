@@ -14,7 +14,8 @@ namespace backend.Dtos.Project
         public string Name { get; set; } = String.Empty;
         public string Description { get; set; } = String.Empty;
         public List<Technology> Technologies { get; set; } = new List<Technology>();
-        public string ProjectTypeName { get; set; } = String.Empty;
+        public int ProjectTypeId { get; set; } 
+        public ProjectType ProjectType { get; set; } = null!;
         public DateTime StartDate { get; set; }
         public DateTime Deadline { get; set; }
         public int Progress { get; set; }

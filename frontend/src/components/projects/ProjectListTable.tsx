@@ -25,6 +25,7 @@ export default function ProjectListTable({
           <tr className="border-b">
             <th className="p-2">Project</th>
             <th className="p-2">Manager</th>
+            <th className="p-2">Type</th>
             <th className="p-2">Deadline</th>
             <th className="p-2">Progress</th>
             <th className="p-2">Status</th>
@@ -42,6 +43,7 @@ export default function ProjectListTable({
               <td className="p-2">
                 {project.manager.name} {project.manager.lastName}
               </td>
+              <td className="p-2">{project.projectType.name.slice(0, 10)}</td>
               <td className="p-2">{project.deadline.slice(0, 10)}</td>
               <td className="p-2">{project.progress}%</td>
               <td className="p-2">{project.statusName}</td>

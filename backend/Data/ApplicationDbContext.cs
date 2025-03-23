@@ -30,5 +30,6 @@ namespace backend.Data
         public DbSet<UserProject> UserProjects { get; set; } = null!;
         public DbSet<TaskLabel> TaskLabels { get; set; }
         public DbSet<TaskType> TaskTypes { get; set; }
+        public DbSet<backend.Models.ProjectType> ProjectTypes { get; set; }
     }
 }

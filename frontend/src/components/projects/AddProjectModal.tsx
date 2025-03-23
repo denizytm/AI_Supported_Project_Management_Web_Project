@@ -15,9 +15,9 @@ export default function AddProjectModal({
   const [formData, setFormData] = useState({
     name: "",
     description: "",
-    projectTypeName: "",
-    startdate: "",
-    deadline: "",
+    projectTypeId: 0,
+    startDate: new Date().toISOString().split("T")[0],
+    deadline: new Date(Date.now() + 86400000).toISOString().split("T")[0],
     priorityName: "",
     statusName: "",
     userId: 0,
@@ -26,6 +26,32 @@ export default function AddProjectModal({
   const [usersData, setUsersData] = useState<UserType[]>([]);
   const [filteredUsers, setFilteredUsers] = useState<UserType[]>([]);
   const [selectedUser, setSelectedUser] = useState<string | null>(null);
+  const [projectTypes, setProjectTypes] = useState<
+    { id: number; name: string }[]
+  >([]);
+
+  useEffect(() => {
+    (async () => {
+      const response = await axios.get(
+        "http://localhost:5110/api/projects/types"
+      );
+
+      if (response.status) {
+        setProjectTypes(response.data);
+      }
+    })();
+  }, []);
+
+  useEffect(() => {
+    (async () => {
+      const response = await axios.get(
+        "http://localhost:5110/api/projects/nonProjectManagers"
+      );
+      if (response.status) {
+        setUsersData(response.data);
+      }
+    })();
+  }, []);
 
   const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
@@ -49,19 +75,17 @@ export default function AddProjectModal({
     setFilteredUsers([]);
     setFormData((prev) => ({ ...prev, userId: +user.id }));
   };
-  useEffect(() => {
-    (async () => {
-      const response = await axios.get(
-        "http://localhost:5110/api/projects/nonProjectManagers"
-      );
-      if (response.status) {
-        setUsersData(response.data);
-      }
-    })();
-  }, []);
 
-  const onClose = () => {
-    setAddModelVisible(false);
+  const handleChange = (
+    e: React.ChangeEvent<
+      HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
+    >
+  ) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -70,7 +94,7 @@ export default function AddProjectModal({
     try {
       const response = await axios.post(
         "http://localhost:5110/api/projects/add",
-        { createProjectDto: formData }
+        {...formData}
       );
       if (response.status) {
         setAddModelVisible(false);
@@ -78,6 +102,10 @@ export default function AddProjectModal({
     } catch (error) {
       console.log(error);
     }
+  };
+
+  const onClose = () => {
+    setAddModelVisible(false);
   };
 
   if (!addModelVisible) return null;
@@ -98,6 +126,7 @@ export default function AddProjectModal({
               id="name"
               name="name"
               placeholder="Project Name"
+              onChange={handleChange}
               className="w-full p-2 border border-gray-300 rounded-lg dark:bg-gray-700 dark:border-gray-600 dark:text-white"
             />
           </div>
@@ -110,21 +139,26 @@ export default function AddProjectModal({
               id="description"
               name="description"
               placeholder="Description"
+              onChange={handleChange}
               className="w-full p-2 border border-gray-300 rounded-lg dark:bg-gray-700 dark:border-gray-600 dark:text-white"
             />
           </div>
 
           <div>
-            <label htmlFor="projectTypeName" className="block font-medium">
+            <label htmlFor="projectTypeId" className="block font-medium">
               Project Type
             </label>
-            <input
-              type="text"
-              id="projectTypeName"
-              name="projectTypeName"
-              placeholder="Project Type"
+            <select
+              id="projectTypeId"
+              name="projectTypeId"
+              onChange={handleChange}
               className="w-full p-2 border border-gray-300 rounded-lg dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-            />
+            >
+              <option>Project Type</option>
+              {projectTypes.map((projectType) => (
+                <option value={+projectType.id}>{projectType.name}</option>
+              ))}
+            </select>
           </div>
 
           <div>
@@ -135,6 +169,7 @@ export default function AddProjectModal({
               type="date"
               id="startDate"
               name="startDate"
+              onChange={handleChange}
               className="w-full p-2 border border-gray-300 rounded-lg dark:bg-gray-700 dark:border-gray-600 dark:text-white"
             />
           </div>
@@ -147,6 +182,7 @@ export default function AddProjectModal({
               type="date"
               id="deadline"
               name="deadline"
+              onChange={handleChange}
               className="w-full p-2 border border-gray-300 rounded-lg dark:bg-gray-700 dark:border-gray-600 dark:text-white"
             />
           </div>
@@ -160,6 +196,7 @@ export default function AddProjectModal({
               id="priorityName"
               name="priorityName"
               placeholder="Priority"
+              onChange={handleChange}
               className="w-full p-2 border border-gray-300 rounded-lg dark:bg-gray-700 dark:border-gray-600 dark:text-white"
             />
           </div>
@@ -173,6 +210,7 @@ export default function AddProjectModal({
               id="statusName"
               name="statusName"
               placeholder="Status"
+              onChange={handleChange}
               className="w-full p-2 border border-gray-300 rounded-lg dark:bg-gray-700 dark:border-gray-600 dark:text-white"
             />
           </div>
@@ -184,18 +222,23 @@ export default function AddProjectModal({
             <input
               type="text"
               id="userId"
-              name="userId"
               placeholder="Select Manager"
               value={searchTerm}
               onChange={handleSearch}
               className="w-full p-2 border border-gray-300 rounded-lg dark:bg-gray-700 dark:border-gray-600 dark:text-white"
             />
             {filteredUsers.length > 0 && (
-              <ul className="absolute w-full bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg mt-1 shadow-lg max-h-40 overflow-auto">
+              <ul
+                className="absolute w-full bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg mt-1 shadow-lg max-h-40 overflow-auto"
+              >
                 {filteredUsers.map((user) => (
                   <li
                     key={user.id}
-                    onClick={() => handleSelectUser(user)}
+                    value={user.id}
+                    onClick={() => {
+                        handleSelectUser(user);
+                        setFormData(oD => ({...oD,userId : +user.id}));
+                    }}
                     className="p-2 hover:bg-gray-100 dark:hover:bg-gray-600 cursor-pointer"
                   >
                     {user.name} {user.lastName}

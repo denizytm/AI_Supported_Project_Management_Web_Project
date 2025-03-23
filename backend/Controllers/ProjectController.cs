@@ -35,6 +35,7 @@ namespace backend.Controllers
                     .Skip((page - 1) * perPage)
                     .Take(perPage)
                     .Include(p => p.Manager)
+                    .Include(p => p.ProjectType)
                     .ToListAsync();
 
                 var projectDtos = projects.Select(p => p.ToProjectDto());
@@ -108,6 +109,24 @@ namespace backend.Controllers
 
 
                 return Ok(nonManagers);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new
+                {
+                    message = $"There was an error when fetching the project : {ex.Message}"
+                });
+            }
+        }
+
+        [HttpGet("types")]
+        public IActionResult GetProjectTypes()
+        {
+            try
+            {
+                var projectTypes = _context.ProjectTypes.ToList();
+            
+                return Ok(projectTypes);
             }
             catch (Exception ex)
             {

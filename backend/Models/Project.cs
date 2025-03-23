@@ -11,15 +11,6 @@ public enum ProjectStatus
     OnHold
 }
 
-public enum ProjectType
-{
-    Web,
-    Mobile,
-    AI,
-    ERP,
-    Application
-}
-
 public enum ProjectPriority {
     Low,
     Medium,
@@ -34,11 +25,6 @@ namespace backend.Models
         public string Name { get; set; } = String.Empty;
         public string Description { get; set; } = String.Empty;
         public List<Technology> Technologies { get; set; } = new List<Technology>();
-        public ProjectType ProjectType { get; set; }
-        public string ProjectTypeName {
-            get => ProjectType.ToString();
-            set => ProjectType = Enum.Parse<ProjectType>(value);
-        }
         public DateTime StartDate { get; set; }
         public DateTime Deadline { get; set; }
         public int Progress { get; set; } 
@@ -60,5 +46,7 @@ namespace backend.Models
         public List<UserProject> UserProjects { get; set; } = new List<UserProject>();
         public int UserId { get; set; }
         public User Manager { get; set; } = null!;
+        public int ProjectTypeId { get; set; }
+        public ProjectType ProjectType { get; set; } = null!;
     }
 }

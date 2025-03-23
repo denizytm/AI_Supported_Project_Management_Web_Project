@@ -110,12 +110,8 @@ namespace backend.Migrations
                     b.Property<int>("Progress")
                         .HasColumnType("int");
 
-                    b.Property<int>("ProjectType")
+                    b.Property<int>("ProjectTypeId")
                         .HasColumnType("int");
-
-                    b.Property<string>("ProjectTypeName")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime>("StartDate")
                         .HasColumnType("datetime2");
@@ -128,9 +124,28 @@ namespace backend.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("ProjectTypeId");
+
                     b.HasIndex("UserId");
 
                     b.ToTable("Projects");
+                });
+
+            modelBuilder.Entity("backend.Models.ProjectType", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("ProjectTypes");
                 });
 
             modelBuilder.Entity("backend.Models.Resource", b =>
@@ -387,6 +402,12 @@ namespace backend.Migrations
 
             modelBuilder.Entity("backend.Models.Project", b =>
                 {
+                    b.HasOne("backend.Models.ProjectType", "ProjectType")
+                        .WithMany()
+                        .HasForeignKey("ProjectTypeId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.HasOne("backend.Models.User", "Manager")
                         .WithMany()
                         .HasForeignKey("UserId")
@@ -394,6 +415,8 @@ namespace backend.Migrations
                         .IsRequired();
 
                     b.Navigation("Manager");
+
+                    b.Navigation("ProjectType");
                 });
 
             modelBuilder.Entity("backend.Models.Resource", b =>

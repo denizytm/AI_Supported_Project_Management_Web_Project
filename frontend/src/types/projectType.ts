@@ -1,12 +1,17 @@
+import internal from "stream";
 import { UserType } from "./userType";
 
 export interface ProjectType {
-  id: string;
+  id: number;
   name: string;
   manager: UserType;
   deadline: string;
   progress: string;
   statusName: string;
   priorityName: string;
-  budget : number
+  budget : number;
+  projectType : {
+    id : number;
+    name : string;
+  }
 }

@@ -28,6 +28,21 @@ namespace backend.Data
                 context.SaveChanges();
             }
 
+            if (!context.ProjectTypes.Any())
+            {
+                var names = new List<ProjectType>
+                    {
+                        new ProjectType { Name = "Web" },
+                        new ProjectType { Name = "Mobile" },
+                        new ProjectType { Name = "AI" },
+                        new ProjectType { Name = "ERP" },
+                        new ProjectType { Name = "Application" },
+                    };
+
+                context.ProjectTypes.AddRange(names);
+                context.SaveChanges();
+            }
+
             if (!context.Projects.Any())
             {
                 var projectFaker = new Faker<Project>()
@@ -38,7 +53,7 @@ namespace backend.Data
                     .RuleFor(p => p.Progress, f => f.Random.Int(1, 100))
                     .RuleFor(p => p.Status, f => f.PickRandom<ProjectStatus>())
                     .RuleFor(p => p.Priority, f => f.PickRandom<ProjectPriority>())
-                    .RuleFor(p => p.ProjectType, f => f.PickRandom<ProjectType>())
+                    .RuleFor(p => p.ProjectTypeId, f => f.Random.Int(1, context.ProjectTypes.ToList().Count))
                     .RuleFor(t => t.UserId, f => f.Random.Int(1, context.Users.ToList().Count))
                     .RuleFor(p => p.Budget, f => f.Random.Decimal(100, 1000));
 
@@ -126,7 +141,7 @@ namespace backend.Data
                             var userIds = context.UserProjects
                                 .Where(up => up.ProjectId == t.ProjectId)
                                 .Include(up => up.User)
-                                .Where(up => up.User.ProficiencyLevel != ProficiencyLevel.Beginner) 
+                                .Where(up => up.User.ProficiencyLevel != ProficiencyLevel.Beginner)
                                 .Select(up => up.UserId)
                                 .ToList();
 
@@ -137,7 +152,7 @@ namespace backend.Data
                             var userIds = context.UserProjects
                                 .Where(up => up.ProjectId == t.ProjectId)
                                 .Include(up => up.User)
-                                .Where(up => up.User.ProficiencyLevel == ProficiencyLevel.Expert) 
+                                .Where(up => up.User.ProficiencyLevel == ProficiencyLevel.Expert)
                                 .Select(up => up.UserId)
                                 .ToList();
 
