@@ -21,9 +21,10 @@ builder.Services.ConfigureCors();
 builder.Services.AddHttpClient();
 
 // adding the ChatBot Service
+
 #pragma warning disable SKEXP0070
 builder.Services.AddKernel()
-    .AddGoogleAIGeminiChatCompletion(configuration["GoogleAI:ModelId"], configuration["GoogleAI:ApiKey"]);
+    .AddGoogleAIGeminiChatCompletion(configuration["GoogleAI:ModelId"], configuration["GoogleAI:ApiKey"]); 
 
 // adding the DB Context
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
