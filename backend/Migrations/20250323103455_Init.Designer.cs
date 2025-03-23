@@ -12,15 +12,7 @@ using backend.Data;
 namespace backend.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-<<<<<<< HEAD:backend/Migrations/20250309081603_Init.Designer.cs
-<<<<<<<< HEAD:backend/Migrations/20250309070025_Init.Designer.cs
-    [Migration("20250309070025_Init")]
-========
-    [Migration("20250309081603_Init")]
->>>>>>>> fa7950fc188a4718fc17202c40a7d8de7590bfd2:backend/Migrations/20250309081603_Init.Designer.cs
-=======
-    [Migration("20250315113957_Init")]
->>>>>>> b23f6b49341695d7bd220b240d52bb3232fed2f9:backend/Migrations/20250315113957_Init.Designer.cs
+    [Migration("20250323103455_Init")]
     partial class Init
     {
         /// <inheritdoc />
