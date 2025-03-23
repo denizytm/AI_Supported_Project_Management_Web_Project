@@ -27,5 +27,21 @@ namespace backend.Mappers
                 UserId = project.UserId
             };
         }
+
+        public static Project FromCreateToProject(this CreateProjectDto createProjectDto){
+            return new Project {
+                Budget = 0,
+                Deadline = createProjectDto.Deadline,
+                Description = createProjectDto.Description,
+                Name = createProjectDto.Name,
+                PriorityName = createProjectDto.PriorityName,
+                ProjectTypeName = createProjectDto.ProjectTypeName,
+                Progress = 0,
+                StatusName = createProjectDto.StatusName,
+                StartDate = createProjectDto.StartDate,
+                UserId = createProjectDto.UserId
+            };
+        }
+
     }
 }

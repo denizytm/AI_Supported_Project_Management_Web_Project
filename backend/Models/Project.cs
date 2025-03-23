@@ -21,9 +21,9 @@ public enum ProjectType
 }
 
 public enum ProjectPriority {
-    low,
-    medium,
-    high 
+    Low,
+    Medium,
+    High 
 }
 
 namespace backend.Models

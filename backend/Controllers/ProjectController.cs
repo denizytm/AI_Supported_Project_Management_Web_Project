@@ -154,11 +154,13 @@ namespace backend.Controllers
         }
 
         [HttpPost("add")]
-        public async Task<IActionResult> CreateProject(Project project)
+        public async Task<IActionResult> CreateProject(CreateProjectDto createProjectDto)
         {
 
             try
             {
+                var project = createProjectDto.FromCreateToProject();
+
                 var result = await _context.Projects.AddAsync(project);
 
                 if (result.Entity != null)

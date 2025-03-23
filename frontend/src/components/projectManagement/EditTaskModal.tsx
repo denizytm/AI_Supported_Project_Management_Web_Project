@@ -70,7 +70,6 @@ export default function EditTaskModal({
 
   useEffect(() => {
     if (selectedTask) {
-      console.log(selectedTask);
       setFormData({
         description: selectedTask.description,
         dueDate: selectedTask.dueDateString,
@@ -112,11 +111,6 @@ export default function EditTaskModal({
       onClose();
     }
   };
-
-  useEffect(() => {
-    console.log(usersData);
-    console.log(tasks);
-  }, [usersData]);
 
   if (!ready) return <div>Loading...</div>;
   if (!modalVisibleStatus.edit) return null;

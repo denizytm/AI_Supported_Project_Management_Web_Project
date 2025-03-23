@@ -40,13 +40,13 @@ namespace backend.Controllers
             var unassignedTasks = await _context.Tasks
                 .Where(t => t.Status == TaskStatus.ToDo)
                 .Include(t => t.TaskType)
-                .Take(10)
+                .Take(5)
                 .ToListAsync();
 
 
             var availableUsers = await _context.Users
                 .Where(u => u.Status == AvailabilityStatus.Available)
-                .Take(10)
+                .Take(5)
                 .ToListAsync();
 
             if (!unassignedTasks.Any() || !availableUsers.Any())

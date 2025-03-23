@@ -3,10 +3,18 @@ import { useRouter } from "next/navigation";
 
 interface ProjectListTableProps {
   projects: Array<ProjectType>;
+  addModelVisible: boolean;
+  setAddModelVisible: React.Dispatch<React.SetStateAction<boolean>>;
+  editModelVisible: boolean;
+  setEditModelVisible: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 export default function ProjectListTable({
   projects,
+  addModelVisible,
+  editModelVisible,
+  setAddModelVisible,
+  setEditModelVisible,
 }: ProjectListTableProps) {
   const router = useRouter();
 

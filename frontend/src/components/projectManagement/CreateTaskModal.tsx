@@ -172,11 +172,27 @@ export default function CreateTaskModal({
           onChange={handleChange}
         >
           <option value="">Select User</option>
-          {usersData.map((user) => (
-            <option key={user.id} value={user.id}>
-              {user.name} {user.lastName}
-            </option>
-          ))}
+          {formData.taskLevelName == "Beginner"
+            ? usersData.map((user) => (
+                <option className={user.proficiencyLevelName == "Beginner" ? "text-green-500" : user.proficiencyLevelName == "Intermediate" ? "text-yellow-500" : "text-red-500"} key={user.id} value={user.id}>
+                  {user.name} {user.lastName} ({user.proficiencyLevelName})
+                </option>
+              ))
+            : formData.taskLevelName == "Intermediate"
+            ? usersData
+                .filter((user) => user.proficiencyLevelName != "Beginner")
+                .map((user) => (
+                  <option className={user.proficiencyLevelName == "Intermediate" ? "text-yellow-500" : "text-red-500"} key={user.id} value={user.id}>
+                    {user.name} {user.lastName} ({user.proficiencyLevelName})
+                  </option>
+                ))
+            : usersData
+                .filter((user) => user.proficiencyLevelName == "Expert")
+                .map((user) => (
+                  <option className="text-red-500" key={user.id} value={user.id}>
+                    {user.name} {user.lastName} ({user.proficiencyLevelName})
+                  </option>
+                ))}
         </select>
 
         <label htmlFor="statusName">Status</label>

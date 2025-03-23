@@ -1,5 +1,6 @@
 "use client";
 
+import AddProjectModal from "@/components/projects/AddProjectModal";
 import FilterTable from "@/components/projects/FilterTable";
 import InfoTable from "@/components/projects/InfoTable";
 import PaginationButtons from "@/components/projects/PaginationButtons";
@@ -18,6 +19,9 @@ export default function ProjectManagement() {
     Number(searchParams.get("page")) || 1
   );
   const [projects, setProjects] = useState<Array<ProjectType>>([]);
+
+  const [addModelVisible, setAddModelVisible] = useState(false);
+  const [editModelVisible, setEditModelVisible] = useState(false);
 
   useEffect(() => {
     (async () => {
@@ -38,17 +42,35 @@ export default function ProjectManagement() {
       ) : (
         <div className="dark:bg-gray-900 text-gray-800 dark:text-white">
           <h2 className="text-2xl font-semibold mb-4">Project Management</h2>
+
+          <AddProjectModal {...{ addModelVisible, setAddModelVisible }} />
+
           {/* General Infos */}
-          <InfoTable />          
+          <InfoTable />
 
           {/* Filter Section */}
           <FilterTable />
 
           {/* Search Section */}
-          <SearchForm />
+          <SearchForm
+            {...{
+              addModelVisible,
+              editModelVisible,
+              setAddModelVisible,
+              setEditModelVisible,
+            }}
+          />
 
           {/* Projects List */}
-          <ProjectListTable {...{ projects }} />
+          <ProjectListTable
+            {...{
+              projects,
+              addModelVisible,
+              editModelVisible,
+              setAddModelVisible,
+              setEditModelVisible,
+            }}
+          />
 
           {/* Pagination Section */}
           <PaginationButtons {...{ selectedPage, setSelectedPage }} />
