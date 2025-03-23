@@ -78,9 +78,36 @@ namespace backend.Controllers
         {
             try
             {
-                var users = _context.UserProjects.Where( up => up.ProjectId == projectId).Include(up => up.User).ToList();
+                var users = _context.UserProjects.Where(up => up.ProjectId == projectId).Include(up => up.User).ToList();
 
                 return Ok(users.Count);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new
+                {
+                    message = $"There was an error when fetching the project : {ex.Message}"
+                });
+            }
+        }
+
+        [HttpGet("nonProjectManagers")]
+        public IActionResult GetProjectManagers()
+        {
+            try
+            {
+                var managers = _context.Projects
+                                    .Include(p => p.Manager)
+                                    .Select(p => p.Manager.Id)  
+                                    .Distinct() 
+                                    .ToList();
+
+                var nonManagers = _context.Users
+                    .Where(u => !managers.Contains(u.Id))  
+                    .ToList();
+
+
+                return Ok(nonManagers);
             }
             catch (Exception ex)
             {

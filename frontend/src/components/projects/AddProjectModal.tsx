@@ -1,5 +1,7 @@
 "use client";
-import { useState } from "react";
+import { UserType } from "@/types/userType";
+import axios from "axios";
+import { useEffect, useState } from "react";
 
 interface AddProjectModalParams {
   addModelVisible: boolean;
@@ -10,10 +12,73 @@ export default function AddProjectModal({
   addModelVisible,
   setAddModelVisible,
 }: AddProjectModalParams) {
+  const [formData, setFormData] = useState({
+    name: "",
+    description: "",
+    projectTypeName: "",
+    startdate: "",
+    deadline: "",
+    priorityName: "",
+    statusName: "",
+    userId: 0,
+  });
+  const [searchTerm, setSearchTerm] = useState("");
+  const [usersData, setUsersData] = useState<UserType[]>([]);
+  const [filteredUsers, setFilteredUsers] = useState<UserType[]>([]);
+  const [selectedUser, setSelectedUser] = useState<string | null>(null);
 
-    const onClose = () => {
-        setAddModelVisible(false);
+  const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setSearchTerm(value);
+
+    if (value.length > 0) {
+      const filtered = usersData.filter(
+        (user) =>
+          user.name.toLowerCase().includes(value.toLowerCase()) ||
+          user.lastName.toLowerCase().includes(value.toLowerCase())
+      );
+      setFilteredUsers(filtered);
+    } else {
+      setFilteredUsers([]);
     }
+  };
+
+  const handleSelectUser = (user: UserType) => {
+    setSearchTerm(`${user.name} ${user.lastName}`);
+    setSelectedUser(`${user.name} ${user.lastName}`);
+    setFilteredUsers([]);
+    setFormData((prev) => ({ ...prev, userId: +user.id }));
+  };
+  useEffect(() => {
+    (async () => {
+      const response = await axios.get(
+        "http://localhost:5110/api/projects/nonProjectManagers"
+      );
+      if (response.status) {
+        setUsersData(response.data);
+      }
+    })();
+  }, []);
+
+  const onClose = () => {
+    setAddModelVisible(false);
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    console.log(formData);
+    try {
+      const response = await axios.post(
+        "http://localhost:5110/api/projects/add",
+        { createProjectDto: formData }
+      );
+      if (response.status) {
+        setAddModelVisible(false);
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
   if (!addModelVisible) return null;
   return (
@@ -23,46 +88,122 @@ export default function AddProjectModal({
           Add New Project
         </h2>
 
-        <form className="space-y-4">
-          <input
-            type="text"
-            placeholder="Project Name"
-            className="w-full p-2 border border-gray-300 rounded-lg dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-          />
-          <textarea
-            placeholder="Description"
-            className="w-full p-2 border border-gray-300 rounded-lg dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-          />
-          <input
-            type="text"
-            placeholder="Project Type"
-            className="w-full p-2 border border-gray-300 rounded-lg dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-          />
-          <input
-            type="date"
-            placeholder="Start Date"
-            className="w-full p-2 border border-gray-300 rounded-lg dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-          />
-          <input
-            type="date"
-            placeholder="Deadline"
-            className="w-full p-2 border border-gray-300 rounded-lg dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-          />
-          <input
-            type="text"
-            placeholder="Priority"
-            className="w-full p-2 border border-gray-300 rounded-lg dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-          />
-          <input
-            type="text"
-            placeholder="Status"
-            className="w-full p-2 border border-gray-300 rounded-lg dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-          />
-          <input
-            type="number"
-            placeholder="User ID"
-            className="w-full p-2 border border-gray-300 rounded-lg dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-          />
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div>
+            <label htmlFor="name" className="block font-medium">
+              Project Name
+            </label>
+            <input
+              type="text"
+              id="name"
+              name="name"
+              placeholder="Project Name"
+              className="w-full p-2 border border-gray-300 rounded-lg dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+            />
+          </div>
+
+          <div>
+            <label htmlFor="description" className="block font-medium">
+              Description
+            </label>
+            <textarea
+              id="description"
+              name="description"
+              placeholder="Description"
+              className="w-full p-2 border border-gray-300 rounded-lg dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+            />
+          </div>
+
+          <div>
+            <label htmlFor="projectTypeName" className="block font-medium">
+              Project Type
+            </label>
+            <input
+              type="text"
+              id="projectTypeName"
+              name="projectTypeName"
+              placeholder="Project Type"
+              className="w-full p-2 border border-gray-300 rounded-lg dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+            />
+          </div>
+
+          <div>
+            <label htmlFor="startDate" className="block font-medium">
+              Start Date
+            </label>
+            <input
+              type="date"
+              id="startDate"
+              name="startDate"
+              className="w-full p-2 border border-gray-300 rounded-lg dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+            />
+          </div>
+
+          <div>
+            <label htmlFor="deadline" className="block font-medium">
+              Deadline
+            </label>
+            <input
+              type="date"
+              id="deadline"
+              name="deadline"
+              className="w-full p-2 border border-gray-300 rounded-lg dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+            />
+          </div>
+
+          <div>
+            <label htmlFor="priorityName" className="block font-medium">
+              Priority
+            </label>
+            <input
+              type="text"
+              id="priorityName"
+              name="priorityName"
+              placeholder="Priority"
+              className="w-full p-2 border border-gray-300 rounded-lg dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+            />
+          </div>
+
+          <div>
+            <label htmlFor="statusName" className="block font-medium">
+              Status
+            </label>
+            <input
+              type="text"
+              id="statusName"
+              name="statusName"
+              placeholder="Status"
+              className="w-full p-2 border border-gray-300 rounded-lg dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+            />
+          </div>
+
+          <div className="relative">
+            <label htmlFor="userId" className="block font-medium">
+              User ID
+            </label>
+            <input
+              type="text"
+              id="userId"
+              name="userId"
+              placeholder="Select Manager"
+              value={searchTerm}
+              onChange={handleSearch}
+              className="w-full p-2 border border-gray-300 rounded-lg dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+            />
+            {filteredUsers.length > 0 && (
+              <ul className="absolute w-full bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg mt-1 shadow-lg max-h-40 overflow-auto">
+                {filteredUsers.map((user) => (
+                  <li
+                    key={user.id}
+                    onClick={() => handleSelectUser(user)}
+                    className="p-2 hover:bg-gray-100 dark:hover:bg-gray-600 cursor-pointer"
+                  >
+                    {user.name} {user.lastName}
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
 
           <div className="flex justify-end space-x-2">
             <button
