@@ -52,7 +52,7 @@ export default function TasksTable({
                       task.taskLevelName === "High" ? "font-bold" : ""
                     }`}
                   >
-                    {task.taskName}
+                    {task.description}
                   </td>
                   <td className="p-3">{task.taskLabel.label}</td>
                   <td className="p-3 text-red-500">{task.priorityName}</td>

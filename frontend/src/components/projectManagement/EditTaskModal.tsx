@@ -7,31 +7,31 @@ import { UserType } from "@/types/userType";
 import axios from "axios";
 import { useEffect, useState } from "react";
 
-interface TaskModalProps {
+interface EditTaskModalProps {
   modalVisibleStatus: {
     create: boolean;
     edit: boolean;
+    delete: boolean;
   };
   setModalVisibleStatus: React.Dispatch<
     React.SetStateAction<{
       create: boolean;
       edit: boolean;
+      delete: boolean;
     }>
   >;
-  setIsHidden: React.Dispatch<React.SetStateAction<boolean>>;
   usersData: UserType[];
-  projectId: string;
+  projectId: number;
   tasks: TaskType[];
 }
 
 export default function EditTaskModal({
   modalVisibleStatus,
-  setIsHidden,
   setModalVisibleStatus,
   usersData,
   projectId,
   tasks,
-}: TaskModalProps) {
+}: EditTaskModalProps) {
   const [selectedTask, setSelectedTask] = useState<TaskType | null>();
 
   const [formData, setFormData] = useState({
@@ -46,7 +46,7 @@ export default function EditTaskModal({
     progress: 0,
     note: "",
     projectId,
-    taskId: null,
+    taskId: 0,
     userId: 0,
   });
 
@@ -79,11 +79,11 @@ export default function EditTaskModal({
         startDate: selectedTask.startDateString,
         statusName: selectedTask.statusName,
         projectId,
-        taskId: null,
         taskLabelId: selectedTask.taskLabel.id,
         taskLevelName: selectedTask.taskLevelName,
         userId: selectedTask.userId,
         taskTypeId: selectedTask.taskTypeId,
+        taskId: selectedTask.taskId || 0,
       });
     }
   }, [selectedTask]);
@@ -93,7 +93,6 @@ export default function EditTaskModal({
       ...oD,
       edit: false,
     }));
-    setIsHidden(false);
   };
 
   const handleChange = (
@@ -116,7 +115,7 @@ export default function EditTaskModal({
   if (!modalVisibleStatus.edit) return null;
 
   return (
-    <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-60">
       <div className="bg-white p-6 rounded-lg shadow-lg w-96">
         <h2 className="text-xl font-bold mb-4">Edit Tasks</h2>
 
@@ -254,11 +253,14 @@ export default function EditTaskModal({
             ? usersData
                 .filter((user) => user.proficiencyLevelName != "Beginner")
                 .map((user) => (
-                  <option className={
-                    user.proficiencyLevelName == "Intermediate"
-                      ? "text-yellow-500"
-                      : "text-red-500"
-                  } value={user.id}>
+                  <option
+                    className={
+                      user.proficiencyLevelName == "Intermediate"
+                        ? "text-yellow-500"
+                        : "text-red-500"
+                    }
+                    value={user.id}
+                  >
                     {user.name} {user.lastName} ({user.proficiencyLevelName})
                   </option>
                 ))
@@ -287,53 +289,34 @@ export default function EditTaskModal({
         <select
           name="taskId"
           className="w-full p-2 border rounded mb-2 overflow-scroll"
-          value={formData.statusName}
+          value={formData.taskId}
           onChange={handleChange}
         >
           <option value="">None</option>
-          {formData.taskLevelName == "Beginner"
-            ? tasks
-                .filter((task) => task.taskLevelName == "Beginner")
-                .map((task) => (
-                  <option className="text-green-500" value={task.id}>
-                    {task.taskType.name} ({task.taskLevelName}) (
-                    {task.taskType.name} / {task.taskLabel.label}) (
-                    {task.startDateString + "-" + task.dueDateString})
-                  </option>
-                ))
-            : formData.taskLevelName == "Intermediate"
-            ? tasks
-                .filter((task) => task.taskLevelName != "Expert")
-                .map((task) => (
-                  <option
-                    className={
-                      task.taskLevelName == "Beginner"
-                        ? "text-green-500"
-                        : "text-yellow-500"
-                    }
-                    value={task.id}
-                  >
-                    {task.taskType.name} ({task.taskLevelName}) (
-                    {task.taskType.name} / {task.taskLabel.label}) (
-                    {task.startDateString + "-" + task.dueDateString})
-                  </option>
-                ))
-            : tasks.map((task) => (
-                <option
-                  className={
-                    task.taskLevelName == "Beginner"
-                      ? "text-green-500"
-                      : task.taskLevelName == "Intermediate"
-                      ? "text-yellow-500"
-                      : "text-red-500"
-                  }
-                  value={task.id}
-                >
-                  {task.taskType.name} ({task.taskLevelName}) (
-                  {task.taskType.name} / {task.taskLabel.label}) (
-                  {task.startDateString + "  " + task.dueDateString})
-                </option>
-              ))}
+          {tasks
+            .filter(
+              (task) =>
+                task.taskTypeId == formData.taskTypeId &&
+                selectedTask &&
+                task.id != selectedTask.id
+            )
+            .map((task) => (
+              <option
+                className={
+                  task.taskLevelName == "Beginner"
+                    ? "text-green-500"
+                    : task.taskLevelName == "Intermediate"
+                    ? "text-yellow-500"
+                    : "text-red-500"
+                }
+                value={task.id}
+              >
+                {task.description.slice(0, 10)} {task.taskType.name} (
+                {task.taskLevelName}) ({task.taskType.name} /{" "}
+                {task.taskLabel.label}) (
+                {task.startDateString + "  " + task.dueDateString})
+              </option>
+            ))}
         </select>
 
         <div className="flex justify-end gap-2">

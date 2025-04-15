@@ -7,31 +7,31 @@ import { UserType } from "@/types/userType";
 import axios from "axios";
 import { useEffect, useState } from "react";
 
-interface TaskModalProps {
+interface CreateTaskModalProps {
   modalVisibleStatus: {
     create: boolean;
     edit: boolean;
+    delete: boolean;
   };
   setModalVisibleStatus: React.Dispatch<
     React.SetStateAction<{
       create: boolean;
       edit: boolean;
+      delete: boolean;
     }>
   >;
-  setIsHidden: React.Dispatch<React.SetStateAction<boolean>>;
   usersData: UserType[];
-  projectId: string;
+  projectId: number;
   tasks: TaskType[];
 }
 
 export default function CreateTaskModal({
   modalVisibleStatus,
-  setIsHidden,
   setModalVisibleStatus,
   usersData,
   projectId,
   tasks,
-}: TaskModalProps) {
+}: CreateTaskModalProps) {
   const [formData, setFormData] = useState({
     description: "",
     taskTypeId: 1,
@@ -71,7 +71,6 @@ export default function CreateTaskModal({
       ...oD,
       create: false,
     }));
-    setIsHidden(false);
   };
 
   const handleChange = (
@@ -90,7 +89,7 @@ export default function CreateTaskModal({
   if (!ready) return <div>Loading...</div>;
   if (!modalVisibleStatus.create) return null;
   return (
-    <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-60">
       <div className="bg-white p-6 rounded-lg shadow-lg w-96">
         <h2 className="text-xl font-bold mb-4">Add New Task</h2>
 
@@ -174,7 +173,17 @@ export default function CreateTaskModal({
           <option value="">Select User</option>
           {formData.taskLevelName == "Beginner"
             ? usersData.map((user) => (
-                <option className={user.proficiencyLevelName == "Beginner" ? "text-green-500" : user.proficiencyLevelName == "Intermediate" ? "text-yellow-500" : "text-red-500"} key={user.id} value={user.id}>
+                <option
+                  className={
+                    user.proficiencyLevelName == "Beginner"
+                      ? "text-green-500"
+                      : user.proficiencyLevelName == "Intermediate"
+                      ? "text-yellow-500"
+                      : "text-red-500"
+                  }
+                  key={user.id}
+                  value={user.id}
+                >
                   {user.name} {user.lastName} ({user.proficiencyLevelName})
                 </option>
               ))
@@ -182,14 +191,26 @@ export default function CreateTaskModal({
             ? usersData
                 .filter((user) => user.proficiencyLevelName != "Beginner")
                 .map((user) => (
-                  <option className={user.proficiencyLevelName == "Intermediate" ? "text-yellow-500" : "text-red-500"} key={user.id} value={user.id}>
+                  <option
+                    className={
+                      user.proficiencyLevelName == "Intermediate"
+                        ? "text-yellow-500"
+                        : "text-red-500"
+                    }
+                    key={user.id}
+                    value={user.id}
+                  >
                     {user.name} {user.lastName} ({user.proficiencyLevelName})
                   </option>
                 ))
             : usersData
                 .filter((user) => user.proficiencyLevelName == "Expert")
                 .map((user) => (
-                  <option className="text-red-500" key={user.id} value={user.id}>
+                  <option
+                    className="text-red-500"
+                    key={user.id}
+                    value={user.id}
+                  >
                     {user.name} {user.lastName} ({user.proficiencyLevelName})
                   </option>
                 ))}
@@ -213,49 +234,25 @@ export default function CreateTaskModal({
           onChange={handleChange}
         >
           <option value="">None</option>
-          {formData.taskLevelName == "Beginner"
-            ? tasks
-                .filter((task) => task.taskLevelName == "Beginner")
-                .map((task) => (
-                  <option className="text-green-500" value={task.id}>
-                    {task.taskType.name} ({task.taskLevelName}) (
-                    {task.taskType.name} / {task.taskLabel.label}) (
-                    {task.startDateString + "-" + task.dueDateString})
-                  </option>
-                ))
-            : formData.taskLevelName == "Intermediate"
-            ? tasks
-                .filter((task) => task.taskLevelName != "Expert")
-                .map((task) => (
-                  <option
-                    className={
-                      task.taskLevelName == "Beginner"
-                        ? "text-green-500"
-                        : "text-yellow-500"
-                    }
-                    value={task.id}
-                  >
-                    {task.taskType.name} ({task.taskLevelName}) (
-                    {task.taskType.name} / {task.taskLabel.label}) (
-                    {task.startDateString + "-" + task.dueDateString})
-                  </option>
-                ))
-            : tasks.map((task) => (
-                <option
-                  className={
-                    task.taskLevelName == "Beginner"
-                      ? "text-green-500"
-                      : task.taskLevelName == "Intermediate"
-                      ? "text-yellow-500"
-                      : "text-red-500"
-                  }
-                  value={task.id}
-                >
-                  {task.taskType.name} ({task.taskLevelName}) (
-                  {task.taskType.name} / {task.taskLabel.label}) (
-                  {task.startDateString + "  " + task.dueDateString})
-                </option>
-              ))}
+          {tasks
+            .filter((task) => task.taskTypeId == formData.taskTypeId)
+            .map((task) => (
+              <option
+                className={
+                  task.taskLevelName == "Beginner"
+                    ? "text-green-500"
+                    : task.taskLevelName == "Intermediate"
+                    ? "text-yellow-500"
+                    : "text-red-500"
+                }
+                value={task.id}
+              >
+                {task.description.slice(0, 10)} {task.taskType.name} (
+                {task.taskLevelName}) ({task.taskType.name} /{" "}
+                {task.taskLabel.label}) (
+                {task.startDateString + "  " + task.dueDateString})
+              </option>
+            ))}
         </select>
 
         <div className="flex justify-end gap-2">

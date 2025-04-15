@@ -12,10 +12,11 @@ import ProjectTeamList from "@/components/projectManagement/ProjectTeamList";
 import CreateTaskModal from "@/components/projectManagement/CreateTaskModal";
 import GanttChart from "@/components/projectManagement/GanttChart";
 import EditTaskModal from "@/components/projectManagement/EditTaskModal";
+import DeleteTaskModal from "@/components/projectManagement/DeleteTaskModal";
 
 export default function TaskManagement() {
   const [projectData, setProjectData] = useState<ProjectType>({
-    id: "0",
+    id: 0,
     budget: 0,
     deadline: "0000-00-00",
     manager: {
@@ -23,10 +24,14 @@ export default function TaskManagement() {
       email: "loading",
       name: "loading",
       lastName: "loading",
-      profficiencyLevelName: "loading",
+      proficiencyLevelName: "loading",
       roleName: "loading",
       statusName: "loading",
       taskRoleName: "loading",
+    },
+    projectType: {
+      id: 0,
+      name: "",
     },
     name: "loading",
     priorityName: "loading",
@@ -47,6 +52,7 @@ export default function TaskManagement() {
   const [modalVisibleStatus, setModalVisibleStatus] = useState({
     create: false,
     edit: false,
+    delete : false
   });
   const [isHidden, setIsHidden] = useState(false);
 
@@ -61,9 +67,7 @@ export default function TaskManagement() {
       );
 
       if (response.status) {
-    
-        setTasks(response.data.tasks),
-        setTaskMap(response.data.groupedTasks);
+        setTasks(response.data.tasks), setTaskMap(response.data.groupedTasks);
         setProjectData(response.data.project);
         setUsersData(response.data.users);
         setMinStartDate(response.data.minStartDate);
@@ -74,8 +78,6 @@ export default function TaskManagement() {
     })();
   }, []);
 
-
-
   if (!ready1) return <div>Loading...</div>;
   return (
     <div className="p-6 bg-gray-100 dark:bg-gray-900 min-h-screen">
@@ -83,7 +85,6 @@ export default function TaskManagement() {
         {...{
           modalVisibleStatus,
           setModalVisibleStatus,
-          setIsHidden,
           usersData,
           projectId: projectData.id,
           tasks,
@@ -93,9 +94,15 @@ export default function TaskManagement() {
         {...{
           modalVisibleStatus,
           setModalVisibleStatus,
-          setIsHidden,
           usersData,
           projectId: projectData.id,
+          tasks,
+        }}
+      />
+      <DeleteTaskModal
+        {...{
+          modalVisibleStatus,
+          setModalVisibleStatus,
           tasks,
         }}
       />
@@ -119,7 +126,7 @@ export default function TaskManagement() {
                     ...oD,
                     create: true,
                   }));
-                  setIsHidden(true);
+            
                 }}
                 className="p-2 bg-white dark:bg-gray-800 shadow-md rounded-lg hover:bg-gray-100"
               >
@@ -131,13 +138,22 @@ export default function TaskManagement() {
                     ...oD,
                     edit: true,
                   }));
-                  setIsHidden(true);
+    
                 }}
                 className="p-2 bg-white dark:bg-gray-800 shadow-md rounded-lg hover:bg-gray-100"
               >
                 <Pencil size={20} />
               </button>
-              <button className="p-2 bg-white dark:bg-gray-800 shadow-md rounded-lg hover:bg-gray-100">
+              <button
+                onClick={() => {
+                  setModalVisibleStatus((oD) => ({
+                    ...oD,
+                    delete: true,
+                  }));
+          
+                }}
+                className="p-2 bg-white dark:bg-gray-800 shadow-md rounded-lg hover:bg-gray-100"
+              >
                 <Trash2 size={20} />
               </button>
             </div>

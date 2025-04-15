@@ -192,6 +192,12 @@ namespace backend.Controllers
                     return BadRequest(new { message = $"No task found with the id value : {id}" });
                 }
 
+                var dependedTasks = await _context.Tasks.Where(task => task.TaskId == id).ToListAsync();
+
+                foreach(var taskData in dependedTasks) {
+                    taskData.TaskId = null;
+                }
+
                 _context.Tasks.Remove(task);
                 await _context.SaveChangesAsync();
 
