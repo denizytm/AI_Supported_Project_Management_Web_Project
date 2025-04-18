@@ -81,14 +81,14 @@ namespace backend.Controllers
                 string prompt = $@"
                     You are an AI assistant that assigns tasks to the most suitable users.
 
-                    🎯 Objective: Assign tasks to users with the right skills and within allowed limits.
+                    Objective: Assign tasks to users with the right skills and within allowed limits.
 
-                    📌 Previous Assignments:
+                    Previous Assignments:
                     [
                         {pastAssignments}
                     ]
 
-                    🧾 Tasks to Assign:
+                    Tasks to Assign:
                     {string.Join("\n", batch.Select(t => $@"
                     - Task ID: {t.Id}
                       Description: {t.Description}
@@ -99,7 +99,7 @@ namespace backend.Controllers
                       Due: {t.DueDate}
                     "))}
 
-                    👤 Available Users:
+                    Available Users:
                     {string.Join("\n", availableUsers.Select(u => $@"
                     - User ID: {u.Id}
                       Name: {u.Name} {u.LastName}
@@ -107,7 +107,7 @@ namespace backend.Controllers
                       Role: {u.TaskRole}
                     "))}
 
-                    📏 **Assignment Rules (You must follow all of these strictly):**
+                    **Assignment Rules (You must follow all of these strictly):**
                     1. A user's `ProficiencyLevel` must be **equal to or greater** than the task's `TaskLevel`.
                     2. Assigned tasks for the same user **must not overlap** in date ranges.
                     3. **Task limits based on proficiency:**

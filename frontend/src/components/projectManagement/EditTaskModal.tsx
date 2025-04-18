@@ -36,8 +36,8 @@ export default function EditTaskModal({
 
   const [formData, setFormData] = useState({
     description: "",
-    taskTypeId: 1,
-    taskLabelId: 1,
+    taskTypeName: "",
+    taskLabelName: "",
     startDate: "",
     dueDate: "",
     taskLevelName: "Beginner",
@@ -79,10 +79,10 @@ export default function EditTaskModal({
         startDate: selectedTask.startDateString,
         statusName: selectedTask.statusName,
         projectId,
-        taskLabelId: selectedTask.taskLabel.id,
+        taskLabelName: selectedTask.taskLabel.label,
         taskLevelName: selectedTask.taskLevelName,
         userId: selectedTask.userId,
-        taskTypeId: selectedTask.taskTypeId,
+        taskTypeName: selectedTask.taskType.name,
         taskId: selectedTask.taskId || 0,
       });
     }
@@ -156,29 +156,33 @@ export default function EditTaskModal({
           value={formData.description}
         />
 
-        <label htmlFor="typeName">Task Type</label>
-        <select
-          name="taskTypeId"
+        <label htmlFor="taskTypeName">Task Type</label>
+        <input
+          list="taskTypeList"
+          name="taskTypeName"
           className="w-full p-2 border rounded mb-2"
+          value={formData.taskTypeName}
           onChange={handleChange}
-          value={formData.taskTypeId}
-        >
+        />
+        <datalist id="taskTypeList">
           {taskTypes.map((type) => (
-            <option value={type.id}>{type.name}</option>
+            <option key={type.id} value={type.name} />
           ))}
-        </select>
+        </datalist>
 
-        <label htmlFor="taksLabelId">Task Label</label>
-        <select
-          name="taskLabelId"
+        <label htmlFor="taskLabelName">Task Label</label>
+        <input
+          list="taskLabelList"
+          name="taskLabelName"
           className="w-full p-2 border rounded mb-2"
+          value={formData.taskLabelName}
           onChange={handleChange}
-          value={formData.taskLabelId}
-        >
+        />
+        <datalist id="taskLabelList">
           {taskLabels.map((label) => (
-            <option value={label.id}>{label.label}</option>
+            <option key={label.id} value={label.label} />
           ))}
-        </select>
+        </datalist>
 
         <label htmlFor="startDate">Start Date</label>
         <input
@@ -296,7 +300,7 @@ export default function EditTaskModal({
           {tasks
             .filter(
               (task) =>
-                task.taskTypeId == formData.taskTypeId &&
+                task.taskType.name == formData.taskTypeName &&
                 selectedTask &&
                 task.id != selectedTask.id
             )

@@ -6,6 +6,7 @@ using backend.Data;
 using backend.Dtos.Task;
 using backend.Interfaces;
 using backend.Mappers;
+using backend.Models;
 
 namespace backend.Repository
 {
@@ -48,7 +49,7 @@ namespace backend.Repository
             return await _context.Tasks.FindAsync(id);
         }
 
-        public async Task<Models.Task?> UpdateAsync(int id, UpdateTaskDto updateTaskDto)
+        public async Task<Models.Task?> UpdateAsync(int id, UpdateTaskDto updateTaskDto,TaskLabel taskLabelData, TaskType taskTypeData)
         {
             var taskData = await _context.Tasks.FindAsync(id);
 
@@ -57,7 +58,7 @@ namespace backend.Repository
                 return null;
             }
 
-            var updatedTaskData = updateTaskDto.fromUpdateDtoToTask();
+            var updatedTaskData = updateTaskDto.fromUpdateDtoToTask(taskLabelData,taskTypeData);
 
             taskData.Description = updateTaskDto.Description;
             taskData.StartDate = updateTaskDto.StartDate;
@@ -69,8 +70,8 @@ namespace backend.Repository
             taskData.StatusName = updateTaskDto.StatusName;
             taskData.TaskLevelName = updateTaskDto.TaskLevelName;
             taskData.UserId = updateTaskDto.UserId;
-            taskData.TaskLabelId = updateTaskDto.TaskLabelId;
-            taskData.TaskTypeId = updateTaskDto.TaskTypeId;
+            taskData.TaskLabelId = taskLabelData.Id;
+            taskData.TaskTypeId = taskTypeData.Id;
 
             await _context.SaveChangesAsync();
 

@@ -7,4 +7,4 @@ export interface UserType {
     roleName: string;
     statusName: string;
     taskRoleName : string;
-  }
+}

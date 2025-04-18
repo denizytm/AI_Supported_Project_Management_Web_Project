@@ -12,7 +12,7 @@ namespace backend.Dtos.Task
     {
         public int Id { get; set; }
         public string Description { get; set; } = String.Empty;
-        public TaskLabel TaskLabel { get; set; } = null!;
+        public backend.Models.TaskLabel TaskLabel { get; set; } = null!;
         [JsonIgnore]
         public DateTime StartDate { get; set; }
         public string StartDateString => this.StartDate.ToString("yyyy-MM-dd");
@@ -29,7 +29,7 @@ namespace backend.Dtos.Task
         public int? TaskId { get; set; }
         public backend.Models.Task? DependingTask { get; set; } = null!;
         public int TaskTypeId { get; set; }
-        public TaskType TaskType { get; set; } = null!;
+        public backend.Models.TaskType TaskType { get; set; } = null!;
         public int UserId { get; set; }
         public UserDto AssignedUser { get; set; } = null!;
     }

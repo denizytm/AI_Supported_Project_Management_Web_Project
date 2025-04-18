@@ -14,7 +14,12 @@ import EditTaskModal from "@/components/projectManagement/EditTaskModal";
 import DeleteTaskModal from "@/components/projectManagement/DeleteTaskModal";
 import AssignmentPreviewModal from "@/components/projectManagement/AssignmentPreviewModal";
 
-export default function TaskManagement() {
+interface TaskManagementProps {
+  id : number,
+  text : string
+}
+
+export default function TaskManagement( { id,text } : TaskManagementProps) {
   const [projectData, setProjectData] = useState<ProjectType>({
     id: 0,
     budget: 0,
@@ -38,7 +43,7 @@ export default function TaskManagement() {
     progress: "loading",
     statusName: "loading",
   });
-  const [usersData, setUsersData] = useState<Array<UserType>>([]);
+  const [usersData, setUsersData] = useState<UserType[]>([]);
 
   const [tasks, setTasks] = useState<Array<TaskType>>([]);
   const [taskMap, setTaskMap] = useState(new Map<string, Array<TaskType>>());
@@ -87,7 +92,7 @@ export default function TaskManagement() {
       }));
 
       setAiAssignments(
-        data.map((d: any) => ({
+        data.map((d : any) => ({
           taskId: d.taskId,
           taskDescription: d.taskDescription,
           assignedTo: d.userId,

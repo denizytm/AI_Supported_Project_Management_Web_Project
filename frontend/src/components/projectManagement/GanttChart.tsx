@@ -67,13 +67,13 @@ export default function GanttChart({ taskMap }: GanttChartProps) {
     id: "TaskID",
     name: "TaskName",
     label: "LabelName",
+    status: "Status",
     startDate: "StartDate",
     endDate: "EndDate",
     duration: "Duration",
     progress: "Progress",
     child: "subtasks",
     priority: "Priority",
-    status: "Status",
     assigned: "Assigned",
     dependency: "Predecessor",
   };
@@ -122,6 +122,7 @@ export default function GanttChart({ taskMap }: GanttChartProps) {
               width="250"
             ></ColumnDirective>
             <ColumnDirective field="LabelName"></ColumnDirective>
+            <ColumnDirective field="Status"></ColumnDirective>
             <ColumnDirective field="StartDate"></ColumnDirective>
             <ColumnDirective field="EndDate"></ColumnDirective>
             <ColumnDirective field="Duration"></ColumnDirective>

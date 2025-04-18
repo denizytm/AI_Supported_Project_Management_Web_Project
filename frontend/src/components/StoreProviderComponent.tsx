@@ -7,7 +7,7 @@ interface StoreProviderProps {
   children: React.ReactNode;
 }
 
-export default function StoreProvider({ children }: StoreProviderProps) {
+export default function StoreProvider({ children } : StoreProviderProps) {
   const storeRef = useRef<AppStore | null>(null);
 
   if (!storeRef.current) {

@@ -136,7 +136,35 @@ namespace backend.Controllers
         {
             try
             {
-                var result = await _context.Tasks.AddAsync(createTaskDto.fromCreateDtoToTask());
+
+                var taskTypeData = await _context.TaskTypes
+                    .FirstOrDefaultAsync(tt => tt.Name == createTaskDto.TaskTypeName);
+
+                if (taskTypeData == null)
+                {
+                    taskTypeData = new TaskType { Name = createTaskDto.TaskTypeName };
+                    await _context.TaskTypes.AddAsync(taskTypeData);
+                    await _context.SaveChangesAsync(); 
+                }
+
+                var taskLabelData = await _context.TaskLabels
+                    .FirstOrDefaultAsync(tl => tl.Label == createTaskDto.TaskLabelName);
+
+                if (taskLabelData == null)
+                {
+                    taskLabelData = new TaskLabel { Label = createTaskDto.TaskLabelName };
+                    await _context.TaskLabels.AddAsync(taskLabelData);
+                    await _context.SaveChangesAsync(); 
+                }
+
+                await _context.SaveChangesAsync();
+
+                taskTypeData = await _context.TaskTypes.FirstOrDefaultAsync(tt => tt.Name == createTaskDto.TaskTypeName);
+                taskLabelData = await _context.TaskLabels.FirstOrDefaultAsync(tl => tl.Label == createTaskDto.TaskLabelName);
+
+                var taskData = createTaskDto.fromCreateDtoToTask(taskTypeData, taskLabelData);
+
+                var result = await _context.Tasks.AddAsync(taskData);
 
                 if (result.Entity != null)
                 {
@@ -168,7 +196,29 @@ namespace backend.Controllers
                     return BadRequest(new { message = $"No task found with the id value : {id}" });
                 }
 
-                await _taskRepository.UpdateAsync(id, updateTaskDto);
+                var taskTypeData = await _context.TaskTypes
+                    .FirstOrDefaultAsync(tt => tt.Name == updateTaskDto.TaskTypeName);
+
+                if (taskTypeData == null)
+                {
+                    taskTypeData = new TaskType { Name = updateTaskDto.TaskTypeName };
+                    await _context.TaskTypes.AddAsync(taskTypeData);
+                    await _context.SaveChangesAsync(); 
+                }
+
+                var taskLabelData = await _context.TaskLabels
+                    .FirstOrDefaultAsync(tl => tl.Label == updateTaskDto.TaskLabelName);
+
+                if (taskLabelData == null)
+                {
+                    taskLabelData = new TaskLabel { Label = updateTaskDto.TaskLabelName };
+                    await _context.TaskLabels.AddAsync(taskLabelData);
+                    await _context.SaveChangesAsync(); 
+                }
+
+                await _context.SaveChangesAsync();
+
+                await _taskRepository.UpdateAsync(id, updateTaskDto,taskLabelData,taskTypeData);
 
                 return Ok("The task has been updated");
             }
@@ -194,7 +244,8 @@ namespace backend.Controllers
 
                 var dependedTasks = await _context.Tasks.Where(task => task.TaskId == id).ToListAsync();
 
-                foreach(var taskData in dependedTasks) {
+                foreach (var taskData in dependedTasks)
+                {
                     taskData.TaskId = null;
                 }
 

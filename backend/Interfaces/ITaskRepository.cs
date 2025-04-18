@@ -12,7 +12,7 @@ namespace backend.Interfaces
         List<Models.Task> GetAll();
         Task<Models.Task?> GetByIdAsync(int id);
         Task<Models.Task> CreateAsync(backend.Models.Task taskModel);
-        Task<Models.Task?> UpdateAsync(int id,UpdateTaskDto updateTaskDto);
+        Task<Models.Task?> UpdateAsync(int id,UpdateTaskDto updateTaskDto, TaskLabel taskLabeldata, TaskType taskTypeData);
         Task<Models.Task?> DeleteAsync(int id);
     }
 }

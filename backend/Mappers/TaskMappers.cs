@@ -32,7 +32,8 @@ namespace backend.Mappers
             };
         }
 
-        public static backend.Models.Task fromCreateDtoToTask(this CreateTaskDto createTaskDto){
+        public static backend.Models.Task fromCreateDtoToTask(this CreateTaskDto createTaskDto,TaskType taskTypeData,TaskLabel taskLabelData){
+            
             return new backend.Models.Task {
                 Description = createTaskDto.Description,
                 StartDate = createTaskDto.StartDate,
@@ -45,12 +46,12 @@ namespace backend.Mappers
                 StatusName = createTaskDto.StatusName,
                 TaskLevelName = createTaskDto.TaskLevelName,
                 UserId = createTaskDto.UserId,
-                TaskLabelId = createTaskDto.TaskLabelId,
-                TaskTypeId = createTaskDto.TaskTypeId,
+                TaskLabelId = taskLabelData.Id,
+                TaskTypeId = taskTypeData.Id,
             };
         }
 
-        public static backend.Models.Task fromUpdateDtoToTask(this UpdateTaskDto updateTaskDto) {
+        public static backend.Models.Task fromUpdateDtoToTask(this UpdateTaskDto updateTaskDto, TaskLabel taskLabelData, TaskType taskTypeData) {
 
             return new Models.Task {
                 Description = updateTaskDto.Description,
@@ -63,8 +64,8 @@ namespace backend.Mappers
                 StatusName = updateTaskDto.StatusName,
                 TaskLevelName = updateTaskDto.TaskLevelName,
                 UserId = updateTaskDto.UserId,
-                TaskLabelId = updateTaskDto.TaskLabelId,
-                TaskTypeId = updateTaskDto.TaskTypeId
+                TaskLabelId = taskLabelData.Id,
+                TaskTypeId = taskTypeData.Id
             };
         }
 
