@@ -7,6 +7,7 @@ import { setUser } from "@/redux/slices/userSlice";
 import { getUserById } from "@/hooks/getUserById";
 import { usePathname, useRouter } from "next/navigation";
 import { UserType } from "@/types/userType";
+import ChatbotContainer from "./ChatbotContainer";
 
 interface ContainerProps {
   children: ReactNode;
@@ -17,6 +18,7 @@ export default function Container({ children }: ContainerProps) {
   const [currentUser, setCurrentUser] = useState<UserType | null>(null);
 
   const [sidebarVisible, setSidebarVisible] = useState(true);
+  const [showAIChat, setShowAIChat] = useState(false);
 
   const dispatch = useDispatch();
   const path = usePathname();
@@ -47,6 +49,16 @@ export default function Container({ children }: ContainerProps) {
       {currentUser && <Navbar />}
       <div className="flex">
         {currentUser && <Sidebar />}
+
+        <ChatbotContainer {...{ showAIChat, setShowAIChat }} />
+
+        <button
+          className="fixed bottom-6 right-6 bg-gradient-to-r from-indigo-500 to-blue-600 text-white px-4 py-2 rounded-full shadow-lg z-50"
+          onClick={() => setShowAIChat(v => !v)}
+        >
+          💬 Ask AI
+        </button>
+
         <div
           style={
             currentUser

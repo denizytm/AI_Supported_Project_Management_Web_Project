@@ -213,19 +213,29 @@ namespace backend.Data
                 context.SaveChanges();
             }
 
+            if (!context.ChatSessions.Any())
+            {
+                var sessionFaker = new Faker<ChatSession>()
+                    .RuleFor(t => t.UserId, f => f.Random.Int(1, context.Users.ToList().Count))
+                    .RuleFor(m => m.CreatedAt, f => f.Date.Recent());
+
+                var sessions = sessionFaker.Generate(200);
+                context.ChatSessions.AddRange(sessions);
+                context.SaveChanges();
+            }
+
             if (!context.ChatMessages.Any())
             {
                 var messageFaker = new Faker<ChatMessage>()
                     .RuleFor(m => m.Content, f => f.Lorem.Sentence())
                     .RuleFor(t => t.UserId, f => f.Random.Int(1, context.Users.ToList().Count))
-                    .RuleFor(t => t.ProjectId, f => f.Random.Int(1, context.Projects.ToList().Count))
+                    .RuleFor(t => t.ChatSessionId, f => f.Random.Int(1, context.ChatSessions.ToList().Count))
                     .RuleFor(m => m.SentAt, f => f.Date.Recent());
 
                 var messages = messageFaker.Generate(200);
                 context.ChatMessages.AddRange(messages);
                 context.SaveChanges();
             }
-
 
         }
     }
