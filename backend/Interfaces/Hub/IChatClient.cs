@@ -7,6 +7,8 @@ namespace backend.Interfaces
 {
     public interface IChatClient
     {
+        Task Register(string userId);
         Task ReceiveMessage(string message);
+        Task SendPrivateMessage(string receiverUserId, string message);
     }
 }

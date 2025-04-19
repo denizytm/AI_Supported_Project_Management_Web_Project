@@ -12,7 +12,7 @@ namespace backend.Controllers
     public class ChatController : ControllerBase
     {
 
-        private readonly ApplicationDbContext _context; 
+        private readonly ApplicationDbContext _context;
         private readonly IHubContext<ChatHub, IChatClient> _hubContext;
 
         public ChatController(IHubContext<ChatHub, IChatClient> hubContext, ApplicationDbContext context)
@@ -32,6 +32,28 @@ namespace backend.Controllers
             await _hubContext.Clients.All.ReceiveMessage(request.Content); // send message to all clients 
             return NoContent();
         }
+        [HttpPost("message/private")]
+        public async Task<IActionResult> SendPrivateMessage([FromBody] ChatPrivateMessage request)
+        {
+            if (request == null ||
+                string.IsNullOrWhiteSpace(request.Content) ||
+                string.IsNullOrEmpty(request.SenderUserId) ||
+                string.IsNullOrEmpty(request.ReceiverUserId))
+            {
+                return BadRequest("Invalid request");
+            }
+
+            if (ChatHub.UserConnections.TryGetValue(request.ReceiverUserId, out var connectionId))
+            {
+                var formattedMessage = $"[Özel Mesaj] {request.SenderUserId}: {request.Content}";
+                await _hubContext.Clients.Client(connectionId).ReceiveMessage(formattedMessage);
+
+                return NoContent();
+            }
+
+            return NotFound("Receiver user not available.");
+        }
+
     }
 
 }
