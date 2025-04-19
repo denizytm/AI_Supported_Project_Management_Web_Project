@@ -3,12 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace backend.Models
+namespace backend.Dtos.ChatModel
 {
-    public class ChatModel
+    public class CreateChatModelDto
     {
-        public int UserId { get; set; } 
-        public User User { get; set; } = null!; 
+        public int UserId { get; set; }
         public string Input { get; set; } = String.Empty;
     }
 }

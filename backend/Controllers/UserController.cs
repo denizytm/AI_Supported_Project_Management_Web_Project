@@ -9,6 +9,7 @@ using backend.Interfaces;
 using backend.Mappers;
 using backend.Models;
 using backend.Repository;
+using backend.Utils;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -64,17 +65,24 @@ namespace backend.Controllers
         }
 
         [HttpPost("login")]
-        public async Task<IActionResult> LogInUser(LoginUserDto loginUserDto){
+        public async Task<IActionResult> LogInUser(LoginUserDto loginUserDto)
+        {
 
             var userData = await _userContext.GetByEmailAsync(loginUserDto.Email);
 
-            if(userData == null) return BadRequest(new {
+            if (userData == null) return BadRequest(new
+            {
                 message = "There's no user with this email"
             });
 
-            if(userData.Password != loginUserDto.Password) return BadRequest(new {
-                message = "Wrong password"
-            });
+            bool passwordMatches = HashHelper.VerifyPassword(loginUserDto.Password, userData.Password);
+            if (!passwordMatches)
+            {
+                return BadRequest(new
+                {
+                    message = "Wrong password"
+                });
+            }
             else return Ok(userData.ToUserDto());
 
         }

@@ -84,6 +84,28 @@ namespace backend.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "ChatbotMessages",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    UserId = table.Column<int>(type: "int", nullable: false),
+                    Sender = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Content = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    SentAt = table.Column<DateTime>(type: "datetime2", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_ChatbotMessages", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_ChatbotMessages_Users_UserId",
+                        column: x => x.UserId,
+                        principalTable: "Users",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "ChatSessions",
                 columns: table => new
                 {
@@ -315,6 +337,11 @@ namespace backend.Migrations
                 });
 
             migrationBuilder.CreateIndex(
+                name: "IX_ChatbotMessages_UserId",
+                table: "ChatbotMessages",
+                column: "UserId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_ChatMessages_ChatSessionId",
                 table: "ChatMessages",
                 column: "ChatSessionId");
@@ -388,6 +415,9 @@ namespace backend.Migrations
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.DropTable(
+                name: "ChatbotMessages");
+
             migrationBuilder.DropTable(
                 name: "ChatMessages");
 

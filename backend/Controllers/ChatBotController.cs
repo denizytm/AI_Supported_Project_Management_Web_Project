@@ -4,7 +4,9 @@ using System.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
 using backend.Data;
+using backend.Dtos.ChatModel;
 using backend.Interfaces;
+using backend.Mappers;
 using backend.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -27,11 +29,70 @@ namespace backend.Controllers
         }
 
         [HttpPost("chat")]
-
-        public async Task<string> SendMessageToModel(IChatCompletionService chatService, ChatModel chatModel)
+        public async Task<string> SendMessageToModel(IChatCompletionService chatService, CreateChatModelDto createChatModelDto)
         {
-            var response = await chatService.GetChatMessageContentAsync(chatModel.Input);
+
+            var chatModel = createChatModelDto.FromCreateDtoToModel();
+
+            var input = chatModel.Input;
+
+            var previousMessages = await _context.ChatbotMessages
+                .Where(m => m.UserId == chatModel.UserId)
+                .OrderByDescending(m => m.SentAt)
+                .Take(10)
+                .OrderBy(m => m.SentAt)
+                .ToListAsync();
+
+            string historyPrompt = string.Join("\n", previousMessages.Select(m =>
+                $"{(m.Sender == "user" ? "User" : "ai")}: {m.Content}"));
+
+            string finalPrompt = $@"
+                The following is a direct, natural conversation between a user and an AI assistant.
+                Your task is to respond as the assistant would — clearly, concisely, and **without adding commentary, explanation, or alternatives**.
+
+                Respond only with the assistant's message.
+
+                {historyPrompt}
+                User: {input}
+                AI:"
+            ;
+
+            await _context.ChatbotMessages.AddAsync(new ChatbotMessage
+            {
+                Content = input,
+                Sender = "user",
+                UserId = chatModel.UserId
+            });
+
+            var response = await chatService.GetChatMessageContentAsync(finalPrompt);
+
+            await _context.ChatbotMessages.AddAsync(new ChatbotMessage
+            {
+                Content = response?.ToString() ?? "No result",
+                Sender = "ai",
+                UserId = chatModel.UserId
+            });
+
+            await _context.SaveChangesAsync();
+
             return response?.ToString() ?? "No result";
+        }
+
+        [HttpGet("chat-log")]
+        public async Task<IActionResult> GetChatLogForUser(int id)
+        {
+
+            var chatLog = await _context.ChatbotMessages.Where(cm => cm.UserId == id).Select(d => d.FromMessageToDto()).ToListAsync();
+
+            if (chatLog == null) return Ok(new
+            {
+                chatLog = new List<ChatbotMessage>()
+            });
+
+            return Ok(new
+            {
+                chatLog
+            });
         }
 
         [HttpGet("assign-tasks")]

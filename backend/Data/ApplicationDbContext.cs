@@ -39,6 +39,7 @@ namespace backend.Data
                 .OnDelete(DeleteBehavior.Cascade);
         }
 
+        public DbSet<ChatbotMessage> ChatbotMessages { get; set; }
         public DbSet<ChatMessage> ChatMessages { get; set; }
         public DbSet<ChatSession> ChatSessions { get; set; }
         public DbSet<Project> Projects { get; set; }
