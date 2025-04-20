@@ -12,7 +12,10 @@ namespace backend.Data
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<UserProject>()
-                .HasKey(up => new { up.UserId, up.ProjectId });
+                .HasOne(up => up.User)
+                .WithMany(u => u.UserProjects)
+                .HasForeignKey(up => up.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
 
             modelBuilder.Entity<Project>()
                 .HasOne(p => p.Manager)
@@ -37,6 +40,13 @@ namespace backend.Data
                 .WithMany()
                 .HasForeignKey(cm => cm.ChatSessionId)
                 .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<User>()
+                .HasOne(u => u.Manager)
+                .WithMany()
+                .HasForeignKey(u => u.ManagerId)
+                .OnDelete(DeleteBehavior.Restrict); // FK conflict çözümü
+
         }
 
         public DbSet<ChatbotMessage> ChatbotMessages { get; set; }

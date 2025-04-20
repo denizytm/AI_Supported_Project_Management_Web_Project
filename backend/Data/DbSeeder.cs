@@ -15,18 +15,44 @@ namespace backend.Data
                     .RuleFor(u => u.LastName, f => f.Name.LastName())
                     .RuleFor(u => u.Email, f => f.Internet.Email())
                     .RuleFor(u => u.Password, f => f.Internet.Password(10))
-                    .RuleFor(u => u.ProficiencyLevel, f => f.PickRandom<ProficiencyLevel>())
+                    .RuleFor(u => u.Birth, f => f.Date.Between(new DateTime(1970, 1, 1), new DateTime(2003, 12, 31)))
+                    .RuleFor(u => u.Gender, f => f.PickRandom<Gender>())
+                    .RuleFor(u => u.Phone, f => f.Phone.PhoneNumber("5##-###-####"))
                     .RuleFor(u => u.Role, f => f.PickRandom<Role>())
+                    .RuleFor(u => u.ProficiencyLevel, f => f.PickRandom<ProficiencyLevel>())
                     .RuleFor(u => u.Status, f => f.PickRandom<AvailabilityStatus>())
+                    .RuleFor(u => u.TaskRole, f => f.PickRandom<TaskRole>())
                     .RuleFor(u => u.UserProjects, f => new List<UserProject>())
                     .RuleFor(u => u.Technologies, f => new List<Technology>())
-                    .RuleFor(u => u.TaskRole, f => f.PickRandom<TaskRole>())
-                    .RuleFor(u => u.Tasks, f => new List<backend.Models.Task>());
+                    .RuleFor(u => u.Tasks, f => new List<backend.Models.Task>())
+                    .RuleFor(u => u.ManagerId, f => null); // FK çakışmaması için önce boş
 
                 var users = faker.Generate(100);
+
+                // 1. önce users'ı ekle ve ID'lerin oluşmasını sağla
                 context.Users.AddRange(users);
                 context.SaveChanges();
+
+                // 2. şimdi manager'ları eşleştir
+                var allUsers = context.Users.ToList();
+                var itManagers = allUsers.Where(u => u.Role == Role.ItManager).ToList();
+                var developers = allUsers.Where(u => u.Role == Role.Developer).ToList();
+                var random = new Random();
+
+                foreach (var dev in developers)
+                {
+                    if (itManagers.Any())
+                    {
+                        var randomManager = itManagers[random.Next(itManagers.Count)];
+                        dev.ManagerId = randomManager.Id;
+                    }
+                }
+
+                context.Users.UpdateRange(developers);
+                context.SaveChanges();
             }
+
+
 
             if (!context.ProjectTypes.Any())
             {

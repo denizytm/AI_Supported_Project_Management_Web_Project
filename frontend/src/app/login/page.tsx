@@ -44,6 +44,7 @@ export default function LoginPage() {
       email: formData.email,
       password: formData.password,
     });
+    
     if (response.status) {
       if (response.data.result) {
         localStorage.setItem("id", response.data.userData.id);
