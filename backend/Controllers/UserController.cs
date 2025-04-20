@@ -70,24 +70,32 @@ namespace backend.Controllers
 
             var userData = await _userContext.GetByEmailAsync(loginUserDto.Email);
 
-            if (userData == null) return BadRequest(new
+            if (userData == null) return Ok(new
             {
-                message = "There's no user with this email"
+                title = "email",
+                message = "There's no user with this email",
+                result = false
             });
 
             bool passwordMatches = HashHelper.VerifyPassword(loginUserDto.Password, userData.Password);
             if (!passwordMatches)
             {
-                return BadRequest(new
+                return Ok(new
                 {
-                    message = "Wrong password"
+                    title = "password",
+                    message = "Wrong password",
+                    result = false
                 });
             }
-            else return Ok(userData.ToUserDto());
+            else return Ok(new
+            {
+                userData = userData.ToUserDto(),
+                result = true
+            });
 
         }
 
-        [HttpPost("add")]
+        [HttpPost("register")]
         public async Task<IActionResult> CreateUser(CreateUserDto createUserDto)
         {
 
@@ -96,11 +104,24 @@ namespace backend.Controllers
 
                 var userData = createUserDto.ToUser();
 
+                var existsUser = await _userContext.GetByEmailAsync(userData.Email);
+
+                if (existsUser != null) return Ok(new
+                {
+                    title = "email",
+                    message = "An user exists with current email.",
+                    result = false
+                });
+
                 var newUserData = await _userContext.CreateAsync(userData);
 
                 if (newUserData != null)
                 {
-                    return Ok(newUserData);
+                    return Ok(new
+                    {
+                        userData = userData.ToUserDto(),
+                        result = true
+                    });
                 }
                 return BadRequest();
             }

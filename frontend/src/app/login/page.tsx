@@ -10,23 +10,51 @@ export default function LoginPage() {
     password: "",
   });
 
+  const [errorMessages, setErrorMessages] = useState({
+    email: "",
+    password: "",
+  });
+
   const router = useRouter();
 
   useEffect(() => {
     if (localStorage.getItem("id")) router.push("/home");
-  });
+  }, []);
 
   const handleLogin = async (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
+
+    let c = false;
+
+    if (!formData.email.length) {
+      setErrorMessages((eM) => ({ ...eM, email: "Please enter an email" }));
+      c = true;
+    } else setErrorMessages((eM) => ({ ...eM, email: "" }));
+    if (!formData.password.length) {
+      setErrorMessages((eM) => ({
+        ...eM,
+        password: "Please enter a password",
+      }));
+      c = true;
+    } else setErrorMessages((eM) => ({ ...eM, password: "" }));
+
+    if (c) return;
+
     const response = await axios.post("http://localhost:5110/api/users/login", {
       email: formData.email,
       password: formData.password,
     });
-
-    if (response.data) {
-      localStorage.setItem("id", response.data.id);
-      window.location.reload();
-      router.push("/dashboard");
+    if (response.status) {
+      if (response.data.result) {
+        localStorage.setItem("id", response.data.userData.id);
+        window.location.reload();
+        router.push("/dashboard");
+      } else {
+        setErrorMessages((eM) => ({
+          ...eM,
+          [response.data.title]: response.data.message,
+        }));
+      }
     }
   };
 
@@ -40,9 +68,6 @@ export default function LoginPage() {
           </h3>
         </div>
         <div className="w-full max-w-md rounded-lg bg-white p-8 shadow-lg">
-          {/* Logo ve Başlık */}
-
-          {/* Giriş Formu */}
           <h2 className="mb-4 text-center text-xl font-semibold text-gray-700">
             Log In
           </h2>
@@ -60,6 +85,9 @@ export default function LoginPage() {
                   setFormData((d) => ({ ...d, email: e.target.value }))
                 }
               />
+              {errorMessages.email && (
+                <p className="text-red-500">{errorMessages.email}</p>
+              )}
             </div>
 
             <div>
@@ -75,9 +103,11 @@ export default function LoginPage() {
                   setFormData((d) => ({ ...d, password: e.target.value }))
                 }
               />
+              {errorMessages.password && (
+                <p className="text-red-500">{errorMessages.password}</p>
+              )}
             </div>
 
-            {/* Şifre Sıfırlama ve Giriş Butonu */}
             <div className="flex items-center justify-between">
               <a href="#" className="text-sm text-blue-600 hover:underline">
                 Forgot Password?
@@ -93,7 +123,6 @@ export default function LoginPage() {
             </button>
           </form>
 
-          {/* Hesap Oluşturma */}
           <div className="mt-4 text-center text-sm">
             <a href="/register" className="text-blue-600 hover:underline">
               Create Account

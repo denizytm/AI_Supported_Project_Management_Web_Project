@@ -13,25 +13,79 @@ export default function RegisterPage() {
     confirm_password: "",
   });
 
+  const [errorMessages, setErrorMessages] = useState({
+    name: "",
+    last_name: "",
+    email: "",
+    password: "",
+    confirm_password: "",
+  });
+
   const router = useRouter();
 
   useEffect(() => {
     if (localStorage.getItem("id")) router.push("/home");
-  });
+  }, []);
 
   const handleRegister = async (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
-    const response = await axios.post("http://localhost:5110/api/users/add", {
+
+    let c = false;
+
+    if (!formData.name.length) {
+      setErrorMessages((eM) => ({ ...eM, name: "Please enter your name." }));
+      c = true;
+    } else setErrorMessages((eM) => ({ ...eM, name: "" }));
+    if (!formData.last_name.length) {
+      setErrorMessages((eM) => ({
+        ...eM,
+        last_name: "Please enter your last name.",
+      }));
+      c = true;
+    } else setErrorMessages((eM) => ({ ...eM, last_name: "" }));
+    if (!formData.email.length) {
+      setErrorMessages((eM) => ({ ...eM, email: "Please enter an email." }));
+      c = true;
+    } else setErrorMessages((eM) => ({ ...eM, email: "" }));
+    if (!formData.password.length) {
+      setErrorMessages((eM) => ({
+        ...eM,
+        password: "Please enter an password.",
+      }));
+      c = true;
+    } else setErrorMessages((eM) => ({ ...eM, password: "" }));
+    if (!formData.confirm_password.length) {
+      setErrorMessages((eM) => ({
+        ...eM,
+        confirm_password: "Please confirm your password again.",
+      }));
+      c = true;
+    } else setErrorMessages((eM) => ({ ...eM, confirm_password: "" }));
+
+    if (formData.password != formData.confirm_password)
+      setErrorMessages((eM) => ({
+        ...eM,
+        confirm_password: "Password and confirm password are different.",
+      }));
+
+    const response = await axios.post("http://localhost:5110/api/users/register", {
       name: formData.name,
       lastName: formData.last_name,
       email: formData.email,
       password: formData.password,
     });
 
-    if (response.data) {
-      localStorage.setItem("id", response.data.id);
-      window.location.reload();
-      router.push("/dashboard");
+    if (response.status) {
+      if (response.data.result) {
+        localStorage.setItem("id", response.data.userData.id);
+        window.location.reload();
+        router.push("/dashboard");
+      } else {
+        setErrorMessages((eM) => ({
+          ...eM,
+          [response.data.title]: response.data.message,
+        }));
+      }
     }
   };
 
@@ -45,9 +99,6 @@ export default function RegisterPage() {
           </h3>
         </div>
         <div className="w-full max-w-md rounded-lg bg-white p-8 shadow-lg">
-          {/* Logo ve Başlık */}
-
-          {/* Giriş Formu */}
           <h2 className="mb-4 text-center text-xl font-semibold text-gray-700">
             Register
           </h2>
@@ -65,6 +116,9 @@ export default function RegisterPage() {
                   setFormData((d) => ({ ...d, name: e.target.value }))
                 }
               />
+              {errorMessages.name && (
+                <p className="text-red-500">{errorMessages.name}</p>
+              )}
             </div>
 
             <div>
@@ -80,6 +134,9 @@ export default function RegisterPage() {
                   setFormData((d) => ({ ...d, last_name: e.target.value }))
                 }
               />
+              {errorMessages.last_name && (
+                <p className="text-red-500">{errorMessages.last_name}</p>
+              )}
             </div>
 
             <div>
@@ -95,6 +152,9 @@ export default function RegisterPage() {
                   setFormData((d) => ({ ...d, email: e.target.value }))
                 }
               />
+              {errorMessages.email && (
+                <p className="text-red-500">{errorMessages.email}</p>
+              )}
             </div>
 
             <div>
@@ -110,6 +170,9 @@ export default function RegisterPage() {
                   setFormData((d) => ({ ...d, password: e.target.value }))
                 }
               />
+              {errorMessages.password && (
+                <p className="text-red-500">{errorMessages.password}</p>
+              )}
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-600">
@@ -127,6 +190,9 @@ export default function RegisterPage() {
                   }))
                 }
               />
+              {errorMessages.confirm_password && (
+                <p className="text-red-500">{errorMessages.confirm_password}</p>
+              )}
             </div>
 
             <button
@@ -138,7 +204,6 @@ export default function RegisterPage() {
             </button>
           </form>
 
-          {/* Hesap Oluşturma */}
           <div className="mt-4 text-center text-sm">
             <a href="/login" className="text-blue-600 hover:underline">
               Already Have an Account ?
