@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
 using backend.Data;
-using backend.Dtos.ChatModel;
+using backend.Dtos.ChatbotMessage;
 using backend.Interfaces;
 using backend.Mappers;
 using backend.Models;
@@ -29,12 +29,12 @@ namespace backend.Controllers
         }
 
         [HttpPost("chat")]
-        public async Task<string> SendMessageToModel(IChatCompletionService chatService, CreateChatModelDto createChatModelDto)
+        public async Task<string> SendMessageToModel(IChatCompletionService chatService, CreateChatbotMessageDto createChatModelDto)
         {
 
-            var chatModel = createChatModelDto.FromCreateDtoToModel();
+            var chatModel = createChatModelDto.FromCreateMessageToDto();
 
-            var input = chatModel.Input;
+            var input = chatModel.Content;
 
             var previousMessages = await _context.ChatbotMessages
                 .Where(m => m.UserId == chatModel.UserId)
@@ -82,7 +82,7 @@ namespace backend.Controllers
         public async Task<IActionResult> GetChatLogForUser(int id)
         {
 
-            var chatLog = await _context.ChatbotMessages.Where(cm => cm.UserId == id).Select(d => d.FromMessageToDto()).ToListAsync();
+            var chatLog = await _context.ChatbotMessages.Where(cm => cm.UserId == id).Select(d => d.FromChatbotMessageTODto()).ToListAsync();
 
             if (chatLog == null) return Ok(new
             {

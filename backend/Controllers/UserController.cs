@@ -20,27 +20,74 @@ namespace backend.Controllers
     public class UserController : ControllerBase
     {
         private readonly IUserRepository _userContext;
+        private readonly ApplicationDbContext _context;
 
-        public UserController(IUserRepository userContext)
+        public UserController(IUserRepository userContext, ApplicationDbContext context)
         {
+            _context = context;
             _userContext = userContext;
         }
 
         [HttpGet("all")]
-        public IActionResult GetUsers()
+        public async Task<IActionResult> GetAllUsers(
+            [FromQuery] int page = 1,
+            [FromQuery] string? search = "",
+            [FromQuery] string? role = "",
+            [FromQuery] string? status = "",
+            [FromQuery] string? proficiency = ""
+        )
         {
-            try
+            const int pageSize = 10;
+
+            if (page < 1)
+                return BadRequest("Page must be 1 or greater.");
+
+            IQueryable<User> query = _context.Users;
+
+            if (!string.IsNullOrWhiteSpace(role))
             {
-                var userDtos = _userContext.GetAll().Select(user => user.ToUserDto());
-                return Ok(userDtos);
+                var normalizedRole = role.Trim().ToLower();
+                query = query.Where(u => u.Role.ToString().ToLower() == normalizedRole);
             }
-            catch (Exception ex)
+
+            if (!string.IsNullOrWhiteSpace(status))
             {
-                return BadRequest(new
-                {
-                    message = $"There was an error when fetching the users : {ex.Message}"
-                });
+                var normalizedStatus = status.Trim().ToLower();
+                query = query.Where(u => u.Status.ToString().ToLower() == normalizedStatus);
             }
+
+            if (!string.IsNullOrWhiteSpace(proficiency))
+            {
+                var normalizedProf = proficiency.Trim().ToLower();
+                query = query.Where(u => u.ProficiencyLevel.ToString().ToLower() == normalizedProf);
+            }
+
+            if (!string.IsNullOrWhiteSpace(search))
+            {
+                var normalizedSearch = search.Trim().ToLower();
+                query = query.Where(u =>
+                    u.Name.ToLower().Contains(normalizedSearch) ||
+                    u.LastName.ToLower().Contains(normalizedSearch) ||
+                    u.Email.ToLower().Contains(normalizedSearch)
+                );
+            }
+
+            var totalUsers = await query.CountAsync();
+
+            var users = await query
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
+
+            var result = new
+            {
+                currentPage = page,
+                totalPages = (int)Math.Ceiling((double)totalUsers / pageSize),
+                totalCount = totalUsers,
+                users
+            };
+
+            return Ok(result);
         }
 
         [HttpGet("find")]

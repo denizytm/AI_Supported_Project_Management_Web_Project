@@ -62,18 +62,24 @@ export default function RegisterPage() {
       c = true;
     } else setErrorMessages((eM) => ({ ...eM, confirm_password: "" }));
 
-    if (formData.password != formData.confirm_password)
+    if (formData.password != formData.confirm_password) {
       setErrorMessages((eM) => ({
         ...eM,
         confirm_password: "Password and confirm password are different.",
       }));
+    } else setErrorMessages((eM) => ({ ...eM, confirm_password: "" }));
 
-    const response = await axios.post("http://localhost:5110/api/users/register", {
-      name: formData.name,
-      lastName: formData.last_name,
-      email: formData.email,
-      password: formData.password,
-    });
+    if (c) return;
+
+    const response = await axios.post(
+      "http://localhost:5110/api/users/register",
+      {
+        name: formData.name,
+        lastName: formData.last_name,
+        email: formData.email,
+        password: formData.password,
+      }
+    );
 
     if (response.status) {
       if (response.data.result) {

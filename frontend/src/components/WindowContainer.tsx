@@ -7,7 +7,7 @@ import { setUser } from "@/redux/slices/userSlice";
 import { getUserById } from "@/hooks/getUserById";
 import { usePathname, useRouter } from "next/navigation";
 import { UserType } from "@/types/userType";
-import ChatbotContainer from "./ChatbotContainer";
+import ChatbotContainer from "./chatbot/ChatbotContainer";
 
 interface ContainerProps {
   children: ReactNode;

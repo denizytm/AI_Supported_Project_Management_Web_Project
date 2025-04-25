@@ -15,11 +15,11 @@ import DeleteTaskModal from "@/components/projectManagement/DeleteTaskModal";
 import AssignmentPreviewModal from "@/components/projectManagement/AssignmentPreviewModal";
 
 interface TaskManagementProps {
-  id : number,
-  text : string
+  id: number;
+  text: string;
 }
 
-export default function TaskManagement( { id,text } : TaskManagementProps) {
+export default function TaskManagement({ id, text }: TaskManagementProps) {
   const [projectData, setProjectData] = useState<ProjectType>({
     id: 0,
     budget: 0,
@@ -52,6 +52,8 @@ export default function TaskManagement( { id,text } : TaskManagementProps) {
   const [minStartDate, setMinStartDate] = useState("");
   const [maxDueDate, setMaxDueDate] = useState("");
 
+  const [showChat, setShowChat] = useState(false);
+
   const [ready1, setReady1] = useState(false);
 
   const [modalVisibleStatus, setModalVisibleStatus] = useState({
@@ -63,11 +65,11 @@ export default function TaskManagement( { id,text } : TaskManagementProps) {
 
   const [aiAssignments, setAiAssignments] = useState([]);
   const [availableUsers, setAvailableUsers] = useState<
-    { 
-      id: string,
-      name: string, 
-      proficiencyLevelName : string,
-      statusName : string
+    {
+      id: string;
+      name: string;
+      proficiencyLevelName: string;
+      statusName: string;
     }[]
   >([]);
   const [showAssignmentModal, setShowAssignmentModal] = useState(false);
@@ -87,16 +89,16 @@ export default function TaskManagement( { id,text } : TaskManagementProps) {
       const userList = usersData.map((u) => ({
         id: u.id,
         name: `${u.name} ${u.lastName}`,
-        proficiencyLevelName : u.proficiencyLevelName,
-        statusName : u.statusName
+        proficiencyLevelName: u.proficiencyLevelName,
+        statusName: u.statusName,
       }));
 
       setAiAssignments(
-        data.map((d : any) => ({
+        data.map((d: any) => ({
           taskId: d.taskId,
           taskDescription: d.taskDescription,
           assignedTo: d.userId,
-          taskLevel : d.taskLevel
+          taskLevel: d.taskLevel,
         }))
       );
       setAvailableUsers(userList);
@@ -224,6 +226,12 @@ export default function TaskManagement( { id,text } : TaskManagementProps) {
               </h2>
             </div>
             <button
+              onClick={() => setShowChat(true)}
+              className="bg-blue-600 hover:bg-blue-500 text-white px-4 py-2 rounded shadow mr-5"
+            >
+              💬 Chat With Client
+            </button>
+            <button
               className="bg-blue-600 hover:bg-blue-500 text-white px-4 py-2 rounded shadow"
               onClick={() => handleAutoAssign()}
             >
@@ -246,6 +254,12 @@ export default function TaskManagement( { id,text } : TaskManagementProps) {
           onConfirm={handleConfirmAssignments}
         />
       )}
+
+      {/* {showChat && (
+        <ChatModal onClose={() => setShowChat(false)}>
+          <ChatContentComponent />
+        </ChatModal>
+      )} */}
 
       {/* Bottom Section */}
       <div className="grid grid-cols-4 gap-4 mt-4">

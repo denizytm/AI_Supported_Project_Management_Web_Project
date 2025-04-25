@@ -23,35 +23,47 @@ namespace backend.Data
                 .HasForeignKey(p => p.UserId)
                 .OnDelete(DeleteBehavior.Restrict);
 
-            modelBuilder.Entity<ChatMessage>()
-                .HasOne(cm => cm.User)
-                .WithMany()
-                .HasForeignKey(cm => cm.UserId)
-                .OnDelete(DeleteBehavior.Restrict);
-
-            modelBuilder.Entity<ChatSession>()
-                .HasOne(cs => cs.User)
-                .WithMany()
-                .HasForeignKey(cs => cs.UserId)
-                .OnDelete(DeleteBehavior.Restrict);
-
-            modelBuilder.Entity<ChatMessage>()
-                .HasOne(cm => cm.ChatSession)
-                .WithMany()
-                .HasForeignKey(cm => cm.ChatSessionId)
-                .OnDelete(DeleteBehavior.Cascade);
-
             modelBuilder.Entity<User>()
                 .HasOne(u => u.Manager)
                 .WithMany()
                 .HasForeignKey(u => u.ManagerId)
-                .OnDelete(DeleteBehavior.Restrict); // FK conflict çözümü
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<PrivateMessage>()
+                .HasOne(pm => pm.SenderUser)
+                .WithMany()
+                .HasForeignKey(pm => pm.SenderUserId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<PrivateMessage>()
+                .HasOne(pm => pm.ReceiverUser)
+                .WithMany()
+                .HasForeignKey(pm => pm.ReceiverUserId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<PrivateMessage>()
+                .HasOne(pm => pm.ChatSession)
+                .WithMany(cs => cs.Messages)
+                .HasForeignKey(pm => pm.ChatSessionId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<ChatSession>()
+                .HasOne(cs => cs.User1)
+                .WithMany()
+                .HasForeignKey(cs => cs.User1Id)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<ChatSession>()
+                .HasOne(cs => cs.User2)
+                .WithMany()
+                .HasForeignKey(cs => cs.User2Id)
+                .OnDelete(DeleteBehavior.Restrict);
 
         }
 
         public DbSet<ChatbotMessage> ChatbotMessages { get; set; }
-        public DbSet<ChatMessage> ChatMessages { get; set; }
         public DbSet<ChatSession> ChatSessions { get; set; }
+        public DbSet<PrivateMessage> PrivateMessages { get; set; }
         public DbSet<Project> Projects { get; set; }
         public DbSet<Resource> Resources { get; set; }
         public DbSet<backend.Models.Task> Tasks { get; set; }

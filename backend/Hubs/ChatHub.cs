@@ -9,24 +9,24 @@ namespace backend.Hubs
 {
     public class ChatHub : Hub<IChatClient>
     {
-        public static Dictionary<string, string> UserConnections = new Dictionary<string, string>();
+        public static Dictionary<int, string> UserConnections = new Dictionary<int, string>();
         public async Task SendMessage(string message)
         {
-            await Clients.All.ReceiveMessage(message);
+            await Clients.All.ReceiveMessage(0, message);
         }
-        public async Task Register(string userId)
+        public async Task Register(int userId)
         {
             if (!UserConnections.ContainsKey(userId))
             {
                 UserConnections[userId] = Context.ConnectionId;
             }
-            await Clients.Client(Context.ConnectionId).ReceiveMessage($" {userId}");
+            /* await Clients.Client(Context.ConnectionId).ReceiveMessage($"naber {userId}"); */
         }
-        public async Task SendPrivateMessage(string receiverUserId, string message)
+        public async Task SendPrivateMessage(int senderUserId, int receiverUserId, string message)
         {
             if (UserConnections.TryGetValue(receiverUserId, out var connectionId))
             {
-                await Clients.Client(connectionId).ReceiveMessage(message);
+                await Clients.Client(connectionId).ReceiveMessage(senderUserId, message);
             }
         }
 
@@ -37,7 +37,7 @@ namespace backend.Hubs
             // Group => subset of the Clients
             // Context => the client just connected to the socket
 
-            await Clients.All.ReceiveMessage($"{Context.ConnectionId} has joined");
+            /* await Clients.All.ReceiveMessage($"{Context.ConnectionId} has joined"); */
 
             /* await base.OnConnectedAsync(); */
         }
@@ -45,12 +45,12 @@ namespace backend.Hubs
         public override async Task OnDisconnectedAsync(Exception? exception)
         {
             var user = UserConnections.FirstOrDefault(x => x.Value == Context.ConnectionId);
-            if (!string.IsNullOrEmpty(user.Key))
+            if (user.Key != 0)
             {
                 UserConnections.Remove(user.Key);
             }
 
-            await Clients.All.ReceiveMessage($"{Context.ConnectionId} has left the hub");
+            await Clients.All.ReceiveMessage(1, $"{Context.ConnectionId} has left the hub");
             await base.OnDisconnectedAsync(exception);
         }
 

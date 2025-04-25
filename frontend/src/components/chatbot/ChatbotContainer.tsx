@@ -32,8 +32,10 @@ export default function ChatbotContainer({
       (async () => {
         const response = await axios.get(`http://localhost:5110/api/chatbot/chat-log?id=${currentUser.id}`);
         if(response.status) 
-          if(response.data.chatLog.length)
+          if(response.data.chatLog.length) {
             setChatLog(response.data.chatLog);
+            console.log(response.data);
+          }
       })();
   }, [currentUser]);
 
@@ -47,7 +49,6 @@ export default function ChatbotContainer({
 
   const handleFetchUserData = async (value: string) => {
     const userData = (await getUserById(value)) as UserType;
-    console.log(userData);
     setCurrentUser(userData);
     dispatch(setUser(userData));
   };
@@ -101,7 +102,7 @@ export default function ChatbotContainer({
         ]);
       } else {
         const res = await axios.post("http://localhost:5110/api/chatbot/chat", {
-          input: userMessage,
+          content: userMessage,
           userId: currentUser.id,
         });
         setChatLog((prev) => [...prev, { sender: "ai", content: res.data }]);

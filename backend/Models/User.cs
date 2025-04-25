@@ -10,7 +10,8 @@ public enum Role
     Admin,
     ItManager,
     ProjectManager,
-    Developer
+    Developer,
+    Client
 }
 
 public enum TaskRole
