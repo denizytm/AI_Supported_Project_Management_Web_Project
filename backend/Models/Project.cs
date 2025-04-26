@@ -45,7 +45,6 @@ namespace backend.Models
         [Column(TypeName = "decimal(10,2)")]
         public decimal Budget { get; set; }
 
-        public List<Task> Tasks { get; set; } = new List<Task>();
         public List<UserProject> UserProjects { get; set; } = new List<UserProject>();
 
         public int ManagerId { get; set; }
@@ -56,6 +55,8 @@ namespace backend.Models
 
         public int ProjectTypeId { get; set; }
         public ProjectType ProjectType { get; set; } = null!;
+        public List<ProjectRequest> ProjectRequests { get; set; } = new List<ProjectRequest>();
+
     }
 
 }

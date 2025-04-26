@@ -20,15 +20,18 @@ export default function AddProjectModal({
     deadline: new Date(Date.now() + 86400000).toISOString().split("T")[0],
     priorityName: "",
     statusName: "",
-    userId: 0,
+    managerId: 0,
+    customerId: 0,
   });
   const [searchTerm, setSearchTerm] = useState("");
-  const [usersData, setUsersData] = useState<UserType[]>([]);
   const [filteredUsers, setFilteredUsers] = useState<UserType[]>([]);
   const [selectedUser, setSelectedUser] = useState<string | null>(null);
   const [projectTypes, setProjectTypes] = useState<
     { id: number; name: string }[]
   >([]);
+
+  const [clients, setClients] = useState<UserType[]>([]);
+  const [managers, setManagers] = useState<UserType[]>([]);
 
   useEffect(() => {
     (async () => {
@@ -45,36 +48,14 @@ export default function AddProjectModal({
   useEffect(() => {
     (async () => {
       const response = await axios.get(
-        "http://localhost:5110/api/projects/nonProjectManagers"
+        "http://localhost:5110/api/users/projectModal/add"
       );
       if (response.status) {
-        setUsersData(response.data);
+        setManagers(response.data.itManagers);
+        setClients(response.data.clients);
       }
     })();
   }, []);
-
-  const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value;
-    setSearchTerm(value);
-
-    if (value.length > 0) {
-      const filtered = usersData.filter(
-        (user) =>
-          user.name.toLowerCase().includes(value.toLowerCase()) ||
-          user.lastName.toLowerCase().includes(value.toLowerCase())
-      );
-      setFilteredUsers(filtered);
-    } else {
-      setFilteredUsers([]);
-    }
-  };
-
-  const handleSelectUser = (user: UserType) => {
-    setSearchTerm(`${user.name} ${user.lastName}`);
-    setSelectedUser(`${user.name} ${user.lastName}`);
-    setFilteredUsers([]);
-    setFormData((prev) => ({ ...prev, userId: +user.id }));
-  };
 
   const handleChange = (
     e: React.ChangeEvent<
@@ -94,7 +75,7 @@ export default function AddProjectModal({
     try {
       const response = await axios.post(
         "http://localhost:5110/api/projects/add",
-        {...formData}
+        { ...formData }
       );
       if (response.status) {
         setAddModelVisible(false);
@@ -115,8 +96,8 @@ export default function AddProjectModal({
         <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">
           Add New Project
         </h2>
-
         <form onSubmit={handleSubmit} className="space-y-4">
+          {/* Project Name */}
           <div>
             <label htmlFor="name" className="block font-medium">
               Project Name
@@ -131,6 +112,7 @@ export default function AddProjectModal({
             />
           </div>
 
+          {/* Description */}
           <div>
             <label htmlFor="description" className="block font-medium">
               Description
@@ -144,6 +126,7 @@ export default function AddProjectModal({
             />
           </div>
 
+          {/* Project Type */}
           <div>
             <label htmlFor="projectTypeId" className="block font-medium">
               Project Type
@@ -154,13 +137,16 @@ export default function AddProjectModal({
               onChange={handleChange}
               className="w-full p-2 border border-gray-300 rounded-lg dark:bg-gray-700 dark:border-gray-600 dark:text-white"
             >
-              <option>Project Type</option>
+              <option value="">Select Type</option>
               {projectTypes.map((projectType) => (
-                <option value={+projectType.id}>{projectType.name}</option>
+                <option key={projectType.id} value={projectType.id}>
+                  {projectType.name}
+                </option>
               ))}
             </select>
           </div>
 
+          {/* Start Date */}
           <div>
             <label htmlFor="startDate" className="block font-medium">
               Start Date
@@ -174,6 +160,7 @@ export default function AddProjectModal({
             />
           </div>
 
+          {/* Deadline */}
           <div>
             <label htmlFor="deadline" className="block font-medium">
               Deadline
@@ -187,67 +174,101 @@ export default function AddProjectModal({
             />
           </div>
 
+          {/* Priority */}
           <div>
             <label htmlFor="priorityName" className="block font-medium">
               Priority
             </label>
-            <input
-              type="text"
+            <select
               id="priorityName"
               name="priorityName"
-              placeholder="Priority"
               onChange={handleChange}
               className="w-full p-2 border border-gray-300 rounded-lg dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-            />
+            >
+              <option value="">Select Priority</option>
+              <option value="Low">Low</option>
+              <option value="Medium">Medium</option>
+              <option value="High">High</option>
+            </select>
           </div>
 
+          {/* Status */}
           <div>
             <label htmlFor="statusName" className="block font-medium">
               Status
             </label>
-            <input
-              type="text"
+            <select
               id="statusName"
               name="statusName"
-              placeholder="Status"
               onChange={handleChange}
               className="w-full p-2 border border-gray-300 rounded-lg dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-            />
+            >
+              <option value="">Select Status</option>
+              <option value="Active">Active</option>
+              <option value="OnHold">On Hold</option>
+              <option value="Completed">Completed</option>
+            </select>
           </div>
 
-          <div className="relative">
-            <label htmlFor="userId" className="block font-medium">
-              User ID
+          {/* Manager Seçimi */}
+          <div>
+            <label htmlFor="managerId" className="block font-medium">
+              Manager (IT Manager)
+            </label>
+            <select
+              id="managerId"
+              name="managerId"
+              onChange={(e) =>
+                setFormData((prev) => ({ ...prev, managerId: +e.target.value }))
+              }
+              className="w-full p-2 border border-gray-300 rounded-lg dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+            >
+              <option value="">Select Manager</option>
+              {managers.map((manager) => (
+                <option key={manager.id} value={manager.id}>
+                  {manager.name} {manager.lastName}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div>
+            <label htmlFor="customerId" className="block font-medium">
+              Customer (Client)
+            </label>
+            <select
+              id="customerId"
+              name="customerId"
+              onChange={(e) =>
+                setFormData((prev) => ({ ...prev, customerId: +e.target.value }))
+              }
+              className="w-full p-2 border border-gray-300 rounded-lg dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+            >
+              <option value="">Select Client</option>
+              {clients.map((client) => (
+                <option key={client.id} value={client.id}>
+                  {client.name} {client.lastName}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          {/* Budget */}
+          <div>
+            <label htmlFor="budget" className="block font-medium">
+              Budget
             </label>
             <input
-              type="text"
-              id="userId"
-              placeholder="Select Manager"
-              value={searchTerm}
-              onChange={handleSearch}
+              type="number"
+              id="budget"
+              name="budget"
+              onChange={handleChange}
+              placeholder="Budget"
               className="w-full p-2 border border-gray-300 rounded-lg dark:bg-gray-700 dark:border-gray-600 dark:text-white"
             />
-            {filteredUsers.length > 0 && (
-              <ul
-                className="absolute w-full bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg mt-1 shadow-lg max-h-40 overflow-auto"
-              >
-                {filteredUsers.map((user) => (
-                  <li
-                    key={user.id}
-                    value={user.id}
-                    onClick={() => {
-                        handleSelectUser(user);
-                        setFormData(oD => ({...oD,userId : +user.id}));
-                    }}
-                    className="p-2 hover:bg-gray-100 dark:hover:bg-gray-600 cursor-pointer"
-                  >
-                    {user.name} {user.lastName}
-                  </li>
-                ))}
-              </ul>
-            )}
           </div>
 
+          {/* Submit Buttons */}
           <div className="flex justify-end space-x-2">
             <button
               type="button"

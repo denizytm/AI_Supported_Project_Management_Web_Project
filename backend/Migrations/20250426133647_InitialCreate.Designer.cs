@@ -12,7 +12,7 @@ using backend.Data;
 namespace backend.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20250426080453_InitialCreate")]
+    [Migration("20250426133647_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -172,6 +172,48 @@ namespace backend.Migrations
                     b.ToTable("Projects");
                 });
 
+            modelBuilder.Entity("backend.Models.ProjectRequest", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime?>("ClosedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("ClosingNote")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("CriticLevel")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("IsClosed")
+                        .HasColumnType("bit");
+
+                    b.Property<int>("ProjectId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("RequestedById")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ProjectId");
+
+                    b.HasIndex("RequestedById");
+
+                    b.ToTable("ProjectRequests");
+                });
+
             modelBuilder.Entity("backend.Models.ProjectType", b =>
                 {
                     b.Property<int>("Id")
@@ -329,6 +371,9 @@ namespace backend.Migrations
                     b.Property<DateTime?>("Birth")
                         .HasColumnType("datetime2");
 
+                    b.Property<string>("Company")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("Email")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -480,6 +525,25 @@ namespace backend.Migrations
                     b.Navigation("ProjectType");
                 });
 
+            modelBuilder.Entity("backend.Models.ProjectRequest", b =>
+                {
+                    b.HasOne("backend.Models.Project", "Project")
+                        .WithMany("ProjectRequests")
+                        .HasForeignKey("ProjectId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("backend.Models.User", "RequestedBy")
+                        .WithMany()
+                        .HasForeignKey("RequestedById")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Project");
+
+                    b.Navigation("RequestedBy");
+                });
+
             modelBuilder.Entity("backend.Models.Resource", b =>
                 {
                     b.HasOne("backend.Models.Project", "AssignedProject")
@@ -496,7 +560,7 @@ namespace backend.Migrations
                         .HasForeignKey("DependingTaskId");
 
                     b.HasOne("backend.Models.Project", "Project")
-                        .WithMany("Tasks")
+                        .WithMany()
                         .HasForeignKey("ProjectId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -566,7 +630,7 @@ namespace backend.Migrations
 
             modelBuilder.Entity("backend.Models.Project", b =>
                 {
-                    b.Navigation("Tasks");
+                    b.Navigation("ProjectRequests");
 
                     b.Navigation("UserProjects");
                 });

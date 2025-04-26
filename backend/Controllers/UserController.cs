@@ -111,6 +111,118 @@ namespace backend.Controllers
             }
         }
 
+        [HttpGet("projectModal/add")]
+        public async Task<IActionResult> GetAddProjectModalValues()
+        {
+            try
+            {
+                var clients = await _context.Users.Where(u => u.Role == Role.Client).ToListAsync();
+
+                var clientDtos = clients.Select(u => u.ToUserDto()).ToList();
+
+                var itManagers = await _context.Users
+                                    .Where(u => u.Role == Role.ItManager)
+                                    .ToListAsync();
+
+                var itManagerDtos = itManagers.Select(iM => iM.ToUserDto());
+
+
+                return Ok(new {
+                    clients = clientDtos,
+                    itManagers = itManagerDtos
+                });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new
+                {
+                    message = $"There was an error fetching clients: {ex.Message}"
+                });
+            }
+        }
+
+        [HttpGet("clients")]
+        public async Task<IActionResult> GetClients()
+        {
+            try
+            {
+                var clients = await _context.Users.Where(u => u.Role == Role.Client).ToListAsync();
+
+                if (clients == null || !clients.Any())
+                {
+                    return BadRequest(new { message = "No clients found." });
+                }
+
+                var clientDtos = clients.Select(u => u.ToUserDto()).ToList();
+                return Ok(clientDtos);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new
+                {
+                    message = $"There was an error fetching clients: {ex.Message}"
+                });
+            }
+        }
+
+        [HttpGet("managers/available")]
+        public async Task<IActionResult> GetAvailableItManagers()
+        {
+            try
+            {
+
+                var managersId = _context.Projects.Select(p => p.ManagerId).Distinct();
+
+                var itManagers = await _context.Users
+                    .Where(u => u.Role == Role.ItManager && !managersId.Contains(u.Id))
+                    .ToListAsync();
+
+                if (itManagers == null || !itManagers.Any())
+                {
+                    return BadRequest(new { message = "No IT Managers found." });
+                }
+
+                var itManagerDtos = itManagers.Select(u => u.ToUserDto()).ToList();
+                return Ok(itManagerDtos);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new
+                {
+                    message = $"There was an error fetching IT Managers: {ex.Message}"
+                });
+            }
+        }
+
+        [HttpGet("managers/all")]
+        public async Task<IActionResult> GetAllItManagers()
+        {
+            try
+            {
+
+                var managersId = _context.Projects.Select(p => p.ManagerId).Distinct();
+
+                var itManagers = await _context.Users
+                    .Where(u => u.Role == Role.ItManager)
+                    .ToListAsync();
+
+                if (itManagers == null || !itManagers.Any())
+                {
+                    return BadRequest(new { message = "No IT Managers found." });
+                }
+
+                var itManagerDtos = itManagers.Select(u => u.ToUserDto()).ToList();
+                return Ok(itManagerDtos);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new
+                {
+                    message = $"There was an error fetching IT Managers: {ex.Message}"
+                });
+            }
+        }
+
         [HttpPost("login")]
         public async Task<IActionResult> LogInUser(LoginUserDto loginUserDto)
         {

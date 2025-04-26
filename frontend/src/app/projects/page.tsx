@@ -23,6 +23,10 @@ export default function ProjectManagement() {
   const [addModelVisible, setAddModelVisible] = useState(false);
   const [editModelVisible, setEditModelVisible] = useState(false);
 
+  useEffect(()=>{
+    console.log(projects)
+  },[projects])
+
   useEffect(() => {
     (async () => {
       const response = await axios.get(
@@ -31,6 +35,7 @@ export default function ProjectManagement() {
       if (response.status) {
         if (!response.data.length) setSelectedPage(selectedPage - 1);
         setProjects(response.data);
+        console.log(response.data);
       }
     })();
   }, [selectedPage]);

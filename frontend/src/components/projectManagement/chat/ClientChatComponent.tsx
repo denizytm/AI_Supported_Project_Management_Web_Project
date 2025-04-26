@@ -26,7 +26,13 @@ interface Message {
   sendAt: string;
 }
 
-export default function ClientChatComponent() {
+interface ClientChatComponentProps {
+  customer: UserType;
+}
+
+export default function ClientChatComponent({
+  customer,
+}: ClientChatComponentProps) {
   const connectionRef = useRef<signalR.HubConnection | null>(null);
 
   const currentUser = useSelector((state: RootState) => state.currentUser.user);
@@ -216,7 +222,7 @@ export default function ClientChatComponent() {
   return (
     <div className="flex h-screen bg-gray-100 text-gray-800 overflow-hidden">
       {/* Left sidebar - User list */}
-      {currentUser.roleName != "Personal" && (
+      {currentUser.roleName != "ItManager" && (
         <div className="w-64 border-r border-gray-700 bg-[#2c2c2c] flex flex-col">
           <div className="p-4 border-b flex items-center space-x-2">
             <div className="h-8 w-8 rounded-full bg-green-500 text-white flex items-center justify-center text-sm font-bold">
@@ -270,7 +276,6 @@ export default function ClientChatComponent() {
           </div>
         </div>
       )}
-
       {/* Middle - Chat area */}
       <div className="flex-1 flex flex-col">
         {/* Header */}
@@ -354,157 +359,40 @@ export default function ClientChatComponent() {
           </div>
         </div>
       </div>
-
       {/* Right sidebar - User details */}
-      {currentUser.roleName == "Personal" ? (
-        <div className="w-72 border-l border-gray-700 bg-[#2c2c2c]">
-          <div className="p-6 flex flex-col items-center text-center text-sm">
-            {/* Profil Fotoğrafı */}
-            <img
-              src="https://randomuser.me/api/portraits/women/44.jpg"
-              alt="Dr. Ayşe Yılmaz"
-              className="w-24 h-24 rounded-full shadow-lg mb-4 border-4 border-blue-500"
-            />
-            <h3 className="text-lg font-bold text-white">
-              Dr. {activeUser && activeUser.name}
-            </h3>
-            <p className="text-blue-400 text-sm mb-2">Cardiologist</p>
+      <div className="w-72 border-l border-gray-700 bg-[#2c2c2c]">
+        <div className="p-6 flex flex-col items-center text-center text-sm">
+          {/* Profil Fotoğrafı */}
+          <img
+            src="https://randomuser.me/api/portraits/men/32.jpg"
+            className="w-24 h-24 rounded-full shadow-lg mb-4 border-4 border-green-500"
+          />
+          <h3 className="text-lg font-bold text-white">
+            {customer.name} {customer.lastName}
+          </h3>
+          <p className="text-green-400 text-sm mb-2">Client</p>
 
-            {/* Ayırıcı */}
-            <hr className="border-t-2 border-blue-500 w-full mb-6" />
+          {/* Ayırıcı */}
+          <hr className="border-t-2 border-green-500 w-full mb-6" />
 
-            {/* Bilgi Blokları */}
-            <div className="space-y-4 text-left w-full text-gray-300">
-              <div>
-                <h4 className="text-xs font-bold text-blue-400 uppercase mb-1">
-                  Experience
-                </h4>
-                <p>12 years</p>
-              </div>
+          {/* Bilgi Blokları */}
+          <div className="space-y-4 text-left w-full text-gray-300">
+            <div>
+              <h4 className="text-xs font-bold text-green-400 uppercase mb-1">
+                Phone
+              </h4>
+              <p>{customer.phone}</p>
+            </div>
 
-              <div>
-                <h4 className="text-xs font-bold text-blue-400 uppercase mb-1">
-                  Hospital
-                </h4>
-                <p>Istanbul Medical Center</p>
-              </div>
-
-              <div>
-                <h4 className="text-xs font-bold text-blue-400 uppercase mb-1">
-                  Phone
-                </h4>
-                <p>+90 212 555 1234</p>
-              </div>
-
-              <div>
-                <h4 className="text-xs font-bold text-blue-400 uppercase mb-1">
-                  Email
-                </h4>
-                <p className="break-all">ayse.yilmaz@istanbulmed.com</p>
-              </div>
-
-              <div>
-                <h4 className="text-xs font-bold text-blue-400 uppercase mb-1">
-                  Languages
-                </h4>
-                <p>Turkish, English</p>
-              </div>
-
-              <div>
-                <h4 className="text-xs font-bold text-blue-400 uppercase mb-1">
-                  Education
-                </h4>
-                <p>Hacettepe University</p>
-              </div>
-
-              <div>
-                <h4 className="text-xs font-bold text-blue-400 uppercase mb-1">
-                  Interests
-                </h4>
-                <p>
-                  Heart failure, <br />
-                  ECG interpretation, <br />
-                  Patient education
-                </p>
-              </div>
+            <div>
+              <h4 className="text-xs font-bold text-green-400 uppercase mb-1">
+                Email
+              </h4>
+              <p className="break-all">{customer.email}</p>
             </div>
           </div>
         </div>
-      ) : (
-        <div className="w-72 border-l border-gray-700 bg-[#2c2c2c]">
-          <div className="p-6 flex flex-col items-center text-center text-sm">
-            {/* Profil Fotoğrafı */}
-            <img
-              src="https://randomuser.me/api/portraits/men/32.jpg"
-              alt="Mehmet Kaya"
-              className="w-24 h-24 rounded-full shadow-lg mb-4 border-4 border-green-500"
-            />
-            <h3 className="text-lg font-bold text-white">
-              {activeUser && activeUser.name}
-            </h3>
-            <p className="text-green-400 text-sm mb-2">Patient</p>
-
-            {/* Ayırıcı */}
-            <hr className="border-t-2 border-green-500 w-full mb-6" />
-
-            {/* Bilgi Blokları */}
-            <div className="space-y-4 text-left w-full text-gray-300">
-              <div>
-                <h4 className="text-xs font-bold text-green-400 uppercase mb-1">
-                  Age
-                </h4>
-                <p>35</p>
-              </div>
-
-              <div>
-                <h4 className="text-xs font-bold text-green-400 uppercase mb-1">
-                  Gender
-                </h4>
-                <p>Male</p>
-              </div>
-
-              <div>
-                <h4 className="text-xs font-bold text-green-400 uppercase mb-1">
-                  Phone
-                </h4>
-                <p>+90 532 123 4567</p>
-              </div>
-
-              <div>
-                <h4 className="text-xs font-bold text-green-400 uppercase mb-1">
-                  Email
-                </h4>
-                <p className="break-all">{activeUser && activeUser.email}</p>
-              </div>
-
-              <div>
-                <h4 className="text-xs font-bold text-green-400 uppercase mb-1">
-                  Blood Type
-                </h4>
-                <p>O+</p>
-              </div>
-
-              <div>
-                <h4 className="text-xs font-bold text-green-400 uppercase mb-1">
-                  Allergies
-                </h4>
-                <p>Penicillin, Pollen</p>
-              </div>
-
-              <div>
-                <h4 className="text-xs font-bold text-green-400 uppercase mb-1">
-                  Medical History
-                </h4>
-                <p>
-                  Hypertension <br />
-                  Migraine <br />
-                  Previous Surgery (2018)
-                </p>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
+      </div>
     </div>
   );
 }

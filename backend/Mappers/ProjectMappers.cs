@@ -22,9 +22,11 @@ namespace backend.Mappers
                 ProjectType = project.ProjectType,
                 StartDate = project.StartDate,
                 StatusName = project.StatusName,
-                Tasks = project.Tasks,
                 ManagerId = project.ManagerId,
-                CustomerId = project.CustomerId
+                CustomerId = project.CustomerId,
+                Manager = project.Manager.ToUserDto(),
+                Customer = project.Customer.ToUserDto(),
+                ProjectRequests = project.ProjectRequests.Select(pR => pR.FromProjectRequestToDto()).ToList()
             };
         }
 

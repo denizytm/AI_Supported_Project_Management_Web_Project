@@ -35,6 +35,20 @@ export default function TaskManagement({ id, text }: TaskManagementProps) {
       roleName: "loading",
       statusName: "loading",
       taskRoleName: "loading",
+      phone: "loading",
+      company: "loading",
+    },
+    customer: {
+      id: 0,
+      email: "loading",
+      name: "loading",
+      lastName: "loading",
+      proficiencyLevelName: "loading",
+      roleName: "loading",
+      statusName: "loading",
+      taskRoleName: "loading",
+      phone: "loading",
+      company: "loading",
     },
     projectType: {
       id: 0,
@@ -85,8 +99,6 @@ export default function TaskManagement({ id, text }: TaskManagementProps) {
         `http://localhost:5110/api/chatbot/assign-tasks?projectId=${projectData.id}`
       );
       const data = res.data.assignments;
-
-      console.log(data);
 
       const userList = usersData.map((u) => ({
         id: u.id,
@@ -259,7 +271,7 @@ export default function TaskManagement({ id, text }: TaskManagementProps) {
 
       {showChat && (
         <ClientChatModal onClose={() => setShowChat(false)}>
-          <ClientChatComponent />
+          <ClientChatComponent {...{ customer: projectData.customer }} />
         </ClientChatModal>
       )}
 
@@ -271,16 +283,17 @@ export default function TaskManagement({ id, text }: TaskManagementProps) {
             General Information
           </h3>
           <p className="text-gray-500 dark:text-gray-300">
-            <strong>Project Name:</strong> Cloud Infrastructure Migration
+            <strong>Project Name:</strong> {projectData.name}
           </p>
           <p className="text-gray-500 dark:text-gray-300">
-            <strong>Project Code:</strong> IT-CIM-2024
+            <strong>Project Code:</strong> {projectData.id}
           </p>
           <p className="text-gray-500 dark:text-gray-300">
-            <strong>Project Manager:</strong> Michael Reed
+            <strong>Project Manager:</strong> {projectData.manager.name}{" "}
+            {projectData.manager.lastName}
           </p>
           <p className="text-gray-500 dark:text-gray-300">
-            <strong>Completion:</strong> 62%
+            <strong>Completion:</strong> {projectData.progress}
           </p>
         </div>
 
@@ -290,16 +303,17 @@ export default function TaskManagement({ id, text }: TaskManagementProps) {
             Client Information
           </h3>
           <p className="text-gray-500 dark:text-gray-300">
-            <strong>Name:</strong> John Doe
+            <strong>Name:</strong> {projectData.customer.name}{" "}
+            {projectData.customer.lastName}
           </p>
           <p className="text-gray-500 dark:text-gray-300">
-            <strong>Company:</strong> Tech Solutions Inc.
+            <strong>Company:</strong> {projectData.customer.company}
           </p>
           <p className="text-gray-500 dark:text-gray-300">
-            <strong>Email:</strong> john.doe@example.com
+            <strong>Email:</strong> {projectData.customer.email}
           </p>
           <p className="text-gray-500 dark:text-gray-300">
-            <strong>Phone:</strong> +123 456 7890
+            <strong>Phone:</strong> {projectData.customer.phone}
           </p>
         </div>
 
@@ -307,31 +321,50 @@ export default function TaskManagement({ id, text }: TaskManagementProps) {
         <ProjectTeamList {...{ projectData, usersData }} />
 
         {/* Client Requests */}
-        <div className="bg-white dark:bg-gray-800 p-4 shadow-md rounded-md">
+        <div className="bg-white dark:bg-gray-800 p-4 shadow-md rounded-md max-h-[400px] overflow-auto">
           <h3 className="font-bold text-gray-700 dark:text-white mb-2">
             Client Requests
           </h3>
-          <table className="w-full text-left">
-            <thead>
-              <tr className="bg-gray-200 dark:bg-gray-700">
-                <th className="p-2">Critic</th>
-                <th className="p-2">Request</th>
-                <th className="p-2">Action</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr className="border-b">
-                <td className="p-2 text-red-500">High</td>
-                <td className="p-2">Integrate payment gateway</td>
-                <td className="p-2 text-blue-400 cursor-pointer">See</td>
-              </tr>
-              <tr className="border-b">
-                <td className="p-2 text-red-500">High</td>
-                <td className="p-2">Mobile app design revision</td>
-                <td className="p-2 text-blue-400 cursor-pointer">See</td>
-              </tr>
-            </tbody>
-          </table>
+
+          <div className="overflow-x-auto max-w-full">
+            <table className="min-w-full text-left ">
+              <thead className="bg-gray-200 dark:bg-gray-700 text-gray-600 dark:text-gray-300">
+                <tr>
+                  <th className="px-3 py-2">Critic</th>
+                  <th className="px-3 py-2">Request</th>
+                  <th className="px-3 py-2">Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                {projectData?.projectRequests?.map((request) => (
+                  <tr className="border-b hover:bg-gray-100 dark:hover:bg-gray-800">
+                    <td
+                      className={
+                        "px-3 py-2 font-semibold whitespace-nowrap " +
+                        (request.criticLevelName === "Low"
+                          ? "text-green-500"
+                          : request.criticLevelName === "Medium"
+                          ? "text-yellow-500"
+                          : request.criticLevelName === "High"
+                          ? "text-red-500"
+                          : "text-red-700")
+                      }
+                    >
+                      {request.criticLevelName}
+                    </td>
+                    <td className="px-3 py-2 text-gray-700 dark:text-gray-300 max-w-[180px] truncate">
+                      {request.description}
+                    </td>
+                    <td className="px-3 py-2">
+                      <button className="text-blue-500 hover:text-blue-700 font-semibold">
+                        See
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </div>
       </div>
     </div>

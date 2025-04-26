@@ -1,10 +1,20 @@
 import internal from "stream";
 import { UserType } from "./userType";
 
+export interface ProjectRequestType {
+  requestedBy : UserType,
+  criticLevelName : string,
+  isClosed : boolean,
+  closingNote ?: string,
+  description : string,
+  closedAt : Date,
+}
+
 export interface ProjectType {
   id: number;
   name: string;
   manager: UserType;
+  customer: UserType;
   deadline: string;
   progress: string;
   statusName: string;
@@ -14,4 +24,5 @@ export interface ProjectType {
     id : number;
     name : string;
   }
+  projectRequests ?: ProjectRequestType[]
 }

@@ -61,6 +61,7 @@ namespace backend.Migrations
                     Email = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Password = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Birth = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    Company = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Gender = table.Column<int>(type: "int", nullable: true),
                     Phone = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     ManagerId = table.Column<int>(type: "int", nullable: true),
@@ -207,6 +208,38 @@ namespace backend.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "ProjectRequests",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    ProjectId = table.Column<int>(type: "int", nullable: false),
+                    RequestedById = table.Column<int>(type: "int", nullable: false),
+                    Description = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    CriticLevel = table.Column<int>(type: "int", nullable: false),
+                    IsClosed = table.Column<bool>(type: "bit", nullable: false),
+                    ClosingNote = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    ClosedAt = table.Column<DateTime>(type: "datetime2", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_ProjectRequests", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_ProjectRequests_Projects_ProjectId",
+                        column: x => x.ProjectId,
+                        principalTable: "Projects",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_ProjectRequests_Users_RequestedById",
+                        column: x => x.RequestedById,
+                        principalTable: "Users",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Resources",
                 columns: table => new
                 {
@@ -339,6 +372,16 @@ namespace backend.Migrations
                 column: "SenderUserId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_ProjectRequests_ProjectId",
+                table: "ProjectRequests",
+                column: "ProjectId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_ProjectRequests_RequestedById",
+                table: "ProjectRequests",
+                column: "RequestedById");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Projects_CustomerId",
                 table: "Projects",
                 column: "CustomerId");
@@ -407,6 +450,9 @@ namespace backend.Migrations
 
             migrationBuilder.DropTable(
                 name: "PrivateMessages");
+
+            migrationBuilder.DropTable(
+                name: "ProjectRequests");
 
             migrationBuilder.DropTable(
                 name: "Resources");

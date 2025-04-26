@@ -20,7 +20,9 @@ namespace backend.Mappers
                 ProficiencyLevelName = user.ProficiencyLevelName,
                 RoleName = user.RoleName,
                 TaskRoleName = user.TaskRoleName,
-                StatusName = user.StatusName
+                StatusName = user.StatusName,
+                Company = user.Company,
+                Phone = user.Phone
             };
         }
 
@@ -35,23 +37,39 @@ namespace backend.Mappers
                 ProficiencyLevel = createUserDto.ProficiencyLevel,
                 Role = createUserDto.Role,
                 Status = createUserDto.Status,
+                Company = createUserDto.Company,
+                Phone = createUserDto.Phone
             };
         }
 
         public static User UpdateDtoToUser(this UpdateUserDto updateUserDto, User userData)
         {
-            userData.Email = string.IsNullOrWhiteSpace(updateUserDto.Email) ? userData.Email : updateUserDto.Email;
-            userData.Name = string.IsNullOrWhiteSpace(updateUserDto.Name) ? userData.Name : updateUserDto.Name;
-            userData.LastName = string.IsNullOrWhiteSpace(updateUserDto.LastName) ? userData.LastName : updateUserDto.LastName;
-            userData.Password = string.IsNullOrWhiteSpace(updateUserDto.Password) ? userData.Password : updateUserDto.Password;
-            userData.ProficiencyLevelName = string.IsNullOrWhiteSpace(updateUserDto.ProficiencyLevelName) ? userData.ProficiencyLevelName : updateUserDto.ProficiencyLevelName;
-            userData.RoleName = string.IsNullOrWhiteSpace(updateUserDto.RoleName) ? userData.RoleName : updateUserDto.RoleName;
-            userData.TaskRoleName = string.IsNullOrWhiteSpace(updateUserDto.TaskRoleName) ? userData.TaskRoleName : updateUserDto.TaskRoleName;
-            userData.StatusName = string.IsNullOrWhiteSpace(updateUserDto.StatusName) ? userData.StatusName : updateUserDto.StatusName;
+            if (!string.IsNullOrWhiteSpace(updateUserDto.Email))
+                userData.Email = updateUserDto.Email;
+
+            if (!string.IsNullOrWhiteSpace(updateUserDto.Name))
+                userData.Name = updateUserDto.Name;
+
+            if (!string.IsNullOrWhiteSpace(updateUserDto.LastName))
+                userData.LastName = updateUserDto.LastName;
+
+            if (!string.IsNullOrWhiteSpace(updateUserDto.Password))
+                userData.Password = updateUserDto.Password;
+
+            if (!string.IsNullOrWhiteSpace(updateUserDto.ProficiencyLevelName))
+                userData.ProficiencyLevelName = updateUserDto.ProficiencyLevelName;
+
+            if (!string.IsNullOrWhiteSpace(updateUserDto.RoleName))
+                userData.RoleName = updateUserDto.RoleName;
+
+            if (!string.IsNullOrWhiteSpace(updateUserDto.TaskRoleName))
+                userData.TaskRoleName = updateUserDto.TaskRoleName;
+
+            if (!string.IsNullOrWhiteSpace(updateUserDto.StatusName))
+                userData.StatusName = updateUserDto.StatusName;
 
             return userData;
         }
-
 
     }
 }

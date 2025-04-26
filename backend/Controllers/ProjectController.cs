@@ -35,6 +35,7 @@ namespace backend.Controllers
                     .Skip((page - 1) * perPage)
                     .Take(perPage)
                     .Include(p => p.Manager)
+                    .Include(p => p.Customer)
                     .Include(p => p.ProjectType)
                     .ToListAsync();
 
@@ -99,12 +100,12 @@ namespace backend.Controllers
             {
                 var managers = _context.Projects
                                     .Include(p => p.Manager)
-                                    .Select(p => p.Manager.Id)  
-                                    .Distinct() 
+                                    .Select(p => p.Manager.Id)
+                                    .Distinct()
                                     .ToList();
 
                 var nonManagers = _context.Users
-                    .Where(u => !managers.Contains(u.Id))  
+                    .Where(u => !managers.Contains(u.Id))
                     .ToList();
 
 
@@ -125,7 +126,7 @@ namespace backend.Controllers
             try
             {
                 var projectTypes = _context.ProjectTypes.ToList();
-            
+
                 return Ok(projectTypes);
             }
             catch (Exception ex)
@@ -142,9 +143,17 @@ namespace backend.Controllers
         {
             try
             {
-                var project = await _context.Projects.Include(p => p.Manager).Where(p => p.Id == id).FirstAsync();
+                var project = await _context.Projects
+                    .Include(p => p.Customer)
+                    .Include(p => p.Manager)
+                    .Include(p => p.ProjectRequests)
+                    .Where(p => p.Id == id)
+                    .FirstAsync();
 
-                if (project == null)
+                var projectDto = project.ToProjectDto();
+
+
+                if (projectDto == null)
                 {
                     return BadRequest(new { message = $"No project found with the id value : {id}" });
                 }
@@ -184,7 +193,7 @@ namespace backend.Controllers
                 {
                     tasks = taskDtos,
                     groupedTasks,
-                    project,
+                    project = projectDto,
                     users,
                     minStartDate,
                     maxDueDate
@@ -198,6 +207,31 @@ namespace backend.Controllers
                 });
             }
         }
+
+        [HttpGet("unassigned-developers")]
+        public async Task<IActionResult> GetUnassignedDevelopersForProject(int id)
+        {
+            try
+            {
+                var assignedUserIds = await _context.UserProjects
+                    .Where(up => up.ProjectId == id)
+                    .Select(up => up.UserId)
+                    .ToListAsync();
+
+                var developers = await _context.Users
+                    .Where(u => u.Role == Role.Developer && !assignedUserIds.Contains(u.Id))
+                    .ToListAsync();
+
+                var developerDtos = developers.Select(d => d.ToUserDto());
+
+                return Ok(developerDtos);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = $"An error occurred: {ex.Message}" });
+            }
+        }
+
 
         [HttpPost("add")]
         public async Task<IActionResult> CreateProject(CreateProjectDto createProjectDto)
@@ -228,6 +262,36 @@ namespace backend.Controllers
             }
 
         }
+
+        [HttpPost("add-users-to-project")]
+        public async Task<IActionResult> AddUsersToProject(int id, [FromBody] List<int> userIds)
+        {
+            try
+            {
+                var project = await _context.Projects.FindAsync(id);
+
+                if (project == null)
+                {
+                    return NotFound(new { message = "Project not found." });
+                }
+
+                var userProjects = userIds.Select(userId => new UserProject
+                {
+                    UserId = userId,
+                    ProjectId = id
+                }).ToList();
+
+                await _context.UserProjects.AddRangeAsync(userProjects);
+                await _context.SaveChangesAsync();
+
+                return Ok(new { message = "Users added to project successfully." });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = $"Error while adding users to project: {ex.Message}" });
+            }
+        }
+
 
         [HttpPut("update")]
         public async Task<IActionResult> UpdateProject(Project projectData, int id)

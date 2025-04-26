@@ -21,7 +21,6 @@ namespace backend.Mappers
                 Note = task.Note,
                 PriorityName = task.PriorityName,
                 Progress = task.Progress,
-                Project = task.Project,
                 ProjectId = task.ProjectId,
                 StatusName = task.StatusName,
                 TaskId = task.TaskId,

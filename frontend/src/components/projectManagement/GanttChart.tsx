@@ -50,19 +50,6 @@ export default function GanttChart({ taskMap }: GanttChartProps) {
 
   }, [taskMap]);
 
-  /* let dataSource = [
-    {
-        TaskID: 1,
-        TaskName: 'Project Initiation',
-        StartDate: new Date('04/02/2019'),
-        EndDate: new Date('05/21/2019'),
-        subtasks: [
-            { TaskID: 2, TaskName: 'Identify Site location', StartDate: new Date('04/02/2019'), Duration: 4, Progress: 50 },
-            { TaskID: 3, TaskName: 'Perform Soil test', StartDate: new Date('04/29/2019'), Duration: 6, Progress: 50, Predecessor: 2 }
-        ]
-    },
-  ]; */
-
   const taskFields: any = {
     id: "TaskID",
     name: "TaskName",

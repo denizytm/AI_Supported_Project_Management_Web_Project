@@ -25,7 +25,7 @@ namespace backend.Dtos.Task
         public int Progress { get; set; }
         public string Note { get; set; } = String.Empty;
         public int ProjectId { get; set; }
-        public backend.Models.Project Project { get; set; } = null!;
+        public backend.Models.Project? Project { get; set; } = null!;
         public int? TaskId { get; set; }
         public backend.Models.Task? DependingTask { get; set; } = null!;
         public int TaskTypeId { get; set; }

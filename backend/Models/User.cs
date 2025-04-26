@@ -54,9 +54,10 @@ namespace backend.Models
         public string Email { get; set; } = String.Empty;
         public string Password { get; set; } = String.Empty;
         public DateTime? Birth { get; set; }
+        public string? Company { get; set; }
         public Gender? Gender { get; set; }
         [NotMapped]
-        public string GenderName
+        public string? GenderName
         {
             get => Gender.ToString();
             set => Gender = Enum.Parse<Gender>(value);
