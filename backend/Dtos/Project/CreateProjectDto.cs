@@ -14,6 +14,7 @@ namespace backend.Dtos.Project
         public DateTime Deadline { get; set; }
         public string PriorityName { get; set; } = String.Empty;
         public string StatusName { get; set; } = String.Empty;
-        public int UserId { get; set; }
+        public int ManagerId { get; set; }
+        public int CustomerId { get; set; }
     }
 }

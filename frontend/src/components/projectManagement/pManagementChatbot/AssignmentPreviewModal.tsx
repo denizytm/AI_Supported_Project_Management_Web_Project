@@ -10,7 +10,7 @@ interface AssignmentPreviewModalProps {
     taskLevel: string;
   }[];
   users: { 
-    id: string; 
+    id: number; 
     name: string; 
     proficiencyLevelName: string;
     statusName : string

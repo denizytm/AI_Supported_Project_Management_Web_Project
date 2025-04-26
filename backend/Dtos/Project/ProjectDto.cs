@@ -13,7 +13,6 @@ namespace backend.Dtos.Project
         public int Id { get; set; }
         public string Name { get; set; } = String.Empty;
         public string Description { get; set; } = String.Empty;
-        public List<Technology> Technologies { get; set; } = new List<Technology>();
         public int ProjectTypeId { get; set; } 
         public ProjectType ProjectType { get; set; } = null!;
         public DateTime StartDate { get; set; }
@@ -24,7 +23,9 @@ namespace backend.Dtos.Project
         [Column(TypeName = "decimal(10,2)")]
         public decimal Budget { get; set; }
         public List<backend.Models.Task> Tasks { get; set; } = new List<backend.Models.Task>();
-        public int UserId { get; set; }
+        public int ManagerId { get; set; }
         public UserDto Manager { get; set; } = null!;
+        public int CustomerId { get; set; }
+        public UserDto Customer { get; set; } = null!;
     }
 }

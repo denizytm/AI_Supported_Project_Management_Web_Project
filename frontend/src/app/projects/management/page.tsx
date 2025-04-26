@@ -12,7 +12,9 @@ import CreateTaskModal from "@/components/projectManagement/CreateTaskModal";
 import GanttChart from "@/components/projectManagement/GanttChart";
 import EditTaskModal from "@/components/projectManagement/EditTaskModal";
 import DeleteTaskModal from "@/components/projectManagement/DeleteTaskModal";
-import AssignmentPreviewModal from "@/components/projectManagement/AssignmentPreviewModal";
+import AssignmentPreviewModal from "@/components/projectManagement/pManagementChatbot/AssignmentPreviewModal";
+import ClientChatModal from "@/components/projectManagement/chat/ClientChatModal";
+import ClientChatComponent from "@/components/projectManagement/chat/ClientChatComponent";
 
 interface TaskManagementProps {
   id: number;
@@ -25,7 +27,7 @@ export default function TaskManagement({ id, text }: TaskManagementProps) {
     budget: 0,
     deadline: "0000-00-00",
     manager: {
-      id: "0",
+      id: 0,
       email: "loading",
       name: "loading",
       lastName: "loading",
@@ -66,7 +68,7 @@ export default function TaskManagement({ id, text }: TaskManagementProps) {
   const [aiAssignments, setAiAssignments] = useState([]);
   const [availableUsers, setAvailableUsers] = useState<
     {
-      id: string;
+      id: number;
       name: string;
       proficiencyLevelName: string;
       statusName: string;
@@ -255,11 +257,11 @@ export default function TaskManagement({ id, text }: TaskManagementProps) {
         />
       )}
 
-      {/* {showChat && (
-        <ChatModal onClose={() => setShowChat(false)}>
-          <ChatContentComponent />
-        </ChatModal>
-      )} */}
+      {showChat && (
+        <ClientChatModal onClose={() => setShowChat(false)}>
+          <ClientChatComponent />
+        </ClientChatModal>
+      )}
 
       {/* Bottom Section */}
       <div className="grid grid-cols-4 gap-4 mt-4">

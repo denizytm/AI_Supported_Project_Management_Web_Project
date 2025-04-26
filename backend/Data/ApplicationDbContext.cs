@@ -20,8 +20,15 @@ namespace backend.Data
             modelBuilder.Entity<Project>()
                 .HasOne(p => p.Manager)
                 .WithMany()
-                .HasForeignKey(p => p.UserId)
+                .HasForeignKey(p => p.ManagerId)
                 .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<Project>()
+                .HasOne(p => p.Customer)
+                .WithMany()
+                .HasForeignKey(p => p.CustomerId)
+                .OnDelete(DeleteBehavior.Restrict);
+
 
             modelBuilder.Entity<User>()
                 .HasOne(u => u.Manager)
@@ -67,7 +74,6 @@ namespace backend.Data
         public DbSet<Project> Projects { get; set; }
         public DbSet<Resource> Resources { get; set; }
         public DbSet<backend.Models.Task> Tasks { get; set; }
-        public DbSet<Technology> Technologies { get; set; }
         public DbSet<User> Users { get; set; }
         public DbSet<UserProject> UserProjects { get; set; } = null!;
         public DbSet<TaskLabel> TaskLabels { get; set; }

@@ -23,7 +23,6 @@ namespace backend.Data
                     .RuleFor(u => u.Status, f => f.PickRandom<AvailabilityStatus>())
                     .RuleFor(u => u.TaskRole, f => f.PickRandom<TaskRole>())
                     .RuleFor(u => u.UserProjects, f => new List<UserProject>())
-                    .RuleFor(u => u.Technologies, f => new List<Technology>())
                     .RuleFor(u => u.Tasks, f => new List<backend.Models.Task>())
                     .RuleFor(u => u.ManagerId, f => null); // FK çakışmaması için önce boş
 
@@ -71,6 +70,11 @@ namespace backend.Data
 
             if (!context.Projects.Any())
             {
+                var itManagers = context.Users.Where(u => u.Role == Role.ItManager).ToList();
+                var clients = context.Users.Where(u => u.Role == Role.Client).ToList();
+
+                var random = new Random();
+
                 var projectFaker = new Faker<Project>()
                     .RuleFor(p => p.Name, f => f.Company.CompanyName())
                     .RuleFor(p => p.Description, f => f.Lorem.Paragraph())
@@ -79,14 +83,16 @@ namespace backend.Data
                     .RuleFor(p => p.Progress, f => f.Random.Int(1, 100))
                     .RuleFor(p => p.Status, f => f.PickRandom<ProjectStatus>())
                     .RuleFor(p => p.Priority, f => f.PickRandom<ProjectPriority>())
-                    .RuleFor(p => p.ProjectTypeId, f => f.Random.Int(1, context.ProjectTypes.ToList().Count))
-                    .RuleFor(t => t.UserId, f => f.Random.Int(1, context.Users.ToList().Count))
-                    .RuleFor(p => p.Budget, f => f.Random.Decimal(100, 1000));
+                    .RuleFor(p => p.ProjectTypeId, f => f.Random.Int(1, context.ProjectTypes.Count()))
+                    .RuleFor(p => p.ManagerId, f => itManagers[random.Next(itManagers.Count)].Id)
+                    .RuleFor(p => p.CustomerId, f => clients[random.Next(clients.Count)].Id)
+                    .RuleFor(p => p.Budget, f => f.Random.Decimal(100, 10000));
 
                 var projects = projectFaker.Generate(12);
                 context.Projects.AddRange(projects);
                 context.SaveChanges();
             }
+
 
             if (!context.UserProjects.Any())
             {
@@ -217,16 +223,6 @@ namespace backend.Data
                 context.SaveChanges();
             }
 
-            if (!context.Technologies.Any())
-            {
-                var technologyFaker = new Faker<Technology>()
-                    .RuleFor(t => t.Name, f => f.Commerce.Department());
-
-                var technologies = technologyFaker.Generate(20);
-                context.Technologies.AddRange(technologies);
-                context.SaveChanges();
-            }
-
             if (!context.Resources.Any())
             {
                 var resourceFaker = new Faker<Resource>()
@@ -236,30 +232,6 @@ namespace backend.Data
 
                 var resources = resourceFaker.Generate(30);
                 context.Resources.AddRange(resources);
-                context.SaveChanges();
-            }
-
-            if (!context.ChatSessions.Any())
-            {
-                var sessionFaker = new Faker<ChatSession>()
-                    .RuleFor(t => t.UserId, f => f.Random.Int(1, context.Users.ToList().Count))
-                    .RuleFor(m => m.CreatedAt, f => f.Date.Recent());
-
-                var sessions = sessionFaker.Generate(200);
-                context.ChatSessions.AddRange(sessions);
-                context.SaveChanges();
-            }
-
-            if (!context.ChatMessages.Any())
-            {
-                var messageFaker = new Faker<ChatMessage>()
-                    .RuleFor(m => m.Content, f => f.Lorem.Sentence())
-                    .RuleFor(t => t.UserId, f => f.Random.Int(1, context.Users.ToList().Count))
-                    .RuleFor(t => t.ChatSessionId, f => f.Random.Int(1, context.ChatSessions.ToList().Count))
-                    .RuleFor(m => m.SentAt, f => f.Date.Recent());
-
-                var messages = messageFaker.Generate(200);
-                context.ChatMessages.AddRange(messages);
                 context.SaveChanges();
             }
 

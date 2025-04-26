@@ -65,9 +65,9 @@ namespace backend.Models
         public int? ManagerId { get; set; } 
         public User? Manager { get; set; } = null!;
 
-        public ProficiencyLevel ProficiencyLevel { get; set; }
+        public ProficiencyLevel? ProficiencyLevel { get; set; }
         [NotMapped]
-        public string ProficiencyLevelName
+        public string? ProficiencyLevelName
         {
             get => ProficiencyLevel.ToString();
             set => ProficiencyLevel = Enum.Parse<ProficiencyLevel>(value);
@@ -89,16 +89,15 @@ namespace backend.Models
             set => Status = Enum.Parse<AvailabilityStatus>(value);
         }
 
-        public TaskRole TaskRole { get; set; }
+        public TaskRole? TaskRole { get; set; }
         [NotMapped]
-        public string TaskRoleName
+        public string? TaskRoleName
         {
             get => TaskRole.ToString();
             set => TaskRole = Enum.Parse<TaskRole>(value);
         }
 
         public List<UserProject> UserProjects { get; set; } = new List<UserProject>();
-        public List<Technology> Technologies { get; set; } = new List<Technology>();
         public List<Task> Tasks { get; set; } = new List<Task>();
     }
 }

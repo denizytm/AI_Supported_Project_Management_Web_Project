@@ -15,7 +15,6 @@ namespace backend.Mappers
                 Budget = project.Budget,
                 Deadline = project.Deadline,
                 Description = project.Description,
-                Manager = project.Manager != null ? project.Manager.ToUserDto() : null,
                 Name = project.Name,
                 PriorityName = project.PriorityName,
                 Progress = project.Progress,
@@ -24,8 +23,8 @@ namespace backend.Mappers
                 StartDate = project.StartDate,
                 StatusName = project.StatusName,
                 Tasks = project.Tasks,
-                Technologies = project.Technologies,
-                UserId = project.UserId
+                ManagerId = project.ManagerId,
+                CustomerId = project.CustomerId
             };
         }
 
@@ -40,7 +39,8 @@ namespace backend.Mappers
                 Progress = 0,
                 StatusName = createProjectDto.StatusName,
                 StartDate = createProjectDto.StartDate,
-                UserId = createProjectDto.UserId
+                ManagerId = createProjectDto.ManagerId,
+                CustomerId = createProjectDto.CustomerId
             };
         }
 

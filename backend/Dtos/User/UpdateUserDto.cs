@@ -18,7 +18,6 @@ namespace backend.Dtos.User
         public string? RoleName { get; set; } = String.Empty;
         public string? StatusName { get; set; } = String.Empty;
         public string? TaskRoleName { get; set; } = String.Empty;
-        public List<Technology>? Technologies { get; set; }
         public List<backend.Models.Task>? Tasks { get; set; }
     }
 }
