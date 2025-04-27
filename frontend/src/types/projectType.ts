@@ -2,6 +2,7 @@ import internal from "stream";
 import { UserType } from "./userType";
 
 export interface ProjectRequestType {
+  id : number,
   requestedBy : UserType,
   criticLevelName : string,
   isClosed : boolean,

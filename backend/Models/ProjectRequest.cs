@@ -28,7 +28,7 @@ namespace backend.Models
 
         public CriticLevel CriticLevel { get; set; }
         [NotMapped]
-        public string? CriticLevellName
+        public string CriticLevelName
         {
             get => CriticLevel.ToString();
             set => CriticLevel = Enum.Parse<CriticLevel>(value);

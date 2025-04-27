@@ -65,6 +65,10 @@ export default function TaskManagement({ id, text }: TaskManagementProps) {
   const [taskMap, setTaskMap] = useState(new Map<string, Array<TaskType>>());
   const [taskTypes, setTaskTypes] = useState<Array<string>>([]);
 
+  const [selectedRequest, setSelectedRequest] = useState<any>(null);
+  const [isCompleted, setIsCompleted] = useState(false);
+  const [completionNote, setCompletionNote] = useState("");
+
   const [minStartDate, setMinStartDate] = useState("");
   const [maxDueDate, setMaxDueDate] = useState("");
 
@@ -157,6 +161,28 @@ export default function TaskManagement({ id, text }: TaskManagementProps) {
       }
     })();
   }, []);
+
+  const handleSave = async () => {
+    if (!selectedRequest) return;
+
+    try {
+      const response = await axios.put(
+        `http://localhost:5110/api/project/requests/${selectedRequest.id}/close`,
+        JSON.stringify(completionNote),
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      if (response.status === 200) {
+        window.location.reload();
+      }
+    } catch (error) {
+      console.error("Request güncellenirken hata oluştu:", error);
+    }
+  };
 
   if (!ready1) return <div>Loading...</div>;
   return (
@@ -254,7 +280,9 @@ export default function TaskManagement({ id, text }: TaskManagementProps) {
           {isHidden ? (
             <></>
           ) : (
-            <GanttChart {...{ taskMap, taskTypes, projectId : projectData.id, tasks }} />
+            <GanttChart
+              {...{ taskMap, taskTypes, projectId: projectData.id, tasks }}
+            />
           )}
         </div>
       </div>
@@ -336,7 +364,11 @@ export default function TaskManagement({ id, text }: TaskManagementProps) {
               </thead>
               <tbody>
                 {projectData?.projectRequests?.map((request) => (
-                  <tr className="border-b hover:bg-gray-100 dark:hover:bg-gray-800">
+                  <tr
+                    className={`border-b hover:bg-gray-100 dark:hover:bg-gray-800 transition ${
+                      request.isClosed ? "opacity-50" : ""
+                    }`}
+                  >
                     <td
                       className={
                         "px-3 py-2 font-semibold whitespace-nowrap " +
@@ -355,8 +387,16 @@ export default function TaskManagement({ id, text }: TaskManagementProps) {
                       {request.description}
                     </td>
                     <td className="px-3 py-2">
-                      <button className="text-blue-500 hover:text-blue-700 font-semibold">
-                        See
+                      <button
+                        className="text-blue-500 hover:text-blue-700 font-semibold"
+                        onClick={() => {
+                          setSelectedRequest(request);
+                          setIsCompleted(request.isClosed || false);
+                          setCompletionNote(request.closingNote || "");
+                        }}
+                        disabled={request.isClosed}
+                      >
+                        {request.isClosed ? "Done" : "See"}
                       </button>
                     </td>
                   </tr>
@@ -365,6 +405,77 @@ export default function TaskManagement({ id, text }: TaskManagementProps) {
             </table>
           </div>
         </div>
+
+        {selectedRequest && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm flex justify-center items-center z-50">
+            <div className="bg-white dark:bg-gray-800 p-6 rounded-md shadow-md w-96">
+              <h3 className="text-xl font-bold text-gray-800 dark:text-white mb-4">
+                Request Details
+              </h3>
+
+              <div className="mb-4">
+                <p className="text-gray-700 dark:text-gray-300">
+                  <span className="font-semibold">Description:</span>{" "}
+                  {selectedRequest.description}
+                </p>
+                <p className="text-gray-700 dark:text-gray-300 mt-2">
+                  <span className="font-semibold">Critic Level:</span>{" "}
+                  {selectedRequest.criticLevelName}
+                </p>
+              </div>
+
+              <div className="flex items-center space-x-2 mb-4">
+                <input
+                  type="checkbox"
+                  id="completed"
+                  checked={isCompleted}
+                  onChange={(e) => setIsCompleted(e.target.checked)}
+                  className="form-checkbox"
+                />
+                <label
+                  htmlFor="completed"
+                  className="text-gray-700 dark:text-gray-300"
+                >
+                  Mark as Completed
+                </label>
+              </div>
+
+              {isCompleted && (
+                <div className="mb-4">
+                  <label
+                    htmlFor="completionNote"
+                    className="block text-gray-700 dark:text-gray-300 font-medium mb-1"
+                  >
+                    Completion Note
+                  </label>
+                  <textarea
+                    id="completionNote"
+                    value={completionNote}
+                    onChange={(e) => setCompletionNote(e.target.value)}
+                    className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded dark:bg-gray-700 dark:text-white"
+                    rows={3}
+                    placeholder="Write how the request was completed..."
+                  />
+                </div>
+              )}
+
+              <div className="flex justify-end space-x-2">
+                <button
+                  onClick={() => setSelectedRequest(null)}
+                  className="px-4 py-2 bg-gray-500 hover:bg-gray-600 text-white rounded"
+                >
+                  Close
+                </button>
+                <button
+                  className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded"
+                  onClick={handleSave}
+                >
+                  Save
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

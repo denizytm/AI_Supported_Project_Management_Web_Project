@@ -1,4 +1,6 @@
 using backend.Data;
+using backend.Dtos.ProjectRequest;
+using backend.Mappers;
 using backend.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -6,7 +8,7 @@ using Microsoft.EntityFrameworkCore;
 namespace backend.Controllers
 {
     [ApiController]
-    [Route("api/project-requests")]
+    [Route("api/project/requests")]
     public class ProjectRequestController : ControllerBase
     {
         private readonly ApplicationDbContext _context;
@@ -17,12 +19,12 @@ namespace backend.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> CreateRequest([FromBody] ProjectRequest request)
+        public async Task<IActionResult> CreateRequest([FromBody] CreateProjectRequestDto request)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            _context.ProjectRequests.Add(request);
+            _context.ProjectRequests.Add(request.FromCreateDtoToModel());
             await _context.SaveChangesAsync();
             return Ok(new { message = "Request successfully created", request });
         }

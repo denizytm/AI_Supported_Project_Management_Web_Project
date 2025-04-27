@@ -151,7 +151,6 @@ namespace backend.Controllers
                     .FirstAsync();
 
                 var projectDto = project.ToProjectDto();
-
                 if (projectDto == null)
                 {
                     return BadRequest(new { message = $"No project found with the id value : {id}" });
@@ -253,7 +252,7 @@ namespace backend.Controllers
                     };
 
                     await _context.ChatSessions.AddAsync(chatSession);
-                    await _context.SaveChangesAsync(); 
+                    await _context.SaveChangesAsync();
 
                     return Ok(new
                     {
