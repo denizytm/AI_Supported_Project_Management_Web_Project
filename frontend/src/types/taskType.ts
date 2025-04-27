@@ -9,7 +9,7 @@ export interface TaskType {
     taskLevelName : string,
     priority : string,
     priorityName : string,
-    assignedUser : UserType,
+    assignedUser ?: UserType,
     status : string,
     statusName : string,
     progress : number,
@@ -18,5 +18,5 @@ export interface TaskType {
     taskLabel : TaskLabelType,
     taskId ?: number,
     taskTypeId : number,
-    userId : number
+    userId ?: number
 }

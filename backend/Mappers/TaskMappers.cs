@@ -9,10 +9,12 @@ namespace backend.Mappers
 {
     public static class TaskMappers
     {
-        public static TaskDto ToTaskDto(this backend.Models.Task task){
-            return new TaskDto {
+        public static TaskDto ToTaskDto(this backend.Models.Task task)
+        {
+            return new TaskDto
+            {
                 Description = task.Description,
-                AssignedUser = task.AssignedUser.ToUserDto(),
+                AssignedUser = task.AssignedUser?.ToUserDto(),
                 TaskLabel = task.TaskLabel,
                 DependingTask = task.DependingTask,
                 StartDate = task.StartDate,
@@ -31,9 +33,11 @@ namespace backend.Mappers
             };
         }
 
-        public static backend.Models.Task fromCreateDtoToTask(this CreateTaskDto createTaskDto,TaskType taskTypeData,TaskLabel taskLabelData){
-            
-            return new backend.Models.Task {
+        public static backend.Models.Task fromCreateDtoToTask(this CreateTaskDto createTaskDto, TaskType taskTypeData, TaskLabel taskLabelData)
+        {
+
+            return new backend.Models.Task
+            {
                 Description = createTaskDto.Description,
                 StartDate = createTaskDto.StartDate,
                 DueDate = createTaskDto.DueDate,
@@ -50,9 +54,11 @@ namespace backend.Mappers
             };
         }
 
-        public static backend.Models.Task fromUpdateDtoToTask(this UpdateTaskDto updateTaskDto, TaskLabel taskLabelData, TaskType taskTypeData) {
+        public static backend.Models.Task fromUpdateDtoToTask(this UpdateTaskDto updateTaskDto, TaskLabel taskLabelData, TaskType taskTypeData)
+        {
 
-            return new Models.Task {
+            return new Models.Task
+            {
                 Description = updateTaskDto.Description,
                 StartDate = updateTaskDto.StartDate,
                 DueDate = updateTaskDto.DueDate,

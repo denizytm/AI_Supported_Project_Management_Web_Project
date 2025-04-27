@@ -174,7 +174,6 @@ export default function TaskManagement({ id, text }: TaskManagementProps) {
         {...{
           modalVisibleStatus,
           setModalVisibleStatus,
-          usersData,
           projectId: projectData.id,
           tasks,
         }}
@@ -255,7 +254,7 @@ export default function TaskManagement({ id, text }: TaskManagementProps) {
           {isHidden ? (
             <></>
           ) : (
-            <GanttChart {...{ taskMap, taskTypes, maxDueDate, minStartDate }} />
+            <GanttChart {...{ taskMap, taskTypes, projectId : projectData.id, tasks }} />
           )}
         </div>
       </div>

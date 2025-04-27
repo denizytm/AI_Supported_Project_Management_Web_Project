@@ -50,7 +50,6 @@ namespace backend.Hubs
                 UserConnections.Remove(user.Key);
             }
 
-            await Clients.All.ReceiveMessage(1, $"{Context.ConnectionId} has left the hub");
             await base.OnDisconnectedAsync(exception);
         }
 

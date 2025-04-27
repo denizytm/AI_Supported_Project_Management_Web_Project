@@ -278,7 +278,7 @@ namespace backend.Migrations
                     ProjectId = table.Column<int>(type: "int", nullable: false),
                     TaskId = table.Column<int>(type: "int", nullable: true),
                     DependingTaskId = table.Column<int>(type: "int", nullable: true),
-                    UserId = table.Column<int>(type: "int", nullable: false),
+                    UserId = table.Column<int>(type: "int", nullable: true),
                     TaskTypeId = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
@@ -311,8 +311,7 @@ namespace backend.Migrations
                         name: "FK_Tasks_Users_UserId",
                         column: x => x.UserId,
                         principalTable: "Users",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        principalColumn: "Id");
                 });
 
             migrationBuilder.CreateTable(

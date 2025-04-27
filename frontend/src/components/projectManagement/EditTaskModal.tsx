@@ -20,17 +20,17 @@ interface EditTaskModalProps {
       delete: boolean;
     }>
   >;
-  usersData: UserType[];
   projectId: number;
   tasks: TaskType[];
+  selectedTaskIdFromGantt?: number;
 }
 
 export default function EditTaskModal({
   modalVisibleStatus,
   setModalVisibleStatus,
-  usersData,
   projectId,
   tasks,
+  selectedTaskIdFromGantt,
 }: EditTaskModalProps) {
   const [selectedTask, setSelectedTask] = useState<TaskType | null>();
 
@@ -53,6 +53,30 @@ export default function EditTaskModal({
   const [ready, setReady] = useState(false);
   const [taskTypes, setTaskTypes] = useState<TasktypeType[]>([]);
   const [taskLabels, setTaskLabels] = useState<TaskLabelType[]>([]);
+  const [usersData, setUsersData] = useState<UserType[]>([]);
+
+  useEffect(() => {
+    (async () => {
+      if (selectedTaskIdFromGantt) {
+        const response = await axios.get(
+          `http://localhost:5110/api/tasks/find?id=${selectedTaskIdFromGantt}`
+        );
+        if (response.status) setSelectedTask(response.data);
+      }
+    })();
+  }, []);
+
+  useEffect(() => {
+    (async () => {
+      const response = await axios.get(
+        `http://localhost:5110/api/projects/management?id=${projectId}`
+      );
+
+      if (response.status) {
+        setUsersData(response.data.users);
+      }
+    })();
+  }, []);
 
   useEffect(() => {
     (async () => {
@@ -81,7 +105,7 @@ export default function EditTaskModal({
         projectId,
         taskLabelName: selectedTask.taskLabel.label,
         taskLevelName: selectedTask.taskLevelName,
-        userId: selectedTask.userId,
+        userId: selectedTask.userId || 0,
         taskTypeName: selectedTask.taskType.name,
         taskId: selectedTask.taskId || 0,
       });
@@ -126,6 +150,7 @@ export default function EditTaskModal({
           onChange={(e) => {
             setSelectedTask(tasks.find((task) => task.id == +e.target.value));
           }}
+          value={selectedTask?.id}
         >
           <option value="">None</option>
           {tasks.map((task) => (

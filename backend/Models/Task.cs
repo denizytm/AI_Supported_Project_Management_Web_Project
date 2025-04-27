@@ -33,10 +33,13 @@ namespace backend.Models
     {
         public int Id { get; set; }
         public string Description { get; set; } = String.Empty;
+
         public int TaskLabelId { get; set; }
         public TaskLabel TaskLabel { get; set; } = null!;
+
         public DateTime StartDate { get; set; }
         public DateTime DueDate { get; set; }
+
         public TaskLevel TaskLevel { get; set; }
         [NotMapped]
         public string TaskLevelName
@@ -44,6 +47,7 @@ namespace backend.Models
             get => TaskLevel.ToString();
             set => TaskLevel = Enum.Parse<TaskLevel>(value);
         }
+
         public Priority Priority { get; set; }
         [NotMapped]
         public string PriorityName
@@ -51,6 +55,7 @@ namespace backend.Models
             get => Priority.ToString();
             set => Priority = Enum.Parse<Priority>(value);
         }
+
         public TaskStatus Status { get; set; }
         [NotMapped]
         public string StatusName
@@ -58,14 +63,19 @@ namespace backend.Models
             get => Status.ToString();
             set => Status = Enum.Parse<TaskStatus>(value);
         }
+
         public int Progress { get; set; }
         public string Note { get; set; } = String.Empty;
+
         public int ProjectId { get; set; }
         public Project Project { get; set; } = null!;
+
         public int? TaskId { get; set; }
         public Task? DependingTask { get; set; } = null!;
-        public int UserId { get; set; }
-        public User AssignedUser { get; set; } = null!;
+
+        public int? UserId { get; set; }  
+        public User? AssignedUser { get; set; } 
+
         public int TaskTypeId { get; set; }
         public TaskType TaskType { get; set; } = null!;
     }

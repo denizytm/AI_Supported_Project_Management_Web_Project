@@ -52,65 +52,85 @@ export default function ClientChatComponent({
     1: [],
   });
 
-  const router = useRouter();
+  const handleSessions = async () => {
+    if (currentUser) {
+      try {
+        const response = await axios.get(
+          `http://localhost:5110/api/chat/session/messages?userId=${currentUser.id}`
+        );
+
+        if (response.status === 200 && response.data.result) {
+          const sessions = response.data.sessions;
+
+          const mapped: { [key: number]: Message[] } = {};
+          const extractedUsers: User[] = [];
+
+          sessions.forEach((session: any) => {
+            const isUser1 = session.user1Id === currentUser.id;
+            const otherUser = isUser1 ? session.user2 : session.user1;
+            const otherUserId = otherUser.id;
+
+            mapped[otherUserId] = session.messages.map((m: any) => ({
+              senderUserId: m.senderUserId,
+              receiverUserId: m.receiverUserId,
+              content: m.content,
+              sendAt: new Date(m.sentAt).toLocaleTimeString([], {
+                hour: "2-digit",
+                minute: "2-digit",
+              }),
+            }));
+
+            if (!extractedUsers.find((u) => u.id === otherUserId)) {
+              extractedUsers.push({
+                id: otherUser.id,
+                name: `${otherUser.name} ${otherUser.lastName}`,
+                email: otherUser.email,
+                lastActivity: new Date().toLocaleDateString(),
+                isOnline: otherUser.statusName === "Available",
+              });
+            }
+          });
+
+          setUserMessages(mapped);
+          setUsers(extractedUsers);
+        }
+      } catch (err) {
+        console.error("Mesajlar veya kullanıcılar alınamadı:", err);
+      }
+    }
+  };
 
   useEffect(() => {
-    if (currentUser) {
+    if (currentUser && currentUser.roleName != "Admin") {
       (async () => {
-        try {
-          const response = await axios.get(
-            `http://localhost:5110/api/chat/session/messages?userId=${currentUser.id}`
-          );
+        await handleSessions();
+      })();
+    } else if (currentUser && currentUser.roleName == "Admin") {
+      (async () => {
 
-          if (response.status === 200 && response.data.result) {
-            const sessions = response.data.sessions;
+        const response = await axios.get(
+          `http://localhost:5110/api/chat/session/get-session?user1Id=${currentUser.id}&user2Id=${customer.id}`
+        );
 
-            const mapped: { [key: number]: Message[] } = {};
-            const extractedUsers: User[] = [];
-
-            sessions.forEach((session: any) => {
-              const isUser1 = session.user1Id === currentUser.id;
-              const otherUser = isUser1 ? session.user2 : session.user1;
-              const otherUserId = otherUser.id;
-
-              // 1. Messages map'ine ekle
-              mapped[otherUserId] = session.messages.map((m: any) => ({
-                senderUserId: m.senderUserId,
-                receiverUserId: m.receiverUserId,
-                content: m.content,
-                sendAt: new Date(m.sentAt).toLocaleTimeString([], {
-                  hour: "2-digit",
-                  minute: "2-digit",
-                }),
-              }));
-
-              // 2. Users listesine kullanıcıyı ekle (tekrar kontrolüyle)
-              if (!extractedUsers.find((u) => u.id === otherUserId)) {
-                extractedUsers.push({
-                  id: otherUser.id,
-                  name: `${otherUser.name} ${otherUser.lastName}`,
-                  email: otherUser.email,
-                  lastActivity: new Date().toLocaleDateString(), // örnek
-                  isOnline: otherUser.statusName === "Available", // örnek boolean
-                });
-              }
-            });
-
-            setUserMessages(mapped);
-            setUsers(extractedUsers);
+        if (response.status) {
+          if (!response.data.result) {
+            console.log('naber');
+            const response2 = await axios.post(
+              `http://localhost:5110/api/chat/session/create-session?user1Id=${currentUser.id}&user2Id=${customer.id}`
+            );
           }
-        } catch (err) {
-          console.error("Mesajlar veya kullanıcılar alınamadı:", err);
         }
+        await handleSessions();
       })();
     }
   }, [currentUser]);
 
   useEffect(() => {
-    if (users && users.length) {
-      setActiveUser(users[0]);
+    if (users && users.length && customer) {
+      const foundUser = users.find((user) => user.id == customer.id);
+      setActiveUser(foundUser || null);
     }
-  }, [users]);
+  }, [users, customer]);
 
   useEffect(() => {
     if (currentUser) {
@@ -122,11 +142,8 @@ export default function ClientChatComponent({
       connection
         .start()
         .then(() => {
-          console.log("SignalR bağlantısı kuruldu");
-
-          // Sabit userId = 0 (örnek: admin/temsilci)
+          console.log("connection successfull");
           connection.invoke("Register", currentUser.id);
-
           connection.on(
             "ReceiveMessage",
             (senderUserId: number, message: string) => {
@@ -140,7 +157,6 @@ export default function ClientChatComponent({
                 }),
               };
 
-              // 1. Mesajı userMessages map'ine ekle
               setUserMessages((prev) => {
                 const current = prev[senderUserId] || [];
                 return {
@@ -149,7 +165,6 @@ export default function ClientChatComponent({
                 };
               });
 
-              // 2. Kullanıcı listesinde yoksa ekle
               setUsers((prevUsers) => {
                 const alreadyExists = prevUsers.some(
                   (user) => user.id === senderUserId
@@ -185,6 +200,7 @@ export default function ClientChatComponent({
 
   const sendMessage = async () => {
     if (currentUser && activeUser) {
+      console.log('naber1');
       if (newMessage.trim() === "") return;
 
       const now = new Date();
@@ -205,14 +221,18 @@ export default function ClientChatComponent({
         ...userMessages,
         [activeUser.id]: [...currentMessages, newMessageObj],
       });
-
+      console.log('naber2',
+        newMessage,
+        currentUser.id,
+        activeUser.id);
       await axios.post("http://localhost:5110/api/chat/message/private", {
         content: newMessage,
         senderUserId: currentUser.id,
         receiverUserId: activeUser.id,
       });
-
+      console.log('naber3');
       setNewMessage("");
+      console.log('naber4');
     }
   };
 

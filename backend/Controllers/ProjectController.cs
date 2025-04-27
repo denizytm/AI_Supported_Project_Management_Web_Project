@@ -152,7 +152,6 @@ namespace backend.Controllers
 
                 var projectDto = project.ToProjectDto();
 
-
                 if (projectDto == null)
                 {
                     return BadRequest(new { message = $"No project found with the id value : {id}" });
@@ -163,14 +162,14 @@ namespace backend.Controllers
                     id = project.Id,
                     User = up.User.ToUserDto(),
                     ProjectId = up.ProjectId
-                }).ToList(); // get the map of user id and project id N-N
+                }).ToList();
 
-                var users = new List<UserDto>(); // list to get all the user info of the selected project id
+                var users = new List<UserDto>();
 
                 for (var i = 0; i < projectUsers.Count; i++)
                 {
                     var userId = projectUsers[i].User.Id;
-                    users.Add(_context.Users.Where(u => u.Id == userId).First().ToUserDto()); // insert userDto value to the users list
+                    users.Add(_context.Users.Where(u => u.Id == userId).First().ToUserDto());
                 }
 
                 var tasks = _context.Tasks
@@ -178,13 +177,13 @@ namespace backend.Controllers
                 .Include(t => t.AssignedUser)
                 .Include(t => t.TaskLabel)
                 .Include(t => t.TaskType)
-                .ToList(); // get all the tasks for the selected project id
+                .ToList();
 
-                var taskDtos = tasks.Select(t => t.ToTaskDto()); // turn the tasks into dto values 
+                var taskDtos = tasks.Select(t => t.ToTaskDto());
 
                 var groupedTasks = taskDtos
-                    .GroupBy(t => t.TaskType.Name) // group them by their taskType.Name
-                    .ToDictionary(g => g.Key, g => g.ToList()); // and return it as a dict
+                    .GroupBy(t => t.TaskType.Name)
+                    .ToDictionary(g => g.Key, g => g.ToList());
 
                 var minStartDate = taskDtos.Min(t => t.StartDateString);
                 var maxDueDate = taskDtos.Max(t => t.DueDateString);
@@ -219,7 +218,7 @@ namespace backend.Controllers
                     .ToListAsync();
 
                 var developers = await _context.Users
-                    .Where(u => u.Role == Role.Developer && !assignedUserIds.Contains(u.Id))
+                    .Where(u => u.Role == Role.Developer && !assignedUserIds.Contains(u.Id) && u.Status == AvailabilityStatus.Available)
                     .ToListAsync();
 
                 var developerDtos = developers.Select(d => d.ToUserDto());
@@ -236,7 +235,6 @@ namespace backend.Controllers
         [HttpPost("add")]
         public async Task<IActionResult> CreateProject(CreateProjectDto createProjectDto)
         {
-
             try
             {
                 var project = createProjectDto.FromCreateToProject();
@@ -246,9 +244,20 @@ namespace backend.Controllers
                 if (result.Entity != null)
                 {
                     await _context.SaveChangesAsync();
+
+                    var chatSession = new ChatSession
+                    {
+                        User1Id = project.ManagerId,
+                        User2Id = project.CustomerId,
+                        StartedAt = DateTime.UtcNow
+                    };
+
+                    await _context.ChatSessions.AddAsync(chatSession);
+                    await _context.SaveChangesAsync(); 
+
                     return Ok(new
                     {
-                        message = "Project has been created."
+                        message = "Project has been created and ChatSession initialized."
                     });
                 }
                 return BadRequest();
@@ -257,18 +266,18 @@ namespace backend.Controllers
             {
                 return BadRequest(new
                 {
-                    message = $"An error occurred while creating the project : {ex.Message}"
+                    message = $"An error occurred while creating the project: {ex.Message}"
                 });
             }
-
         }
 
+
         [HttpPost("add-users-to-project")]
-        public async Task<IActionResult> AddUsersToProject(int id, [FromBody] List<int> userIds)
+        public async Task<IActionResult> AddUsersToProject(int projectId, [FromBody] List<int> userIds)
         {
             try
             {
-                var project = await _context.Projects.FindAsync(id);
+                var project = await _context.Projects.FindAsync(projectId);
 
                 if (project == null)
                 {
@@ -278,7 +287,7 @@ namespace backend.Controllers
                 var userProjects = userIds.Select(userId => new UserProject
                 {
                     UserId = userId,
-                    ProjectId = id
+                    ProjectId = projectId
                 }).ToList();
 
                 await _context.UserProjects.AddRangeAsync(userProjects);
@@ -291,6 +300,48 @@ namespace backend.Controllers
                 return BadRequest(new { message = $"Error while adding users to project: {ex.Message}" });
             }
         }
+
+        [HttpPost("remove-users-from-project")]
+        public async Task<IActionResult> RemoveUsersFromProject(int projectId, [FromBody] List<int> userIds)
+        {
+            try
+            {
+                var project = await _context.Projects.FindAsync(projectId);
+                if (project == null)
+                {
+                    return NotFound(new { message = "Project not found." });
+                }
+
+                var userProjectsToRemove = await _context.UserProjects
+                    .Where(up => up.ProjectId == projectId && userIds.Contains(up.UserId))
+                    .ToListAsync();
+
+                if (!userProjectsToRemove.Any())
+                {
+                    return NotFound(new { message = "No matching users found in this project." });
+                }
+
+                var tasksToUpdate = await _context.Tasks
+                    .Where(t => t.ProjectId == projectId && userIds.Contains(t.UserId ?? 0))
+                    .ToListAsync();
+
+                foreach (var task in tasksToUpdate)
+                {
+                    task.UserId = null;
+                    task.AssignedUser = null;
+                }
+
+                _context.UserProjects.RemoveRange(userProjectsToRemove);
+                await _context.SaveChangesAsync();
+
+                return Ok(new { message = "Users removed from project and their tasks unassigned." });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = $"Error while removing users from project: {ex.Message}" });
+            }
+        }
+
 
 
         [HttpPut("update")]

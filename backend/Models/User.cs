@@ -8,7 +8,6 @@ using System.Threading.Tasks;
 public enum Role
 {
     Admin,
-    ItManager,
     ProjectManager,
     Developer,
     Client

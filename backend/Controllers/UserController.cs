@@ -96,6 +96,7 @@ namespace backend.Controllers
             try
             {
                 var user = await _userContext.GetByIdAsync(id);
+
                 if (user == null)
                 {
                     return BadRequest(new { message = $"No user found with the id value : {id}" });
@@ -121,7 +122,7 @@ namespace backend.Controllers
                 var clientDtos = clients.Select(u => u.ToUserDto()).ToList();
 
                 var itManagers = await _context.Users
-                                    .Where(u => u.Role == Role.ItManager)
+                                    .Where(u => u.Role == Role.ProjectManager)
                                     .ToListAsync();
 
                 var itManagerDtos = itManagers.Select(iM => iM.ToUserDto());
@@ -174,7 +175,7 @@ namespace backend.Controllers
                 var managersId = _context.Projects.Select(p => p.ManagerId).Distinct();
 
                 var itManagers = await _context.Users
-                    .Where(u => u.Role == Role.ItManager && !managersId.Contains(u.Id))
+                    .Where(u => u.Role == Role.ProjectManager && !managersId.Contains(u.Id))
                     .ToListAsync();
 
                 if (itManagers == null || !itManagers.Any())
@@ -203,7 +204,7 @@ namespace backend.Controllers
                 var managersId = _context.Projects.Select(p => p.ManagerId).Distinct();
 
                 var itManagers = await _context.Users
-                    .Where(u => u.Role == Role.ItManager)
+                    .Where(u => u.Role == Role.ProjectManager)
                     .ToListAsync();
 
                 if (itManagers == null || !itManagers.Any())

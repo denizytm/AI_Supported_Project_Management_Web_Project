@@ -12,7 +12,7 @@ using backend.Data;
 namespace backend.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20250426133647_InitialCreate")]
+    [Migration("20250427140805_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -308,7 +308,7 @@ namespace backend.Migrations
                     b.Property<int>("TaskTypeId")
                         .HasColumnType("int");
 
-                    b.Property<int>("UserId")
+                    b.Property<int?>("UserId")
                         .HasColumnType("int");
 
                     b.HasKey("Id");
@@ -579,9 +579,7 @@ namespace backend.Migrations
 
                     b.HasOne("backend.Models.User", "AssignedUser")
                         .WithMany("Tasks")
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("UserId");
 
                     b.Navigation("AssignedUser");
 

@@ -30,7 +30,7 @@ namespace backend.Dtos.Task
         public backend.Models.Task? DependingTask { get; set; } = null!;
         public int TaskTypeId { get; set; }
         public backend.Models.TaskType TaskType { get; set; } = null!;
-        public int UserId { get; set; }
-        public UserDto AssignedUser { get; set; } = null!;
+        public int? UserId { get; set; }
+        public UserDto? AssignedUser { get; set; } = null!;
     }
 }

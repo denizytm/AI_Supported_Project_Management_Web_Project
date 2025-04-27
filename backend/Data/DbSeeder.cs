@@ -33,7 +33,7 @@ namespace backend.Data
                 context.SaveChanges();
 
                 var allUsers = context.Users.ToList();
-                var itManagers = allUsers.Where(u => u.Role == Role.ItManager).ToList();
+                var itManagers = allUsers.Where(u => u.Role == Role.ProjectManager).ToList();
                 var developers = allUsers.Where(u => u.Role == Role.Developer).ToList();
                 var random = new Random();
 
@@ -67,7 +67,7 @@ namespace backend.Data
 
             if (!context.Projects.Any())
             {
-                var itManagers = context.Users.Where(u => u.Role == Role.ItManager).ToList();
+                var itManagers = context.Users.Where(u => u.Role == Role.ProjectManager).ToList();
                 var clients = context.Users.Where(u => u.Role == Role.Client).ToList();
                 var random = new Random();
 

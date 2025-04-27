@@ -14,9 +14,12 @@ export default function ProjectTeamList({
   projectData,
   usersData,
 }: ProjectTeamListProps) {
-  const [showAddModal, setShowAddModal] = useState(false);
+  const [showManageModal, setShowManageModal] = useState(false);
   const [otherUsers, setOtherUsers] = useState<UserType[]>([]);
-  const [selectedUserIds, setSelectedUserIds] = useState<number[]>([]);
+  const [selectedAddUserIds, setSelectedAddUserIds] = useState<number[]>([]);
+  const [selectedRemoveUserIds, setSelectedRemoveUserIds] = useState<number[]>(
+    []
+  );
 
   useEffect(() => {
     (async () => {
@@ -29,48 +32,63 @@ export default function ProjectTeamList({
     })();
   }, []);
 
-  const handleSelectUser = (userId: number) => {
-    setSelectedUserIds((prev) => {
-      if (prev.includes(userId)) {
-        return prev.filter((id) => id !== userId); // seçiliyse kaldır
-      } else {
-        return [...prev, userId]; // değilse ekle
-      }
-    });
+  const handleAddSelect = (userId: number) => {
+    setSelectedAddUserIds((prev) =>
+      prev.includes(userId)
+        ? prev.filter((id) => id !== userId)
+        : [...prev, userId]
+    );
+  };
+
+  const handleRemoveSelect = (userId: number) => {
+    setSelectedRemoveUserIds((prev) =>
+      prev.includes(userId)
+        ? prev.filter((id) => id !== userId)
+        : [...prev, userId]
+    );
   };
 
   const handleSave = async () => {
     try {
-      const response = await axios.post(
-        `http://localhost:5110/api/projects/add-users-to-project?id=${projectData.id}`,
-        selectedUserIds
-      );
-
-      if (response.status) {
-        setShowAddModal(false);
-        setSelectedUserIds([]);
+      if (selectedAddUserIds.length > 0) {
+        await axios.post(
+          `http://localhost:5110/api/projects/add-users-to-project?projectId=${projectData.id}`,
+          selectedAddUserIds
+        );
       }
+
+      if (selectedRemoveUserIds.length > 0) {
+        await axios.post(
+          `http://localhost:5110/api/projects/remove-users-from-project?projectId=${projectData.id}`,
+          selectedRemoveUserIds
+        );
+      }
+
+      setShowManageModal(false);
+      setSelectedAddUserIds([]);
+      setSelectedRemoveUserIds([]);
+      window.location.reload();
     } catch (error) {
-      console.log(error);
+      console.error("Hata oluştu:", error);
     }
   };
 
   return (
     <div className="bg-white dark:bg-gray-800 p-4 shadow-md rounded-md h-96 overflow-y-scroll relative">
-      {/* Başlık + Sağ Üst Ekle Butonu */}
+      {/* Title + Manage Button */}
       <div className="flex justify-between items-center mb-2">
         <h3 className="font-bold text-gray-700 dark:text-white">
           Project Team
         </h3>
         <button
           className="bg-blue-500 hover:bg-blue-600 text-white text-xs font-semibold px-3 py-1 rounded"
-          onClick={() => setShowAddModal(true)}
+          onClick={() => setShowManageModal(true)}
         >
-          ➕ Add
+          🛠 Manage
         </button>
       </div>
 
-      {/* Mevcut Liste */}
+      {/* Current List */}
       <table className="w-full text-left text-sm">
         <thead>
           <tr className="bg-gray-200 dark:bg-gray-700">
@@ -85,83 +103,98 @@ export default function ProjectTeamList({
               {projectData?.manager.name} {projectData?.manager.lastName}
             </td>
             <td className="p-2">Project Manager</td>
+            <td className="p-2"></td>
           </tr>
-          {usersData.map((user, index) => (
+          {usersData.map((user: any, index: number) => (
             <tr key={index} className="border-b">
               <td className="p-2">
                 {user.name} {user.lastName}
               </td>
               <td className="p-2">{user.taskRoleName}</td>
-              <td
-                className={
-                  "p-2" + user.proficiencyLevelName == "Expert"
-                    ? "text-red-500"
-                    : user.proficiencyLevelName == "Intermediate"
-                    ? "text-yellow-500"
-                    : "text-green-500"
-                }
-              >
-                {user.proficiencyLevelName}
-              </td>
+              <td className="p-2">{user.proficiencyLevelName}</td>
             </tr>
           ))}
         </tbody>
       </table>
 
-      {/* Modal */}
-      {showAddModal && (
+      {/* Manage Modal */}
+      {showManageModal && (
         <div className="fixed inset-0 bg-black bg-opacity-40 flex justify-center items-center z-50">
-          <div className="bg-white dark:bg-gray-800 p-6 rounded-md w-96 shadow-md">
+          <div className="bg-white dark:bg-gray-800 p-6 rounded-md w-[700px] shadow-md">
             <h3 className="text-lg font-semibold mb-4 text-gray-800 dark:text-white">
-              Add Team Members
+              Manage Project Team
             </h3>
 
-            {/* Kullanıcı Listesi */}
-            <div className="max-h-64 overflow-y-auto">
-              {otherUsers.map((user: any) => (
-                <div
-                  key={user.id}
-                  className={`flex justify-between items-center mb-2 p-2 rounded cursor-pointer ${
-                    selectedUserIds.includes(user.id)
-                      ? "bg-green-600 dark:bg-green-800"
-                      : "hover:bg-gray-100 dark:hover:bg-gray-700"
-                  }`}
-                  onClick={() => handleSelectUser(user.id)}
-                >
-                  <div className="flex flex-col">
-                    <span className="font-semibold">
-                      {user.name} {user.lastName}
-                    </span>
-                    <span className="text-xs text-gray-500">
-                      {user.taskRoleName}
-                    </span>
-                  </div>
-                  <button
-                    className={`text-sm font-bold ${
-                      selectedUserIds.includes(user.id)
-                        ? "text-red-500"
-                        : "text-green-500"
-                    }`}
-                  >
-                    {selectedUserIds.includes(user.id) ? "➖" : "➕"}
-                  </button>
+            <div className="flex space-x-6">
+              {/* Projede Olanlar */}
+              <div className="flex-1">
+                <h4 className="font-bold text-sm mb-2 text-gray-600 dark:text-gray-400">
+                  Current Members
+                </h4>
+                <div className="max-h-64 overflow-y-auto">
+                  {usersData.map((user: any) => (
+                    <div
+                      key={user.id}
+                      className={`flex justify-between items-center mb-2 p-2 rounded cursor-pointer ${
+                        selectedRemoveUserIds.includes(user.id)
+                          ? "bg-red-100 dark:bg-red-800"
+                          : "hover:bg-gray-100 dark:hover:bg-gray-700"
+                      }`}
+                      onClick={() => handleRemoveSelect(user.id)}
+                    >
+                      <span>
+                        {user.name} {user.lastName}
+                      </span>
+                      <button className="text-red-500 hover:text-red-700 text-sm">
+                        ❌
+                      </button>
+                    </div>
+                  ))}
                 </div>
-              ))}
+              </div>
+
+              {/* Projeye Eklenecekler */}
+              <div className="flex-1">
+                <h4 className="font-bold text-sm mb-2 text-gray-600 dark:text-gray-400">
+                  Available Developers
+                </h4>
+                <div className="max-h-64 overflow-y-auto">
+                  {otherUsers.map((user: any) => (
+                    <div
+                      key={user.id}
+                      className={`flex justify-between items-center mb-2 p-2 rounded cursor-pointer ${
+                        selectedAddUserIds.includes(user.id)
+                          ? "bg-green-100 dark:bg-green-800"
+                          : "hover:bg-gray-100 dark:hover:bg-gray-700"
+                      }`}
+                      onClick={() => handleAddSelect(user.id)}
+                    >
+                      <span>
+                        {user.name} {user.lastName}
+                      </span>
+                      <button className="text-green-500 hover:text-green-700 text-sm">
+                        ➕
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              </div>
             </div>
 
             {/* Alt Butonlar */}
-            <div className="flex justify-end mt-4 space-x-2">
+            <div className="flex justify-end mt-6 space-x-2">
               <button
-                className="bg-gray-400 hover:bg-gray-500 text-white px-4 py-1 rounded"
+                className="bg-gray-400 hover:bg-gray-500 text-white px-4 py-2 rounded"
                 onClick={() => {
-                  setShowAddModal(false);
-                  setSelectedUserIds([]);
+                  setShowManageModal(false);
+                  setSelectedAddUserIds([]);
+                  setSelectedRemoveUserIds([]);
                 }}
               >
                 Cancel
               </button>
               <button
-                className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-1 rounded"
+                className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded"
                 onClick={handleSave}
               >
                 Save
