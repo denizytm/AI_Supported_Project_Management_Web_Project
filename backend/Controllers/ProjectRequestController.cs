@@ -1,8 +1,11 @@
 using backend.Data;
 using backend.Dtos.ProjectRequest;
+using backend.Hubs;
+using backend.Interfaces;
 using backend.Mappers;
 using backend.Models;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 
 namespace backend.Controllers
@@ -12,10 +15,12 @@ namespace backend.Controllers
     public class ProjectRequestController : ControllerBase
     {
         private readonly ApplicationDbContext _context;
+        private readonly IHubContext<ChatHub, IChatClient> _hubContext;
 
-        public ProjectRequestController(ApplicationDbContext context)
+        public ProjectRequestController(ApplicationDbContext context, IHubContext<ChatHub, IChatClient> hubContext)
         {
             _context = context;
+            _hubContext = hubContext;
         }
 
         [HttpPost]
@@ -70,5 +75,49 @@ namespace backend.Controllers
 
             return Ok(new { message = "Request successfully closed", request });
         }
+
+        [HttpPost("create-request")]
+        public async Task<IActionResult> CreateProjectRequest(
+            [FromBody] CreateProjectRequestDto requestDto
+        )
+        {
+            try
+            {
+                var request = new ProjectRequest
+                {
+                    ProjectId = requestDto.ProjectId,
+                    RequestedById = requestDto.RequestedById,
+                    Description = requestDto.Description,
+                    CriticLevelName = requestDto.CriticLevelName,
+                    IsClosed = false,
+                    CreatedAt = DateTime.UtcNow
+                };
+
+                await _context.ProjectRequests.AddAsync(request);
+                await _context.SaveChangesAsync();
+
+                var dto = request.FromProjectRequestToDto();
+
+                // SignalR kullanıcılarına gönder
+                foreach (var connection in ChatHub.UserConnections.Values)
+                {
+                    await _hubContext.Clients.Client(connection).ReceiveProjectRequest(request.FromProjectRequestToDto());
+                }
+
+                return Ok(new
+                {
+                    message = "Request successfully created",
+                    request = dto
+                });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new
+                {
+                    message = $"Error while creating project request: {ex.Message}"
+                });
+            }
+        }
+
     }
 }

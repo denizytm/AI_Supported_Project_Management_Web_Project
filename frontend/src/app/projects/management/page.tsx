@@ -5,7 +5,7 @@ import axios from "axios";
 import { useRouter, useSearchParams } from "next/navigation";
 import React, { useEffect, useState } from "react";
 import { Plus, Pencil, Trash2 } from "lucide-react";
-import { ProjectType } from "@/types/projectType";
+import { ProjectRequestType, ProjectType } from "@/types/projectType";
 import { UserType } from "@/types/userType";
 import ProjectTeamList from "@/components/projectManagement/ProjectTeamList";
 import CreateTaskModal from "@/components/projectManagement/CreateTaskModal";
@@ -15,6 +15,9 @@ import DeleteTaskModal from "@/components/projectManagement/DeleteTaskModal";
 import AssignmentPreviewModal from "@/components/projectManagement/pManagementChatbot/AssignmentPreviewModal";
 import ClientChatModal from "@/components/projectManagement/chat/ClientChatModal";
 import ClientChatComponent from "@/components/projectManagement/chat/ClientChatComponent";
+import * as signalR from "@microsoft/signalr";
+import { useSelector } from "react-redux";
+import { RootState } from "@/redux/store";
 
 interface TaskManagementProps {
   id: number;
@@ -58,6 +61,7 @@ export default function TaskManagement({ id, text }: TaskManagementProps) {
     priorityName: "loading",
     progress: "loading",
     statusName: "loading",
+    startDate: "loading",
   });
   const [usersData, setUsersData] = useState<UserType[]>([]);
 
@@ -65,12 +69,21 @@ export default function TaskManagement({ id, text }: TaskManagementProps) {
   const [taskMap, setTaskMap] = useState(new Map<string, Array<TaskType>>());
   const [taskTypes, setTaskTypes] = useState<Array<string>>([]);
 
+  const [projectRequests, setProjectRequests] = useState<ProjectRequestType[]>(
+    []
+  );
+
+  const currentUser = useSelector((state: RootState) => state.currentUser.user);
+
   const [selectedRequest, setSelectedRequest] = useState<any>(null);
   const [isCompleted, setIsCompleted] = useState(false);
   const [completionNote, setCompletionNote] = useState("");
 
   const [minStartDate, setMinStartDate] = useState("");
   const [maxDueDate, setMaxDueDate] = useState("");
+  const [connection, setConnection] = useState<signalR.HubConnection | null>(
+    null
+  );
 
   const [showChat, setShowChat] = useState(false);
 
@@ -96,6 +109,41 @@ export default function TaskManagement({ id, text }: TaskManagementProps) {
 
   const router = useRouter();
   const searchParams = useSearchParams();
+
+  const startConnection = async () => {
+    const conn = new signalR.HubConnectionBuilder()
+      .withUrl("http://localhost:5110/chatHub")
+      .withAutomaticReconnect()
+      .build();
+
+    if (currentUser)
+      conn.start().then(() => {
+        console.log("connection successfull");
+        conn.invoke("Register", currentUser.id);
+        conn.on("ReceiveProjectRequest", (request: ProjectRequestType) => {
+          console.log("Yeni Project Request geldi 🚀", request);
+
+          setProjectRequests((prev) => [...prev, request]);
+          console.log(request);
+        });
+      });
+
+    try {
+      await conn.start();
+    } catch (err) {
+      console.error("SignalR bağlantısı kurulamadı ❌", err);
+    }
+  };
+
+  useEffect(() => {
+    startConnection();
+
+    return () => {
+      if (connection) {
+        connection.stop();
+      }
+    };
+  }, [currentUser]);
 
   const handleAutoAssign = async () => {
     try {
@@ -156,11 +204,15 @@ export default function TaskManagement({ id, text }: TaskManagementProps) {
         setUsersData(response.data.users);
         setMinStartDate(response.data.minStartDate);
         setMaxDueDate(response.data.maxDueDate);
-
+        setProjectRequests(response.data.project.projectRequests);
         setReady1(true);
       }
     })();
   }, []);
+
+  useEffect(() => {
+    console.log(projectRequests);
+  }, [projectRequests]);
 
   const handleSave = async () => {
     if (!selectedRequest) return;
@@ -363,44 +415,46 @@ export default function TaskManagement({ id, text }: TaskManagementProps) {
                 </tr>
               </thead>
               <tbody>
-                {projectData?.projectRequests?.map((request) => (
-                  <tr
-                    className={`border-b hover:bg-gray-100 dark:hover:bg-gray-800 transition ${
-                      request.isClosed ? "opacity-50" : ""
-                    }`}
-                  >
-                    <td
-                      className={
-                        "px-3 py-2 font-semibold whitespace-nowrap " +
-                        (request.criticLevelName === "Low"
-                          ? "text-green-500"
-                          : request.criticLevelName === "Medium"
-                          ? "text-yellow-500"
-                          : request.criticLevelName === "High"
-                          ? "text-red-500"
-                          : "text-red-700")
-                      }
+                {projectRequests &&
+                  projectRequests.length &&
+                  projectRequests.map((request) => (
+                    <tr
+                      className={`border-b hover:bg-gray-100 dark:hover:bg-gray-800 transition ${
+                        request.isClosed ? "opacity-50" : ""
+                      }`}
                     >
-                      {request.criticLevelName}
-                    </td>
-                    <td className="px-3 py-2 text-gray-700 dark:text-gray-300 max-w-[180px] truncate">
-                      {request.description}
-                    </td>
-                    <td className="px-3 py-2">
-                      <button
-                        className="text-blue-500 hover:text-blue-700 font-semibold"
-                        onClick={() => {
-                          setSelectedRequest(request);
-                          setIsCompleted(request.isClosed || false);
-                          setCompletionNote(request.closingNote || "");
-                        }}
-                        disabled={request.isClosed}
+                      <td
+                        className={
+                          "px-3 py-2 font-semibold whitespace-nowrap " +
+                          (request.criticLevelName === "Low"
+                            ? "text-green-500"
+                            : request.criticLevelName === "Medium"
+                            ? "text-yellow-500"
+                            : request.criticLevelName === "High"
+                            ? "text-red-500"
+                            : "text-red-700")
+                        }
                       >
-                        {request.isClosed ? "Done" : "See"}
-                      </button>
-                    </td>
-                  </tr>
-                ))}
+                        {request.criticLevelName}
+                      </td>
+                      <td className="px-3 py-2 text-gray-700 dark:text-gray-300 max-w-[180px] truncate">
+                        {request.description}
+                      </td>
+                      <td className="px-3 py-2">
+                        <button
+                          className="text-blue-500 hover:text-blue-700 font-semibold"
+                          onClick={() => {
+                            setSelectedRequest(request);
+                            setIsCompleted(request.isClosed || false);
+                            setCompletionNote(request.closingNote || "");
+                          }}
+                          disabled={request.isClosed}
+                        >
+                          {request.isClosed ? "Done" : "See"}
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
               </tbody>
             </table>
           </div>

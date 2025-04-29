@@ -8,7 +8,8 @@ export interface ProjectRequestType {
   isClosed : boolean,
   closingNote ?: string,
   description : string,
-  closedAt : Date,
+  closedAt : string,
+  createdAt : string
 }
 
 export interface ProjectType {
@@ -16,6 +17,7 @@ export interface ProjectType {
   name: string;
   manager: UserType;
   customer: UserType;
+  startDate: string;
   deadline: string;
   progress: string;
   statusName: string;

@@ -32,7 +32,7 @@ namespace backend.Mappers
 
         public static Project FromCreateToProject(this CreateProjectDto createProjectDto){
             return new Project {
-                Budget = 0,
+                Budget = createProjectDto.Budget,
                 Deadline = createProjectDto.Deadline,
                 Description = createProjectDto.Description,
                 Name = createProjectDto.Name,

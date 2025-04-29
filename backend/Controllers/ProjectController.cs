@@ -230,6 +230,27 @@ namespace backend.Controllers
             }
         }
 
+        [HttpGet("customer/projects")]
+        public async Task<IActionResult> GetProjectsForCustomer([FromQuery] int userId)
+        {
+            try
+            {
+                var projects = await _context.Projects
+                    .Where(p => p.CustomerId == userId)
+                    .Include(p => p.ProjectType)
+                    .Include(p => p.Manager)
+                    .Include(p => p.Customer)
+                    .ToListAsync();
+
+                var projectDtos = projects.Select(p => p.ToProjectDto()).ToList();
+
+                return Ok(projectDtos);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = $"An error occurred: {ex.Message}" });
+            }
+        }
 
         [HttpPost("add")]
         public async Task<IActionResult> CreateProject(CreateProjectDto createProjectDto)

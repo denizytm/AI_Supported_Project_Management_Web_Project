@@ -1,10 +1,11 @@
 import { getUserById } from "@/hooks/getUserById";
 import { setUser } from "@/redux/slices/userSlice";
+import { RootState } from "@/redux/store";
 import { ChatbotMessageType } from "@/types/chatbotMessageType";
 import { UserType } from "@/types/userType";
 import axios from "axios";
 import React, { useEffect, useState } from "react";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 
 export interface ChatbotContainerProps {
   showAIChat: boolean;
@@ -17,41 +18,12 @@ export default function ChatbotContainer({
 }: ChatbotContainerProps) {
   const [input, setInput] = useState("");
   const [isTyping, setIsTyping] = useState(false);
-  const [isReady, setIsReady] = useState(false);
 
-  const [currentUser, setCurrentUser] = useState<UserType | null>(null);
-
-  const dispatch = useDispatch();
+  const currentUser = useSelector((state: RootState) => state.currentUser.user);
 
   const [chatLog, setChatLog] = useState<ChatbotMessageType[]>([
     { sender: "ai", content: "Hello, how can I help you today ?" },
   ]);
-
-  useEffect(() => {
-    if(currentUser)
-      (async () => {
-        const response = await axios.get(`http://localhost:5110/api/chatbot/chat-log?id=${currentUser.id}`);
-        if(response.status) 
-          if(response.data.chatLog.length) {
-            setChatLog(response.data.chatLog);
-            console.log(response.data);
-          }
-      })();
-  }, [currentUser]);
-
-  useEffect(() => {
-    (async () => {
-      const id = localStorage.getItem("id");
-      if (id) await handleFetchUserData(id);
-    })();
-    setIsReady(true);
-  }, []);
-
-  const handleFetchUserData = async (value: string) => {
-    const userData = (await getUserById(value)) as UserType;
-    setCurrentUser(userData);
-    dispatch(setUser(userData));
-  };
 
   const handleSendMessage = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -118,7 +90,6 @@ export default function ChatbotContainer({
     }
   };
 
-  if (isReady)
     return (
       <div>
         {showAIChat && (

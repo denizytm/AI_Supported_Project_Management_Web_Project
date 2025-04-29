@@ -10,6 +10,7 @@ namespace backend.Dtos.Project
         public string Name { get; set; } = String.Empty;
         public string Description { get; set; } = String.Empty;
         public int ProjectTypeId { get; set; } 
+        public int Budget { get; set; } 
         public DateTime StartDate { get; set; }
         public DateTime Deadline { get; set; }
         public string PriorityName { get; set; } = String.Empty;
