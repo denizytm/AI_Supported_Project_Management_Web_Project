@@ -117,13 +117,19 @@ namespace backend.Controllers
             _context.PrivateMessages.Add(message);
             await _context.SaveChangesAsync();
 
+            
+
             if (ChatHub.UserConnections.TryGetValue(request.ReceiverUserId, out var connectionId))
             {
                 await _hubContext.Clients.Client(connectionId)
                     .ReceiveMessage(request.SenderUserId, $"{request.Content}");
+                return Ok(new {
+                    ChatHub.UserConnections,
+                    connectionId
+                });
             }
 
-            return Ok(new { session.Id });
+            return Ok(new { session.Id }); 
         }
 
     }

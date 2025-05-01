@@ -98,7 +98,6 @@ namespace backend.Controllers
 
                 var dto = request.FromProjectRequestToDto();
 
-                // SignalR kullanıcılarına gönder
                 foreach (var connection in ChatHub.UserConnections.Values)
                 {
                     await _hubContext.Clients.Client(connection).ReceiveProjectRequest(request.FromProjectRequestToDto());

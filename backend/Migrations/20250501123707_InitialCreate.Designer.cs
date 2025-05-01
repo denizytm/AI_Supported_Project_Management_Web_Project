@@ -12,7 +12,7 @@ using backend.Data;
 namespace backend.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20250429133620_InitialCreate")]
+    [Migration("20250501123707_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -81,6 +81,41 @@ namespace backend.Migrations
                     b.HasIndex("UserId");
 
                     b.ToTable("ChatbotMessages");
+                });
+
+            modelBuilder.Entity("backend.Models.Notification", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<bool>("IsRead")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Link")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Message")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("TargetUserId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("TargetUserId");
+
+                    b.ToTable("Notifications");
                 });
 
             modelBuilder.Entity("backend.Models.PrivateMessage", b =>
@@ -469,6 +504,17 @@ namespace backend.Migrations
                         .IsRequired();
 
                     b.Navigation("User");
+                });
+
+            modelBuilder.Entity("backend.Models.Notification", b =>
+                {
+                    b.HasOne("backend.Models.User", "TargetUser")
+                        .WithMany()
+                        .HasForeignKey("TargetUserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("TargetUser");
                 });
 
             modelBuilder.Entity("backend.Models.PrivateMessage", b =>

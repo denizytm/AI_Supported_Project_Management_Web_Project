@@ -14,7 +14,7 @@ export default function NewRequestModal({ projectId, userId, onClose }: any) {
       isClosed: false,
     });
     try {
-      await axios.post("http://localhost:5110/api/project/requests", {
+      await axios.post("http://localhost:5110/api/project/requests/create-request", {
         description,
         criticLevelName: criticalLevel,
         projectId,

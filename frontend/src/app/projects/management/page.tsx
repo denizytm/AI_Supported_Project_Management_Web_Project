@@ -18,6 +18,7 @@ import ClientChatComponent from "@/components/projectManagement/chat/ClientChatC
 import * as signalR from "@microsoft/signalr";
 import { useSelector } from "react-redux";
 import { RootState } from "@/redux/store";
+import { useSignalR } from "@/context/SignalRContext";
 
 interface TaskManagementProps {
   id: number;
@@ -75,15 +76,14 @@ export default function TaskManagement({ id, text }: TaskManagementProps) {
 
   const currentUser = useSelector((state: RootState) => state.currentUser.user);
 
+  const { connection } = useSignalR();
+
   const [selectedRequest, setSelectedRequest] = useState<any>(null);
   const [isCompleted, setIsCompleted] = useState(false);
   const [completionNote, setCompletionNote] = useState("");
 
   const [minStartDate, setMinStartDate] = useState("");
   const [maxDueDate, setMaxDueDate] = useState("");
-  const [connection, setConnection] = useState<signalR.HubConnection | null>(
-    null
-  );
 
   const [showChat, setShowChat] = useState(false);
 
@@ -109,41 +109,6 @@ export default function TaskManagement({ id, text }: TaskManagementProps) {
 
   const router = useRouter();
   const searchParams = useSearchParams();
-
-  const startConnection = async () => {
-    const conn = new signalR.HubConnectionBuilder()
-      .withUrl("http://localhost:5110/chatHub")
-      .withAutomaticReconnect()
-      .build();
-
-    if (currentUser)
-      conn.start().then(() => {
-        console.log("connection successfull");
-        conn.invoke("Register", currentUser.id);
-        conn.on("ReceiveProjectRequest", (request: ProjectRequestType) => {
-          console.log("Yeni Project Request geldi 🚀", request);
-
-          setProjectRequests((prev) => [...prev, request]);
-          console.log(request);
-        });
-      });
-
-    try {
-      await conn.start();
-    } catch (err) {
-      console.error("SignalR bağlantısı kurulamadı ❌", err);
-    }
-  };
-
-  useEffect(() => {
-    startConnection();
-
-    return () => {
-      if (connection) {
-        connection.stop();
-      }
-    };
-  }, [currentUser]);
 
   const handleAutoAssign = async () => {
     try {
@@ -211,8 +176,18 @@ export default function TaskManagement({ id, text }: TaskManagementProps) {
   }, []);
 
   useEffect(() => {
-    console.log(projectRequests);
-  }, [projectRequests]);
+    if (!connection) return;
+  
+    const handleProjectRequest = (request: ProjectRequestType) => {
+      setProjectRequests((prev) => [...prev, request]);
+    };
+  
+    connection.on("ReceiveProjectRequest", handleProjectRequest);
+  
+    return () => {
+      connection.off("ReceiveProjectRequest", handleProjectRequest);
+    };
+  }, [connection]);
 
   const handleSave = async () => {
     if (!selectedRequest) return;
@@ -416,7 +391,6 @@ export default function TaskManagement({ id, text }: TaskManagementProps) {
               </thead>
               <tbody>
                 {projectRequests &&
-                  projectRequests.length &&
                   projectRequests.map((request) => (
                     <tr
                       className={`border-b hover:bg-gray-100 dark:hover:bg-gray-800 transition ${

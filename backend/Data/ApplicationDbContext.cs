@@ -69,6 +69,7 @@ namespace backend.Data
         }
 
         public DbSet<User> Users { get; set; }
+        public DbSet<Notification> Notifications { get; set; }
         public DbSet<ChatSession> ChatSessions { get; set; }
         public DbSet<PrivateMessage> PrivateMessages { get; set; }
         public DbSet<ChatbotMessage> ChatbotMessages { get; set; }

@@ -21,7 +21,7 @@ namespace backend.Hubs
             {
                 UserConnections[userId] = Context.ConnectionId;
             }
-            /* await Clients.Client(Context.ConnectionId).ReceiveMessage($"naber {userId}"); */
+            /* await Clients.All.ReceiveMessage(userId,$"{userId} has registered as {Context.ConnectionId}"); */ 
         }
         public async Task SendPrivateMessage(int senderUserId, int receiverUserId, string message)
         {

@@ -8,6 +8,7 @@ import axios from "axios";
 import { getUserById } from "@/hooks/getUserById";
 import { UserType } from "@/types/userType";
 import { useRouter } from "next/navigation";
+import { useSignalR } from "@/context/SignalRContext";
 
 // User interface
 interface User {
@@ -51,6 +52,8 @@ export default function ClientChatComponent({
   }>({
     1: [],
   });
+
+  const { connection } = useSignalR();
 
   const handleSessions = async () => {
     if (currentUser) {
@@ -107,14 +110,13 @@ export default function ClientChatComponent({
       })();
     } else if (currentUser && currentUser.roleName == "Admin") {
       (async () => {
-
         const response = await axios.get(
           `http://localhost:5110/api/chat/session/get-session?user1Id=${currentUser.id}&user2Id=${customer.id}`
         );
 
         if (response.status) {
           if (!response.data.result) {
-            console.log('naber');
+            console.log("naber");
             const response2 = await axios.post(
               `http://localhost:5110/api/chat/session/create-session?user1Id=${currentUser.id}&user2Id=${customer.id}`
             );
@@ -132,7 +134,7 @@ export default function ClientChatComponent({
     }
   }, [users, customer]);
 
-  useEffect(() => {
+  /* useEffect(() => {
     if (currentUser) {
       const connection = new signalR.HubConnectionBuilder()
         .withUrl("http://localhost:5110/chatHub")
@@ -147,6 +149,7 @@ export default function ClientChatComponent({
           connection.on(
             "ReceiveMessage",
             (senderUserId: number, message: string) => {
+              console.log(senderUserId,message)
               const newMsg = {
                 senderUserId: +senderUserId,
                 receiverUserId: +currentUser.id,
@@ -192,7 +195,56 @@ export default function ClientChatComponent({
         connection.stop();
       };
     }
-  }, [currentUser]);
+  }, [currentUser]); */
+
+  useEffect(() => {
+    if (!connection || !currentUser) return;
+
+    const handleReceiveMessage = (senderUserId: number, message: string) => {
+      console.log(senderUserId, message);
+      const newMsg = {
+        senderUserId: +senderUserId,
+        receiverUserId: +currentUser.id,
+        content: message,
+        sendAt: new Date().toLocaleTimeString([], {
+          hour: "2-digit",
+          minute: "2-digit",
+        }),
+      };
+
+      setUserMessages((prev) => {
+        const current = prev[senderUserId] || [];
+        return {
+          ...prev,
+          [senderUserId]: [...current, newMsg],
+        };
+      });
+
+      setUsers((prevUsers) => {
+        const alreadyExists = prevUsers.some(
+          (user) => user.id === senderUserId
+        );
+        if (!alreadyExists) {
+          getUserById(senderUserId.toString()).then((d: UserType) => {
+            setUsers((prev) => {
+              if (!prev.find((u) => u.id === d.id)) {
+                return [...prev, d];
+              }
+              return prev;
+            });
+          });
+        }
+        return prevUsers;
+      });
+    };
+
+    connection.on("ReceiveMessage", handleReceiveMessage);
+
+    // cleanup
+    return () => {
+      connection.off("ReceiveMessage", handleReceiveMessage);
+    };
+  }, [connection, currentUser]);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -200,7 +252,7 @@ export default function ClientChatComponent({
 
   const sendMessage = async () => {
     if (currentUser && activeUser) {
-      console.log('naber1');
+      console.log("naber1");
       if (newMessage.trim() === "") return;
 
       const now = new Date();
@@ -221,18 +273,15 @@ export default function ClientChatComponent({
         ...userMessages,
         [activeUser.id]: [...currentMessages, newMessageObj],
       });
-      console.log('naber2',
-        newMessage,
-        currentUser.id,
-        activeUser.id);
+      console.log("naber2", newMessage, currentUser.id, activeUser.id);
       await axios.post("http://localhost:5110/api/chat/message/private", {
         content: newMessage,
         senderUserId: currentUser.id,
         receiverUserId: activeUser.id,
       });
-      console.log('naber3');
+      console.log("naber3");
       setNewMessage("");
-      console.log('naber4');
+      console.log("naber4");
     }
   };
 
