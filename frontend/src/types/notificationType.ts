@@ -3,5 +3,6 @@ export interface NotificationType {
     title : string,
     message : string,
     createdAt : string,
-    isRead : boolean
+    isRead : boolean,
+    link : string
 }

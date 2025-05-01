@@ -1,9 +1,11 @@
 "use client";
 
+import { RootState } from "@/redux/store";
 import { ProjectType } from "@/types/projectType";
 import { UserType } from "@/types/userType";
 import axios from "axios";
 import { useEffect, useState } from "react";
+import { useSelector } from "react-redux";
 
 interface ProjectTeamListProps {
   projectData: ProjectType;
@@ -20,6 +22,8 @@ export default function ProjectTeamList({
   const [selectedRemoveUserIds, setSelectedRemoveUserIds] = useState<number[]>(
     []
   );
+
+  const currentUser = useSelector((state: RootState) => state.currentUser.user);
 
   useEffect(() => {
     (async () => {
@@ -80,12 +84,15 @@ export default function ProjectTeamList({
         <h3 className="font-bold text-gray-700 dark:text-white">
           Project Team
         </h3>
-        <button
-          className="bg-blue-500 hover:bg-blue-600 text-white text-xs font-semibold px-3 py-1 rounded"
-          onClick={() => setShowManageModal(true)}
-        >
-          🛠 Manage
-        </button>
+        {(currentUser?.roleName == "Admin" ||
+          currentUser?.roleName == "ItManager") && (
+          <button
+            className="bg-blue-500 hover:bg-blue-600 text-white text-xs font-semibold px-3 py-1 rounded"
+            onClick={() => setShowManageModal(true)}
+          >
+            🛠 Manage
+          </button>
+        )}
       </div>
 
       {/* Current List */}

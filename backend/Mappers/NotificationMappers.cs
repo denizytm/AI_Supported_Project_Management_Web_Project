@@ -19,6 +19,7 @@ namespace backend.Mappers
                 Message = notification.Message,
                 TargetUserId = notification.TargetUserId,
                 Title = notification.Title,
+                Link = notification.Link
             };
         }
 
@@ -29,6 +30,7 @@ namespace backend.Mappers
                 Title = createNotificationDto.Title,
                 Message = createNotificationDto.Message,
                 TargetUserId = createNotificationDto.TargetUserId,
+                Link = createNotificationDto.Link
             };
         }
     }

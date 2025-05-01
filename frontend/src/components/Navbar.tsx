@@ -132,7 +132,7 @@ export default function Navbar() {
                   {notifications.map((notif) => (
                     <li
                       value={notif.id}
-                      onClick={(e) => {
+                      onClick={ async (e)  => {
                         setNotifications((n) =>
                           n.map((noti) => {
                             if (noti.id == notif.id)
@@ -140,7 +140,8 @@ export default function Navbar() {
                             return noti;
                           })
                         );
-                        handleReadNotification([notif.id]);
+                        await handleReadNotification([notif.id]);
+                        if(notif.link) router.push(notif.link);
                       }}
                       key={notif.id}
                       className={`px-4 py-3 transition-colors duration-200 cursor-pointer ${

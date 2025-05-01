@@ -6,9 +6,12 @@ using backend.Data;
 using backend.Dtos.Project;
 using backend.Dtos.User;
 using backend.Dtos.UserProject;
+using backend.Hubs;
+using backend.Interfaces;
 using backend.Mappers;
 using backend.Models;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 
 namespace backend.Controllers
@@ -293,16 +296,14 @@ namespace backend.Controllers
 
 
         [HttpPost("add-users-to-project")]
-        public async Task<IActionResult> AddUsersToProject(int projectId, [FromBody] List<int> userIds)
+        public async Task<IActionResult> AddUsersToProject(int projectId, [FromBody] List<int> userIds, [FromServices] IHubContext<ChatHub, IChatClient> hubContext)
         {
             try
             {
                 var project = await _context.Projects.FindAsync(projectId);
 
                 if (project == null)
-                {
                     return NotFound(new { message = "Project not found." });
-                }
 
                 var userProjects = userIds.Select(userId => new UserProject
                 {
@@ -313,13 +314,37 @@ namespace backend.Controllers
                 await _context.UserProjects.AddRangeAsync(userProjects);
                 await _context.SaveChangesAsync();
 
-                return Ok(new { message = "Users added to project successfully." });
+                foreach (var userId in userIds)
+                {
+                    var notification = new Notification
+                    {
+                        TargetUserId = userId,
+                        Title = "Project Assignment",
+                        Message = $"You've been added to a new project.",
+                        CreatedAt = DateTime.UtcNow,
+                        IsRead = false,
+                        Link = $"/projects/management?id={project.Id}"
+                    };
+
+                    await _context.Notifications.AddAsync(notification);
+
+                    if (ChatHub.UserConnections.TryGetValue(userId, out var connectionId))
+                    {
+                        var dto = notification.FromModelToDto();
+                        await hubContext.Clients.Client(connectionId).ReceiveNotification(dto);
+                    }
+                }
+
+                await _context.SaveChangesAsync();
+
+                return Ok(new { message = "Users added to project and notified successfully." });
             }
             catch (Exception ex)
             {
                 return BadRequest(new { message = $"Error while adding users to project: {ex.Message}" });
             }
         }
+
 
         [HttpPost("remove-users-from-project")]
         public async Task<IActionResult> RemoveUsersFromProject(int projectId, [FromBody] List<int> userIds)
