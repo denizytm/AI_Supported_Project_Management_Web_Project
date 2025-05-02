@@ -107,6 +107,8 @@ export default function TaskManagement({ id, text }: TaskManagementProps) {
   >([]);
   const [showAssignmentModal, setShowAssignmentModal] = useState(false);
 
+  const [assignedTasks, setAssignedTasks] = useState<TaskType[]>([]);
+
   const router = useRouter();
   const searchParams = useSearchParams();
 
@@ -156,6 +158,12 @@ export default function TaskManagement({ id, text }: TaskManagementProps) {
     }
   };
 
+  useEffect(()=>{
+    if(tasks.length && currentUser){
+      setAssignedTasks(tasks.filter(t => t.assignedUser?.id == currentUser.id));
+    }
+  },[tasks])
+
   useEffect(() => {
     (async () => {
       const id = searchParams.get("id");
@@ -177,17 +185,27 @@ export default function TaskManagement({ id, text }: TaskManagementProps) {
 
   useEffect(() => {
     if (!connection) return;
-  
+
     const handleProjectRequest = (request: ProjectRequestType) => {
       setProjectRequests((prev) => [...prev, request]);
     };
-  
+
     connection.on("ReceiveProjectRequest", handleProjectRequest);
-  
+
     return () => {
       connection.off("ReceiveProjectRequest", handleProjectRequest);
     };
   }, [connection]);
+
+  const handleMarkComplete = async (taskId: number) => {
+    await axios.put(
+      `http://localhost:5110/api/tasks/mark-complete?id=${taskId}`
+    );
+  };
+
+  const handleMessagePM = (task: TaskType) => {
+    alert(`Message to PM about task: ${task.taskLabel}`);
+  };
 
   const handleSave = async () => {
     if (!selectedRequest) return;
@@ -211,7 +229,7 @@ export default function TaskManagement({ id, text }: TaskManagementProps) {
     }
   };
 
-  if (!ready1) return <div>Loading...</div>;
+  if (!ready1 || !currentUser) return <div>Loading...</div>;
   return (
     <div className="p-6 bg-gray-100 dark:bg-gray-900 min-h-screen">
       <CreateTaskModal
@@ -246,64 +264,60 @@ export default function TaskManagement({ id, text }: TaskManagementProps) {
           Go Back
         </button>
       </div>
-
       {/* Task Table and Gantt Chart */}
       <div className="grid grid-cols-8 gap-4">
         <div className="col-span-12 bg-white dark:bg-gray-800 p-4 shadow-md rounded-md overflow-auto">
-          <div className="flex bg-gray-200 dark:bg-gray-700 p-2 rounded-md">
-            <div className="w-1/6 flex gap-2">
+          <h3 className="text-center text-2xl my-5">{projectData.name}</h3>
+          <div className="flex justify-between items-center bg-gray-200 dark:bg-gray-700 p-2 rounded-md w-full">
+            <div className="w-1/3 flex gap-2">
               <button
-                onClick={() => {
-                  setModalVisibleStatus((oD) => ({
-                    ...oD,
-                    create: true,
-                  }));
-                }}
+                onClick={() =>
+                  setModalVisibleStatus((oD) => ({ ...oD, create: true }))
+                }
                 className="p-2 bg-white dark:bg-gray-800 shadow-md rounded-lg hover:bg-gray-100"
               >
                 <Plus size={20} />
               </button>
               <button
-                onClick={() => {
-                  setModalVisibleStatus((oD) => ({
-                    ...oD,
-                    edit: true,
-                  }));
-                }}
+                onClick={() =>
+                  setModalVisibleStatus((oD) => ({ ...oD, edit: true }))
+                }
                 className="p-2 bg-white dark:bg-gray-800 shadow-md rounded-lg hover:bg-gray-100"
               >
                 <Pencil size={20} />
               </button>
               <button
-                onClick={() => {
-                  setModalVisibleStatus((oD) => ({
-                    ...oD,
-                    delete: true,
-                  }));
-                }}
+                onClick={() =>
+                  setModalVisibleStatus((oD) => ({ ...oD, delete: true }))
+                }
                 className="p-2 bg-white dark:bg-gray-800 shadow-md rounded-lg hover:bg-gray-100"
               >
                 <Trash2 size={20} />
               </button>
             </div>
-            <div className="title w-3/5">
-              <h2 className="text-2xl text-center font-bold text-gray-700 dark:text-white">
+
+            <div className="w-1/3 flex justify-center">
+              <h2 className="text-2xl font-bold text-gray-700 dark:text-white">
                 Task Management
               </h2>
             </div>
-            <button
-              onClick={() => setShowChat(true)}
-              className="bg-blue-600 hover:bg-blue-500 text-white px-4 py-2 rounded shadow mr-5"
-            >
-              💬 Chat With Client
-            </button>
-            <button
-              className="bg-blue-600 hover:bg-blue-500 text-white px-4 py-2 rounded shadow"
-              onClick={() => handleAutoAssign()}
-            >
-              🤖 Auto Assign Tasks
-            </button>
+
+            <div className="w-1/3 flex justify-end gap-3">
+              <button
+                onClick={() => setShowChat(true)}
+                className="bg-blue-600 hover:bg-blue-500 text-white p-4 rounded shadow"
+              >
+                💬 Chat With Client
+              </button>
+              <button
+                className="bg-blue-600 hover:bg-blue-500 text-white p-4 rounded shadow"
+                onClick={() => handleAutoAssign()}
+              >
+                🤖 Auto Assign Tasks
+              </button>
+            </div>
           </div>
+
           {isHidden ? (
             <></>
           ) : (
@@ -352,24 +366,63 @@ export default function TaskManagement({ id, text }: TaskManagementProps) {
         </div>
 
         {/* Client Information */}
-        <div className="bg-white dark:bg-gray-800 p-4 shadow-md rounded-md">
-          <h3 className="font-bold text-gray-700 dark:text-white mb-2">
-            Client Information
-          </h3>
-          <p className="text-gray-500 dark:text-gray-300">
-            <strong>Name:</strong> {projectData.customer.name}{" "}
-            {projectData.customer.lastName}
-          </p>
-          <p className="text-gray-500 dark:text-gray-300">
-            <strong>Company:</strong> {projectData.customer.company}
-          </p>
-          <p className="text-gray-500 dark:text-gray-300">
-            <strong>Email:</strong> {projectData.customer.email}
-          </p>
-          <p className="text-gray-500 dark:text-gray-300">
-            <strong>Phone:</strong> {projectData.customer.phone}
-          </p>
-        </div>
+        {currentUser.roleName == "Developer" ? (
+          <div className="bg-white dark:bg-gray-800 p-4 shadow-md rounded-md ">
+            <h3 className="font-bold text-gray-700 dark:text-white mb-2">
+              Your Assigned Tasks
+            </h3>
+            <ul className="space-y-3">
+              {assignedTasks.map((task) => (
+                <li
+                  key={task.id}
+                  className="flex justify-between items-center bg-gray-100 dark:bg-gray-700 p-3 rounded"
+                >
+                  <div>
+                    <p className="text-gray-800 dark:text-gray-200 font-semibold">
+                      {task.taskLabel.label}
+                    </p>
+                    <p className="text-sm text-gray-500 dark:text-gray-400">
+                      {task.description}
+                    </p>
+                  </div>
+                  <div className="flex gap-2">
+                    <button
+                      onClick={() => handleMarkComplete(task.id)}
+                      className="bg-green-600 hover:bg-green-500 text-white px-3 py-1 rounded text-sm"
+                    >
+                      ✅ Done
+                    </button>
+                    <button
+                      onClick={() => handleMessagePM(task)}
+                      className="bg-blue-600 hover:bg-blue-500 text-white px-3 py-1 rounded text-sm"
+                    >
+                      💬 Message PM
+                    </button>
+                  </div>
+                </li>
+              ))}
+            </ul>
+          </div>
+        ) : (
+          <div className="bg-white dark:bg-gray-800 p-4 shadow-md rounded-md">
+            <h3 className="font-bold text-gray-700 dark:text-white mb-2">
+              Client Information
+            </h3>
+            <p className="text-gray-500 dark:text-gray-300">
+              <strong>Name:</strong> {projectData.customer.name}{" "}
+              {projectData.customer.lastName}
+            </p>
+            <p className="text-gray-500 dark:text-gray-300">
+              <strong>Company:</strong> {projectData.customer.company}
+            </p>
+            <p className="text-gray-500 dark:text-gray-300">
+              <strong>Email:</strong> {projectData.customer.email}
+            </p>
+            <p className="text-gray-500 dark:text-gray-300">
+              <strong>Phone:</strong> {projectData.customer.phone}
+            </p>
+          </div>
+        )}
 
         {/* Project Team */}
         <ProjectTeamList {...{ projectData, usersData }} />

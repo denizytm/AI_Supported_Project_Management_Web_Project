@@ -69,6 +69,7 @@ namespace backend.Mappers
                 ProficiencyLevelName = string.IsNullOrWhiteSpace(createUserDto.ProficiencyLevelName) ? null : createUserDto.ProficiencyLevelName,
                 RoleName = string.IsNullOrWhiteSpace(createUserDto.RoleName) ? null : createUserDto.RoleName,
                 StatusName = string.IsNullOrWhiteSpace(createUserDto.StatusName) ? null : createUserDto.StatusName,
+                TaskRoleName = string.IsNullOrWhiteSpace(createUserDto.TaskRoleName) ? null : createUserDto.TaskRoleName,
                 IsActive = false
             };
         }

@@ -256,7 +256,7 @@ namespace backend.Controllers
         }
 
         [HttpPost("add")]
-        public async Task<IActionResult> CreateProject(CreateProjectDto createProjectDto)
+        public async Task<IActionResult> CreateProject(CreateProjectDto createProjectDto, [FromServices] IHubContext<ChatHub, IChatClient> hubContext)
         {
             try
             {
@@ -268,6 +268,7 @@ namespace backend.Controllers
                 {
                     await _context.SaveChangesAsync();
 
+                    // ChatSession başlat
                     var chatSession = new ChatSession
                     {
                         User1Id = project.ManagerId,
@@ -278,11 +279,50 @@ namespace backend.Controllers
                     await _context.ChatSessions.AddAsync(chatSession);
                     await _context.SaveChangesAsync();
 
+                    var managerNotification = new Notification
+                    {
+                        TargetUserId = project.ManagerId,
+                        Title = "Project Assignment",
+                        Message = "You've been added to a new project as a manager.",
+                        CreatedAt = DateTime.UtcNow,
+                        IsRead = false,
+                        Link = $"/projects/management?id={project.Id}"
+                    };
+
+                    await _context.Notifications.AddAsync(managerNotification);
+
+                    if (ChatHub.UserConnections.TryGetValue(project.ManagerId, out var managerConnectionId))
+                    {
+                        var dto = managerNotification.FromModelToDto();
+                        await hubContext.Clients.Client(managerConnectionId).ReceiveNotification(dto);
+                    }
+
+                    var customerNotification = new Notification
+                    {
+                        TargetUserId = project.CustomerId,
+                        Title = "New Project Created",
+                        Message = "A new project has been created for you.",
+                        CreatedAt = DateTime.UtcNow,
+                        IsRead = false,
+                        Link = $"/client"
+                    };
+
+                    await _context.Notifications.AddAsync(customerNotification);
+
+                    if (ChatHub.UserConnections.TryGetValue(project.CustomerId, out var customerConnectionId))
+                    {
+                        var dto = customerNotification.FromModelToDto();
+                        await hubContext.Clients.Client(customerConnectionId).ReceiveNotification(dto);
+                    }
+
+                    await _context.SaveChangesAsync();
+
                     return Ok(new
                     {
-                        message = "Project has been created and ChatSession initialized."
+                        message = "Project created, chat session initialized, and notifications sent."
                     });
                 }
+
                 return BadRequest();
             }
             catch (Exception ex)
@@ -399,15 +439,6 @@ namespace backend.Controllers
                 {
                     return BadRequest(new { message = $"No project found with the id value : {id}" });
                 }
-
-                /* user.Name = userData?.Name ?? user.Name;
-                user.Email = userData?.Email ?? user.Email;
-                user.ProficiencyLevel = userData?.ProficiencyLevel ?? user.ProficiencyLevel;
-                user.Role = userData?.Role ?? user.Role;
-                user.Status = userData?.Status ?? user.Status;
-                user.Projects = userData?.Projects ?? user.Projects;
-                user.Technologies = userData?.Technologies ?? user.Technologies;
-                user.AssignedTask = userData?.AssignedTask ?? user.AssignedTask; */
 
                 await _context.SaveChangesAsync();
                 return Ok("The project has been updated");

@@ -75,7 +75,6 @@ namespace backend.Controllers
             });
         }
 
-
         [HttpPost("message/private")]
         public async Task<IActionResult> SendPrivateMessage([FromBody] PrivateMessageDto request)
         {
