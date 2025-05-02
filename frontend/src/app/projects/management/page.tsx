@@ -158,11 +158,13 @@ export default function TaskManagement({ id, text }: TaskManagementProps) {
     }
   };
 
-  useEffect(()=>{
-    if(tasks.length && currentUser){
-      setAssignedTasks(tasks.filter(t => t.assignedUser?.id == currentUser.id));
+  useEffect(() => {
+    if (tasks.length && currentUser) {
+      setAssignedTasks(
+        tasks.filter((t) => t.assignedUser?.id == currentUser.id)
+      );
     }
-  },[tasks])
+  }, [tasks]);
 
   useEffect(() => {
     (async () => {
@@ -198,9 +200,26 @@ export default function TaskManagement({ id, text }: TaskManagementProps) {
   }, [connection]);
 
   const handleMarkComplete = async (taskId: number) => {
-    await axios.put(
-      `http://localhost:5110/api/tasks/mark-complete?id=${taskId}`
-    );
+    try {
+      const response = await axios.put(
+        `http://localhost:5110/api/tasks/update?id=${taskId}`,
+        {
+          statusName: "Done",
+        }
+      );
+
+      if (response.status === 200) {
+        setTasks(
+          tasks.map((task) => {
+            if (task.id == taskId) return { ...task, statusName: "Done" };
+            return task;
+          })
+        );
+      }
+    } catch (error) {
+      console.error("Error updating task:", error);
+      alert("An error occurred while marking the task as Done.");
+    }
   };
 
   const handleMessagePM = (task: TaskType) => {
@@ -225,7 +244,10 @@ export default function TaskManagement({ id, text }: TaskManagementProps) {
         window.location.reload();
       }
     } catch (error) {
-      console.error("Request güncellenirken hata oluştu:", error);
+      console.error(
+        "There was a problem while the request was getting update :",
+        error
+      );
     }
   };
 
@@ -303,18 +325,23 @@ export default function TaskManagement({ id, text }: TaskManagementProps) {
             </div>
 
             <div className="w-1/3 flex justify-end gap-3">
-              <button
-                onClick={() => setShowChat(true)}
-                className="bg-blue-600 hover:bg-blue-500 text-white p-4 rounded shadow"
-              >
-                💬 Chat With Client
-              </button>
-              <button
-                className="bg-blue-600 hover:bg-blue-500 text-white p-4 rounded shadow"
-                onClick={() => handleAutoAssign()}
-              >
-                🤖 Auto Assign Tasks
-              </button>
+              {currentUser.roleName == "Admin" ||
+                (currentUser.roleName == "ProjectManager" && (
+                  <>
+                    <button
+                      onClick={() => setShowChat(true)}
+                      className="bg-blue-600 hover:bg-blue-500 text-white p-4 rounded shadow"
+                    >
+                      💬 Chat With Client
+                    </button>
+                    <button
+                      className="bg-blue-600 hover:bg-blue-500 text-white p-4 rounded shadow"
+                      onClick={() => handleAutoAssign()}
+                    >
+                      🤖 Auto Assign Tasks
+                    </button>
+                  </>
+                ))}
             </div>
           </div>
 
@@ -372,35 +399,48 @@ export default function TaskManagement({ id, text }: TaskManagementProps) {
               Your Assigned Tasks
             </h3>
             <ul className="space-y-3">
-              {assignedTasks.map((task) => (
-                <li
-                  key={task.id}
-                  className="flex justify-between items-center bg-gray-100 dark:bg-gray-700 p-3 rounded"
-                >
-                  <div>
-                    <p className="text-gray-800 dark:text-gray-200 font-semibold">
-                      {task.taskLabel.label}
-                    </p>
-                    <p className="text-sm text-gray-500 dark:text-gray-400">
-                      {task.description}
-                    </p>
-                  </div>
-                  <div className="flex gap-2">
-                    <button
-                      onClick={() => handleMarkComplete(task.id)}
-                      className="bg-green-600 hover:bg-green-500 text-white px-3 py-1 rounded text-sm"
-                    >
-                      ✅ Done
-                    </button>
-                    <button
-                      onClick={() => handleMessagePM(task)}
-                      className="bg-blue-600 hover:bg-blue-500 text-white px-3 py-1 rounded text-sm"
-                    >
-                      💬 Message PM
-                    </button>
-                  </div>
-                </li>
-              ))}
+              {assignedTasks.map((task) => {
+                const isDone = task.statusName == "Done";
+
+                return (
+                  <li
+                    key={task.id}
+                    className={`flex justify-between items-center p-3 rounded ${
+                      isDone
+                        ? "bg-green-100 dark:bg-green-800"
+                        : "bg-gray-100 dark:bg-gray-700"
+                    }`}
+                  >
+                    <div>
+                      <p className="text-gray-800 dark:text-gray-200 font-semibold">
+                        {task.taskLabel.label}
+                      </p>
+                      <p className="text-sm text-gray-500 dark:text-gray-400">
+                        {task.description}
+                      </p>
+                    </div>
+                    <div className="flex gap-2">
+                      <button
+                        onClick={() => handleMarkComplete(task.id)}
+                        className={`px-3 py-1 rounded text-sm ${
+                          isDone
+                            ? "bg-gray-400 text-white cursor-not-allowed"
+                            : "bg-green-600 hover:bg-green-500 text-white"
+                        }`}
+                        disabled={isDone}
+                      >
+                        ✅ {isDone ? "Completed" : "Done"}
+                      </button>
+                      <button
+                        onClick={() => handleMessagePM(task)}
+                        className="bg-blue-600 hover:bg-blue-500 text-white px-3 py-1 rounded text-sm"
+                      >
+                        💬 Message PM
+                      </button>
+                    </div>
+                  </li>
+                );
+              })}
             </ul>
           </div>
         ) : (

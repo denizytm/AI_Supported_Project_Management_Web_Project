@@ -15,7 +15,6 @@ namespace backend.Dtos.Task
         public string TaskLevelName { get; set; } = String.Empty;
         public string PriorityName { get; set; } = String.Empty;
         public string StatusName { get; set; } = String.Empty;
-        public int Progress { get; set; }
         public string Note { get; set; } = String.Empty;
         public int ProjectId { get; set; }
         public int? TaskId { get; set; }

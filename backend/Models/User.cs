@@ -102,7 +102,13 @@ namespace backend.Models
         public string? TaskRoleName
         {
             get => TaskRole.ToString();
-            set => TaskRole = Enum.Parse<TaskRole>(value);
+            set
+            {
+                if (string.IsNullOrWhiteSpace(value))
+                    TaskRole = null;
+                else if (Enum.TryParse<TaskRole>(value, out var parsed))
+                    TaskRole = parsed;
+            }
         }
 
         public List<UserProject> UserProjects { get; set; } = new List<UserProject>();

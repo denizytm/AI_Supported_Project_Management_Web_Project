@@ -64,7 +64,6 @@ namespace backend.Models
             set => Status = Enum.Parse<TaskStatus>(value);
         }
 
-        public int Progress { get; set; }
         public string Note { get; set; } = String.Empty;
 
         public int ProjectId { get; set; }

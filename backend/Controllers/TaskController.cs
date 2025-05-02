@@ -224,6 +224,8 @@ namespace backend.Controllers
                     await _context.SaveChangesAsync();
                 }
 
+                
+
                 await _context.SaveChangesAsync();
 
                 await _taskRepository.UpdateAsync(id, updateTaskDto, taskLabelData, taskTypeData);

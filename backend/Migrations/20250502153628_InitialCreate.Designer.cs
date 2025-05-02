@@ -12,7 +12,7 @@ using backend.Data;
 namespace backend.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20250502135235_InitialCreate")]
+    [Migration("20250502153628_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -317,9 +317,6 @@ namespace backend.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("Priority")
-                        .HasColumnType("int");
-
-                    b.Property<int>("Progress")
                         .HasColumnType("int");
 
                     b.Property<int>("ProjectId")

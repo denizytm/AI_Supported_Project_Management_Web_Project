@@ -210,7 +210,6 @@ namespace backend.Data
                     .RuleFor(t => t.Priority, f => f.PickRandom<Priority>())
                     .RuleFor(t => t.Status, f => f.PickRandom<TaskStatus>())
                     .RuleFor(t => t.ProjectId, f => f.Random.Int(1, context.Projects.ToList().Count))
-                    .RuleFor(t => t.Progress, f => f.Random.Int(1, 100))
                     .RuleFor(t => t.TaskLabelId, f => f.Random.Int(1, context.TaskLabels.ToList().Count))
                     .RuleFor(t => t.UserId, (f, t) =>
                     {
