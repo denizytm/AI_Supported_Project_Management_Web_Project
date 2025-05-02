@@ -3,7 +3,7 @@
 import * as signalR from "@microsoft/signalr";
 import { useState, useEffect, useRef } from "react";
 import { useSelector } from "react-redux";
-import { RootState } from "@/redux/store"; // store’un tipi
+import { RootState } from "@/redux/store";
 import axios from "axios";
 import { getUserById } from "@/hooks/getUserById";
 import { UserType } from "@/types/userType";
@@ -40,7 +40,6 @@ export default function ClientChatComponent({
 
   const [newMessage, setNewMessage] = useState("");
 
-  // Ref for scrolling to bottom of messages
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const [users, setUsers] = useState<User[]>([]);
@@ -52,6 +51,8 @@ export default function ClientChatComponent({
   }>({
     1: [],
   });
+
+  const [isProcessing, setIsProcessing] = useState(false);
 
   const { connection } = useSignalR();
 
@@ -104,28 +105,34 @@ export default function ClientChatComponent({
   };
 
   useEffect(() => {
-    if (currentUser && currentUser.roleName != "Admin") {
+    if (!currentUser || !customer || isProcessing) return;
+
+    if (currentUser.roleName !== "Admin") {
       (async () => {
         await handleSessions();
       })();
-    } else if (currentUser && currentUser.roleName == "Admin") {
-      (async () => {
-        const response = await axios.get(
-          `http://localhost:5110/api/chat/session/get-session?user1Id=${currentUser.id}&user2Id=${customer.id}`
-        );
+    } else {
+      setIsProcessing(true);
 
-        if (response.status) {
-          if (!response.data.result) {
-            console.log("naber");
-            const response2 = await axios.post(
+      (async () => {
+        try {
+          const response = await axios.get(
+            `http://localhost:5110/api/chat/session/get-session?user1Id=${currentUser.id}&user2Id=${customer.id}`
+          );
+
+          if (response.status && response.data.result === false) {
+            await axios.post(
               `http://localhost:5110/api/chat/session/create-session?user1Id=${currentUser.id}&user2Id=${customer.id}`
             );
           }
+
+          await handleSessions();
+        } finally {
+          setIsProcessing(false);
         }
-        await handleSessions();
       })();
     }
-  }, [currentUser]);
+  }, [currentUser, customer]);
 
   useEffect(() => {
     if (users && users.length && customer) {
@@ -134,74 +141,10 @@ export default function ClientChatComponent({
     }
   }, [users, customer]);
 
-  /* useEffect(() => {
-    if (currentUser) {
-      const connection = new signalR.HubConnectionBuilder()
-        .withUrl("http://localhost:5110/chatHub")
-        .withAutomaticReconnect()
-        .build();
-
-      connection
-        .start()
-        .then(() => {
-          console.log("connection successfull");
-          connection.invoke("Register", currentUser.id);
-          connection.on(
-            "ReceiveMessage",
-            (senderUserId: number, message: string) => {
-              console.log(senderUserId,message)
-              const newMsg = {
-                senderUserId: +senderUserId,
-                receiverUserId: +currentUser.id,
-                content: message,
-                sendAt: new Date().toLocaleTimeString([], {
-                  hour: "2-digit",
-                  minute: "2-digit",
-                }),
-              };
-
-              setUserMessages((prev) => {
-                const current = prev[senderUserId] || [];
-                return {
-                  ...prev,
-                  [senderUserId]: [...current, newMsg],
-                };
-              });
-
-              setUsers((prevUsers) => {
-                const alreadyExists = prevUsers.some(
-                  (user) => user.id === senderUserId
-                );
-                if (!alreadyExists) {
-                  getUserById(senderUserId.toString()).then((d: UserType) => {
-                    setUsers((prev) => {
-                      if (!prev.find((u) => u.id === d.id)) {
-                        return [...prev, d];
-                      }
-                      return prev;
-                    });
-                  });
-                }
-                return prevUsers;
-              });
-            }
-          );
-        })
-        .catch((err) => console.error("SignalR couldn't connected", err));
-
-      connectionRef.current = connection;
-
-      return () => {
-        connection.stop();
-      };
-    }
-  }, [currentUser]); */
-
   useEffect(() => {
     if (!connection || !currentUser) return;
 
     const handleReceiveMessage = (senderUserId: number, message: string) => {
-      console.log(senderUserId, message);
       const newMsg = {
         senderUserId: +senderUserId,
         receiverUserId: +currentUser.id,
@@ -240,7 +183,6 @@ export default function ClientChatComponent({
 
     connection.on("ReceiveMessage", handleReceiveMessage);
 
-    // cleanup
     return () => {
       connection.off("ReceiveMessage", handleReceiveMessage);
     };
@@ -252,7 +194,6 @@ export default function ClientChatComponent({
 
   const sendMessage = async () => {
     if (currentUser && activeUser) {
-      console.log("naber1");
       if (newMessage.trim() === "") return;
 
       const now = new Date();
@@ -273,15 +214,14 @@ export default function ClientChatComponent({
         ...userMessages,
         [activeUser.id]: [...currentMessages, newMessageObj],
       });
-      console.log("naber2", newMessage, currentUser.id, activeUser.id);
+
       await axios.post("http://localhost:5110/api/chat/message/private", {
         content: newMessage,
         senderUserId: currentUser.id,
         receiverUserId: activeUser.id,
       });
-      console.log("naber3");
+
       setNewMessage("");
-      console.log("naber4");
     }
   };
 
