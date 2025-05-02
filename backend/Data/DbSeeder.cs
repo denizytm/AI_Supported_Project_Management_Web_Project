@@ -25,9 +25,19 @@ namespace backend.Data
                     .RuleFor(u => u.TaskRole, f => f.PickRandom<TaskRole>())
                     .RuleFor(u => u.UserProjects, f => new List<UserProject>())
                     .RuleFor(u => u.Tasks, f => new List<backend.Models.Task>())
+                    .RuleFor(u => u.IsActive, f => true)
                     .RuleFor(u => u.ManagerId, f => null);
 
                 var users = faker.Generate(100);
+
+                foreach (var user in users)
+                {
+                    if (user.Role == Role.Admin || user.Role == Role.Client)
+                    {
+                        user.TaskRole = default;
+                        user.ProficiencyLevel = default;
+                    }
+                }
 
                 context.Users.AddRange(users);
                 context.SaveChanges();
@@ -49,6 +59,7 @@ namespace backend.Data
                 context.Users.UpdateRange(developers);
                 context.SaveChanges();
             }
+
 
             if (!context.ProjectTypes.Any())
             {
@@ -139,10 +150,11 @@ namespace backend.Data
 
             if (!context.UserProjects.Any())
             {
+                var users = context.Users
+                    .Where(u => u.Role == Role.Developer)
+                    .ToList();
 
-                var users = context.Users.ToList();
                 var projects = context.Projects.ToList();
-
                 var faker = new Faker();
 
                 foreach (User user in users)
@@ -152,8 +164,8 @@ namespace backend.Data
                 }
 
                 context.SaveChanges();
-
             }
+
 
             if (!context.TaskTypes.Any())
             {
@@ -216,7 +228,7 @@ namespace backend.Data
                             var userIds = context.UserProjects
                                 .Where(up => up.ProjectId == t.ProjectId)
                                 .Include(up => up.User)
-                                .Where(up => up.User.ProficiencyLevel != ProficiencyLevel.Beginner)
+                                .Where(up => up.User.ProficiencyLevel != ProficiencyLevel.Junior)
                                 .Select(up => up.UserId)
                                 .ToList();
 
@@ -227,7 +239,7 @@ namespace backend.Data
                             var userIds = context.UserProjects
                                 .Where(up => up.ProjectId == t.ProjectId)
                                 .Include(up => up.User)
-                                .Where(up => up.User.ProficiencyLevel == ProficiencyLevel.Expert)
+                                .Where(up => up.User.ProficiencyLevel == ProficiencyLevel.Senior)
                                 .Select(up => up.UserId)
                                 .ToList();
 

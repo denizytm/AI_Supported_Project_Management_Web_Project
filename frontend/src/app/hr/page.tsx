@@ -1,10 +1,11 @@
 "use client";
 
+import { RootState } from "@/redux/store";
 import { UserType } from "@/types/userType";
 import axios from "axios";
 import { useSearchParams } from "next/navigation";
-import { useRouter } from "next/router";
 import React, { useEffect, useState } from "react";
+import { useSelector } from "react-redux";
 
 interface PaginationResponse {
   currentPage: number;
@@ -13,29 +14,6 @@ interface PaginationResponse {
   users: UserType[];
 }
 
-const mockUsers = [
-  {
-    id: 1,
-    name: "John",
-    lastName: "Doe",
-    email: "john@example.com",
-    proficiencyLevelName: "Intermediate",
-    roleName: "Developer",
-    statusName: "Available",
-    taskRoleName: "Frontend",
-  },
-  {
-    id: 2,
-    name: "Jane",
-    lastName: "Smith",
-    email: "jane@example.com",
-    proficiencyLevelName: "Expert",
-    roleName: "ProjectManager",
-    statusName: "OnLeave",
-    taskRoleName: "AI",
-  },
-];
-
 export default function page() {
   const [page, setPage] = useState<number>(1);
 
@@ -43,6 +21,18 @@ export default function page() {
     useState<PaginationResponse | null>(null);
 
   const searchParams = useSearchParams();
+
+  const currentUser = useSelector((state: RootState) => state.currentUser.user);
+
+  const [showAddModal, setShowAddModal] = useState(false);
+
+  const [newUser, setNewUser] = useState({
+    email: "",
+    roleName: "",
+    statusName: "Available",
+    taskRoleName: "",
+    proficiencyLevelName: "",
+  });
 
   const initialSearch = searchParams.get("search") || "";
   const initialRole = searchParams.get("role") || "";
@@ -54,6 +44,20 @@ export default function page() {
   const [selectedStatus, setSelectedStatus] = useState(initialStatus);
   const [selectedProficiency, setSelectedProficiency] =
     useState(initialProficiency);
+
+  const taskRoles = [
+    "Frontend",
+    "Backend",
+    "Fullstack",
+    "AI",
+    "Mobile",
+    "Designer",
+  ];
+  const proficiencyLevels = ["Junior", "Mid", "Senior"];
+
+  const [selectedUser, setSelectedUser] = useState<UserType | null>(null);
+  const [taskRole, setTaskRole] = useState("");
+  const [proficiencyLevel, setProficiencyLevel] = useState("");
 
   const fetchUsers = async () => {
     const params = new URLSearchParams();
@@ -79,6 +83,40 @@ export default function page() {
     })();
   }, [page]);
 
+  const openEditModal = (user: UserType) => {
+    setSelectedUser(user);
+    setTaskRole(user.taskRoleName);
+    setProficiencyLevel(user.proficiencyLevelName);
+  };
+
+  const closeModal = () => {
+    setSelectedUser(null);
+  };
+
+  const handleSave = async () => {
+    if (!selectedUser) return;
+
+    try {
+      const response = await fetch(
+        `http://localhost:5110/api/users/update?id=${selectedUser.id}`,
+        {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            taskRoleName: taskRole,
+            proficiencyLevelName: proficiencyLevel,
+          }),
+        }
+      );
+
+      if (!response.ok) throw new Error("Update failed");
+      closeModal();
+      window.location.reload();
+    } catch (error) {
+      alert(`Error: ${(error as Error).message}`);
+    }
+  };
+
   const handleSearch = () => {
     const queryParams = new URLSearchParams();
 
@@ -92,7 +130,26 @@ export default function page() {
     window.location.href = url;
   };
 
-  if (!paginationData) return <div>Loading...</div>;
+  const handleAddUser = async () => {
+    try {
+      const response = await axios.post(
+        "http://localhost:5110/api/users/create",
+        newUser
+      );
+
+      if (!response.status) {
+        const errorData = await response.data();
+        throw new Error(errorData.message || "User creation failed");
+      }
+
+      setShowAddModal(false);
+      window.location.reload();
+    } catch (error) {
+      alert(`Error: ${(error as Error).message}`);
+    }
+  };
+
+  if (!paginationData || !currentUser) return <div>Loading...</div>;
   const { users, totalCount, totalPages, currentPage } = paginationData;
   return (
     <div className="p-6 text-white">
@@ -186,7 +243,7 @@ export default function page() {
               </select>
               <input
                 value={searchData}
-                onChange={(e)=>setSearchData(e.target.value)}
+                onChange={(e) => setSearchData(e.target.value)}
                 type="text"
                 placeholder="Search name..."
                 className="bg-gray-700 text-white p-2 rounded flex-1"
@@ -201,7 +258,117 @@ export default function page() {
           </div>
 
           <div className="bg-gray-800 p-4 rounded-lg shadow overflow-auto">
-            <h2 className="text-xl font-semibold mb-2">Employees</h2>
+            <h2 className="text-xl font-semibold mb-2 text-center">
+              Employees
+            </h2>
+            <div className="button-container w-full flex justify-end">
+              {currentUser.roleName == "Admin" && (
+                <button
+                  onClick={() => setShowAddModal(true)}
+                  className="bg-green-600 hover:bg-green-500 text-white px-4 py-2 rounded mb-4"
+                >
+                  + Add User
+                </button>
+              )}
+            </div>
+            {showAddModal && (
+              <div className="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50">
+                <div className="bg-gray-800 p-6 rounded-xl w-full max-w-xl text-white">
+                  <h2 className="text-xl font-bold mb-4">Add New User</h2>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <input
+                      type="email"
+                      placeholder="Email"
+                      value={newUser.email}
+                      onChange={(e) =>
+                        setNewUser({ ...newUser, email: e.target.value })
+                      }
+                      className="bg-gray-700 p-2 rounded"
+                    />
+
+                    <select
+                      value={newUser.roleName}
+                      onChange={(e) =>
+                        setNewUser({ ...newUser, roleName: e.target.value })
+                      }
+                      className="bg-gray-700 p-2 rounded"
+                    >
+                      <option value="">Select Role</option>
+                      <option value="Developer">Developer</option>
+                      <option value="ProjectManager">Project Manager</option>
+                      <option value="Admin">Admin</option>
+                    </select>
+
+                    {newUser.roleName === "Developer" && (
+                      <select
+                        value={newUser.taskRoleName}
+                        onChange={(e) =>
+                          setNewUser({
+                            ...newUser,
+                            taskRoleName: e.target.value,
+                          })
+                        }
+                        className="bg-gray-700 p-2 rounded"
+                      >
+                        <option value="">Select Task Role</option>
+                        {taskRoles.map((role) => (
+                          <option key={role} value={role}>
+                            {role}
+                          </option>
+                        ))}
+                      </select>
+                    )}
+
+                    <select
+                      value={newUser.proficiencyLevelName}
+                      onChange={(e) =>
+                        setNewUser({
+                          ...newUser,
+                          proficiencyLevelName: e.target.value,
+                        })
+                      }
+                      className="bg-gray-700 p-2 rounded"
+                    >
+                      <option value="">Select Proficiency</option>
+                      {proficiencyLevels.map((level) => (
+                        <option key={level} value={level}>
+                          {level}
+                        </option>
+                      ))}
+                    </select>
+
+                    <select
+                      value={newUser.statusName}
+                      onChange={(e) =>
+                        setNewUser({ ...newUser, statusName: e.target.value })
+                      }
+                      className="bg-gray-700 p-2 rounded"
+                    >
+                      <option value="">Select Status</option>
+                      <option value="Available">Available</option>
+                      <option value="Busy">Busy</option>
+                      <option value="OnLeave">On Leave</option>
+                    </select>
+                  </div>
+
+                  <div className="flex justify-end gap-3 mt-6">
+                    <button
+                      onClick={() => setShowAddModal(false)}
+                      className="bg-gray-600 px-4 py-2 rounded hover:bg-gray-500"
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      onClick={handleAddUser}
+                      className="bg-green-600 px-4 py-2 rounded hover:bg-green-500"
+                    >
+                      Save
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
             <table className="w-full text-sm text-left text-gray-300">
               <thead className="text-xs uppercase bg-gray-700 text-gray-200">
                 <tr>
@@ -211,25 +378,94 @@ export default function page() {
                   <th className="px-4 py-2">Task Role</th>
                   <th className="px-4 py-2">Role</th>
                   <th className="px-4 py-2">Status</th>
+                  <th className="px-4 py-2 text-center">Edit</th>
                 </tr>
               </thead>
               <tbody>
-                {users &&
-                  users.length &&
-                  users.map((user) => (
-                    <tr key={user.id} className="border-t border-gray-600">
-                      <td className="px-4 py-2">
-                        {user.name} {user.lastName}
-                      </td>
-                      <td className="px-4 py-2">{user.email}</td>
-                      <td className="px-4 py-2">{user.proficiencyLevelName}</td>
-                      <td className="px-4 py-2">{user.taskRoleName}</td>
-                      <td className="px-4 py-2">{user.roleName}</td>
-                      <td className="px-4 py-2">{user.statusName}</td>
-                    </tr>
-                  ))}
+                {users.map((user) => (
+                  <tr key={user.id} className="border-t border-gray-600">
+                    <td className="px-4 py-2">
+                      {user.name} {user.lastName}
+                    </td>
+                    <td className="px-4 py-2">{user.email}</td>
+                    <td className="px-4 py-2">{user.proficiencyLevelName}</td>
+                    <td className="px-4 py-2">{user.taskRoleName}</td>
+                    <td className="px-4 py-2">{user.roleName}</td>
+                    <td className="px-4 py-2">{user.statusName}</td>
+                    <td className="px-4 py-2 text-center">
+                      {currentUser.roleName === "Admin" &&
+                      user.roleName === "Developer" ? (
+                        <button
+                          className="text-xs text-blue-400 hover:underline"
+                          onClick={() => openEditModal(user)}
+                        >
+                          Edit
+                        </button>
+                      ) : (
+                        <span className="text-xs text-gray-500">—</span>
+                      )}
+                    </td>
+                  </tr>
+                ))}
               </tbody>
             </table>
+            {/* MODAL */}
+            {selectedUser && (
+              <div className="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50">
+                <div className="bg-gray-800 p-6 rounded-xl w-96 text-white">
+                  <h2 className="text-lg font-bold mb-4">
+                    Edit User: {selectedUser.name} {selectedUser.lastName}
+                  </h2>
+
+                  <div className="mb-4">
+                    <label className="block text-sm mb-1">Task Role</label>
+                    <select
+                      className="w-full p-2 rounded bg-gray-700 text-white"
+                      value={taskRole}
+                      onChange={(e) => setTaskRole(e.target.value)}
+                    >
+                      {taskRoles.map((role) => (
+                        <option key={role} value={role}>
+                          {role}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <div className="mb-4">
+                    <label className="block text-sm mb-1">
+                      Proficiency Level
+                    </label>
+                    <select
+                      className="w-full p-2 rounded bg-gray-700 text-white"
+                      value={proficiencyLevel}
+                      onChange={(e) => setProficiencyLevel(e.target.value)}
+                    >
+                      {proficiencyLevels.map((level) => (
+                        <option key={level} value={level}>
+                          {level}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <div className="flex justify-end gap-3">
+                    <button
+                      className="bg-gray-600 px-4 py-2 rounded hover:bg-gray-500"
+                      onClick={closeModal}
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      className="bg-blue-600 px-4 py-2 rounded hover:bg-blue-500"
+                      onClick={handleSave}
+                    >
+                      Save
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
             <div className="flex justify-center mt-6 flex-wrap gap-2">
               {(() => {
                 const pageNumbers = [];
@@ -237,7 +473,6 @@ export default function page() {
 
                 if (totalPages <= 1) return null;
 
-                // Her zaman 1. sayfa
                 pageNumbers.push(
                   <button
                     key={1}
@@ -252,7 +487,6 @@ export default function page() {
                   </button>
                 );
 
-                // ... gerekiyorsa
                 if (currentPage - maxVisible > 2) {
                   pageNumbers.push(
                     <span
@@ -264,7 +498,6 @@ export default function page() {
                   );
                 }
 
-                // Ortadaki sayfalar
                 for (
                   let i = Math.max(2, currentPage - maxVisible);
                   i <= Math.min(totalPages - 1, currentPage + maxVisible);
@@ -285,7 +518,6 @@ export default function page() {
                   );
                 }
 
-                // ... gerekiyorsa
                 if (currentPage + maxVisible < totalPages - 1) {
                   pageNumbers.push(
                     <span
@@ -297,7 +529,6 @@ export default function page() {
                   );
                 }
 
-                // Her zaman son sayfa
                 if (totalPages > 1) {
                   pageNumbers.push(
                     <button

@@ -128,7 +128,8 @@ namespace backend.Controllers
                 var itManagerDtos = itManagers.Select(iM => iM.ToUserDto());
 
 
-                return Ok(new {
+                return Ok(new
+                {
                     clients = clientDtos,
                     itManagers = itManagerDtos
                 });
@@ -237,6 +238,13 @@ namespace backend.Controllers
                 result = false
             });
 
+            if (userData.IsActive == false || userData.Password == null) return Ok(new
+            {
+                title = "email",
+                message = "This account has not activated yet.",
+                result = false
+            });
+
             bool passwordMatches = HashHelper.VerifyPassword(loginUserDto.Password, userData.Password);
             if (!passwordMatches)
             {
@@ -255,45 +263,58 @@ namespace backend.Controllers
 
         }
 
-        [HttpPost("register")]
-        public async Task<IActionResult> CreateUser(CreateUserDto createUserDto)
+        [HttpPost("create")]
+        public async Task<IActionResult> CreateUser([FromBody] CreateUserDto createUserDto)
         {
+            var user = createUserDto.FromCreateToModel();
 
+            _context.Users.Add(user);
+            await _context.SaveChangesAsync();
+
+            return Ok(new { message = "User created. Waiting for registration." });
+        }
+
+        [HttpPost("register")]
+        public async Task<IActionResult> RegisterUser(RegisterUserDto registerUserDto)
+        {
             try
             {
+                var existingUser = await _userContext.GetByEmailAsync(registerUserDto.Email);
 
-                var userData = createUserDto.ToUser();
-
-                var existsUser = await _userContext.GetByEmailAsync(userData.Email);
-
-                if (existsUser != null) return Ok(new
-                {
-                    title = "email",
-                    message = "An user exists with current email.",
-                    result = false
-                });
-
-                var newUserData = await _userContext.CreateAsync(userData);
-
-                if (newUserData != null)
+                if (existingUser == null || existingUser.IsActive)
                 {
                     return Ok(new
                     {
-                        userData = userData.ToUserDto(),
+                        title = "email",
+                        message = "No available registration found for this email.",
+                        result = false
+                    });
+                }
+
+                existingUser = await _userContext.RegisterAsync(existingUser,registerUserDto);
+
+                var updatedUser = await _userContext.UpdateAsync(existingUser.Id,existingUser.FromModelToUpdateDto());
+
+                if (updatedUser != null)
+                {
+                    return Ok(new
+                    {
+                        userData = updatedUser.ToUserDto(),
                         result = true
                     });
                 }
+
                 return BadRequest();
             }
             catch (Exception ex)
             {
                 return BadRequest(new
                 {
-                    message = $"An error occurred while creating the user : {ex.Message}"
+                    message = $"An error occurred while completing registration: {ex.Message}"
                 });
             }
-
         }
+
 
         [HttpPut("update")]
         public async Task<IActionResult> UpdateUser(UpdateUserDto updateUserDto, int id)

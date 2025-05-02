@@ -8,14 +8,11 @@ namespace backend.Dtos.User
 {
     public class CreateUserDto
     {
-        public string Name { get; set; } = String.Empty;
-        public string LastName { get; set; } = String.Empty;
         public string Email { get; set; } = String.Empty;
-        public string Password { get; set; } = String.Empty;
-        public string? Company { get; set; } = String.Empty;
-        public string? Phone { get; set; } = String.Empty;
-        public ProficiencyLevel ProficiencyLevel { get; set; }
-        public Role Role { get; set; } 
-        public AvailabilityStatus Status { get; set; } 
+        public string RoleName { get; set; } = String.Empty;
+        public string StatusName { get; set; } = String.Empty;
+        public string? TaskRoleName { get; set; }
+        public string? ProficiencyLevelName { get; set; }
     }
+
 }

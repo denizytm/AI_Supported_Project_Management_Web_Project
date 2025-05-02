@@ -14,6 +14,7 @@ namespace backend.Dtos.User
         public int Id { get; set; }
         public string Name { get; set; } = String.Empty;
         public string LastName { get; set; } = String.Empty;
+        public string GenderName { get; set; } = String.Empty;
         public string? Phone { get; set; } = String.Empty;
         public string? Company { get; set; }
         public string Email { get; set; } = String.Empty;
@@ -21,5 +22,6 @@ namespace backend.Dtos.User
         public string ProficiencyLevelName { get; set; } = String.Empty;
         public string RoleName { get; set; } = String.Empty;
         public string StatusName { get; set; } = String.Empty;
+        public Boolean IsActive { get; set; } = false;
     }
 }

@@ -19,14 +19,15 @@ public enum TaskRole
     Designer,
     Backend,
     AI,
-    Mobile
+    Mobile,
+    Fullstack
 }
 
 public enum ProficiencyLevel
 {
-    Beginner,
-    Intermediate,
-    Expert
+    Junior,
+    Mid,
+    Senior
 }
 
 public enum AvailabilityStatus
@@ -51,7 +52,7 @@ namespace backend.Models
         public string Name { get; set; } = String.Empty;
         public string LastName { get; set; } = String.Empty;
         public string Email { get; set; } = String.Empty;
-        public string Password { get; set; } = String.Empty;
+        public string? Password { get; set; } = String.Empty;
         public DateTime? Birth { get; set; }
         public string? Company { get; set; }
         public Gender? Gender { get; set; }
@@ -62,7 +63,7 @@ namespace backend.Models
             set => Gender = Enum.Parse<Gender>(value);
         }
         public string? Phone { get; set; } = String.Empty;
-        public int? ManagerId { get; set; } 
+        public int? ManagerId { get; set; }
         public User? Manager { get; set; } = null!;
 
         public ProficiencyLevel? ProficiencyLevel { get; set; }
@@ -70,7 +71,14 @@ namespace backend.Models
         public string? ProficiencyLevelName
         {
             get => ProficiencyLevel.ToString();
-            set => ProficiencyLevel = Enum.Parse<ProficiencyLevel>(value);
+            set
+            {
+                if (string.IsNullOrWhiteSpace(value))
+                    ProficiencyLevel = null;
+                else if (Enum.TryParse<ProficiencyLevel>(value, out var parsed))
+                    ProficiencyLevel = parsed;
+            }
+
         }
 
         public Role Role { get; set; }
@@ -99,5 +107,6 @@ namespace backend.Models
 
         public List<UserProject> UserProjects { get; set; } = new List<UserProject>();
         public List<Task> Tasks { get; set; } = new List<Task>();
+        public Boolean IsActive { get; set; } = false;
     }
 }

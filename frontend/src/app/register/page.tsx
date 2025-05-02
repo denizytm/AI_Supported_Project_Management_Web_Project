@@ -7,18 +7,24 @@ import { useEffect, useState } from "react";
 export default function RegisterPage() {
   const [formData, setFormData] = useState({
     name: "",
-    last_name: "",
+    lastName: "",
     email: "",
     password: "",
     confirm_password: "",
+    phone: "",
+    company: "",
+    genderName: "",
   });
 
   const [errorMessages, setErrorMessages] = useState({
     name: "",
-    last_name: "",
+    lastName: "",
     email: "",
     password: "",
     confirm_password: "",
+    phone: "",
+    company: "",
+    genderName: "",
   });
 
   const router = useRouter();
@@ -36,38 +42,67 @@ export default function RegisterPage() {
       setErrorMessages((eM) => ({ ...eM, name: "Please enter your name." }));
       c = true;
     } else setErrorMessages((eM) => ({ ...eM, name: "" }));
-    if (!formData.last_name.length) {
+
+    if (!formData.lastName.length) {
       setErrorMessages((eM) => ({
         ...eM,
-        last_name: "Please enter your last name.",
+        lastName: "Please enter your last name.",
       }));
       c = true;
-    } else setErrorMessages((eM) => ({ ...eM, last_name: "" }));
+    } else setErrorMessages((eM) => ({ ...eM, lastName: "" }));
+
     if (!formData.email.length) {
       setErrorMessages((eM) => ({ ...eM, email: "Please enter an email." }));
       c = true;
     } else setErrorMessages((eM) => ({ ...eM, email: "" }));
+
     if (!formData.password.length) {
       setErrorMessages((eM) => ({
         ...eM,
-        password: "Please enter an password.",
+        password: "Please enter a password.",
       }));
       c = true;
     } else setErrorMessages((eM) => ({ ...eM, password: "" }));
+
     if (!formData.confirm_password.length) {
       setErrorMessages((eM) => ({
         ...eM,
-        confirm_password: "Please confirm your password again.",
+        confirm_password: "Please confirm your password.",
       }));
       c = true;
     } else setErrorMessages((eM) => ({ ...eM, confirm_password: "" }));
 
-    if (formData.password != formData.confirm_password) {
+    if (formData.password !== formData.confirm_password) {
       setErrorMessages((eM) => ({
         ...eM,
-        confirm_password: "Password and confirm password are different.",
+        confirm_password: "Passwords do not match.",
       }));
-    } else setErrorMessages((eM) => ({ ...eM, confirm_password: "" }));
+      c = true;
+    }
+
+    if(!formData.company) {
+      setErrorMessages((eM) => ({
+        ...eM,
+        company: "Please enter a company.",
+      }));
+      c = true;
+    }
+
+    if(!formData.phone) {
+      setErrorMessages((eM) => ({
+        ...eM,
+        phone: "Please enter a phone number.",
+      }));
+      c = true;
+    }
+
+    if(!formData.genderName) {
+      setErrorMessages((eM) => ({
+        ...eM,
+        genderName: "Please select a gender.",
+      }));
+      c = true;
+    }
 
     if (c) return;
 
@@ -75,9 +110,12 @@ export default function RegisterPage() {
       "http://localhost:5110/api/users/register",
       {
         name: formData.name,
-        lastName: formData.last_name,
+        lastName: formData.lastName,
         email: formData.email,
         password: formData.password,
+        phone: formData.phone,
+        company: formData.company,
+        genderName: formData.genderName,
       }
     );
 
@@ -115,7 +153,7 @@ export default function RegisterPage() {
               </label>
               <input
                 type="text"
-                className="mt-1 w-full rounded-md border border-gray-300 p-2 focus:border-gray-500 focus:ring-gray-500"
+                className="mt-1 w-full rounded-md border border-gray-300 p-2"
                 placeholder="Enter your name"
                 value={formData.name}
                 onChange={(e) =>
@@ -133,15 +171,15 @@ export default function RegisterPage() {
               </label>
               <input
                 type="text"
-                className="mt-1 w-full rounded-md border border-gray-300 p-2 focus:border-gray-500 focus:ring-gray-500"
+                className="mt-1 w-full rounded-md border border-gray-300 p-2"
                 placeholder="Enter your last name"
-                value={formData.last_name}
+                value={formData.lastName}
                 onChange={(e) =>
-                  setFormData((d) => ({ ...d, last_name: e.target.value }))
+                  setFormData((d) => ({ ...d, lastName: e.target.value }))
                 }
               />
-              {errorMessages.last_name && (
-                <p className="text-red-500">{errorMessages.last_name}</p>
+              {errorMessages.lastName && (
+                <p className="text-red-500">{errorMessages.lastName}</p>
               )}
             </div>
 
@@ -151,7 +189,7 @@ export default function RegisterPage() {
               </label>
               <input
                 type="email"
-                className="mt-1 w-full rounded-md border border-gray-300 p-2 focus:border-gray-500 focus:ring-gray-500"
+                className="mt-1 w-full rounded-md border border-gray-300 p-2"
                 placeholder="Enter your email"
                 value={formData.email}
                 onChange={(e) =>
@@ -165,11 +203,68 @@ export default function RegisterPage() {
 
             <div>
               <label className="block text-sm font-medium text-gray-600">
+                Phone
+              </label>
+              <input
+                type="text"
+                className="mt-1 w-full rounded-md border border-gray-300 p-2"
+                placeholder="Enter your phone number"
+                value={formData.phone}
+                onChange={(e) =>
+                  setFormData((d) => ({ ...d, phone: e.target.value }))
+                }
+              />
+              {errorMessages.phone && (
+                <p className="text-red-500">{errorMessages.phone}</p>
+              )}
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-600">
+                Company
+              </label>
+              <input
+                type="text"
+                className="mt-1 w-full rounded-md border border-gray-300 p-2"
+                placeholder="Enter your company"
+                value={formData.company}
+                onChange={(e) =>
+                  setFormData((d) => ({ ...d, company: e.target.value }))
+                }
+              />
+              {errorMessages.company && (
+                <p className="text-red-500">{errorMessages.company}</p>
+              )}
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-600">
+                Gender
+              </label>
+              <select
+                className="mt-1 w-full rounded-md border border-gray-300 p-2"
+                value={formData.genderName}
+                onChange={(e) =>
+                  setFormData((d) => ({ ...d, genderName: e.target.value }))
+                }
+              >
+                <option value="">Select Gender</option>
+                <option value="Male">Male</option>
+                <option value="Female">Female</option>
+                <option value="Other">Other</option>
+              </select>
+              {errorMessages.genderName && (
+                <p className="text-red-500">{errorMessages.genderName}</p>
+              )}
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-600">
                 Password
               </label>
               <input
                 type="password"
-                className="mt-1 w-full rounded-md border border-gray-300 p-2 focus:border-gray-500 focus:ring-gray-500"
+                className="mt-1 w-full rounded-md border border-gray-300 p-2"
                 placeholder="Enter your password"
                 value={formData.password}
                 onChange={(e) =>
@@ -180,14 +275,15 @@ export default function RegisterPage() {
                 <p className="text-red-500">{errorMessages.password}</p>
               )}
             </div>
+
             <div>
               <label className="block text-sm font-medium text-gray-600">
                 Confirm Password
               </label>
               <input
                 type="password"
-                className="mt-1 w-full rounded-md border border-gray-300 p-2 focus:border-gray-500 focus:ring-gray-500"
-                placeholder="Enter your password again"
+                className="mt-1 w-full rounded-md border border-gray-300 p-2"
+                placeholder="Confirm your password"
                 value={formData.confirm_password}
                 onChange={(e) =>
                   setFormData((d) => ({
@@ -204,7 +300,7 @@ export default function RegisterPage() {
             <button
               type="submit"
               className="w-full rounded-md bg-gray-700 p-2 text-white hover:bg-gray-900"
-              onClick={(e) => handleRegister(e)}
+              onClick={handleRegister}
             >
               Register
             </button>

@@ -1,6 +1,7 @@
 "use client";
 
 import { useSignalR } from "@/context/SignalRContext";
+import { setUserStatus } from "@/redux/slices/userSlice";
 import { RootState } from "@/redux/store";
 import { NotificationType } from "@/types/notificationType";
 import axios from "axios";
@@ -14,7 +15,7 @@ import {
   FaUser,
   FaCalendar,
 } from "react-icons/fa";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 
 export default function Navbar() {
   const [darkMode, setDarkMode] = useState(false);
@@ -24,6 +25,7 @@ export default function Navbar() {
 
   const currentUser = useSelector((state: RootState) => state.currentUser.user);
 
+  const dispatch = useDispatch();
   const { connection } = useSignalR();
   const router = useRouter();
 
@@ -39,6 +41,28 @@ export default function Navbar() {
         }
       })();
   }, [currentUser]);
+
+  const handleStatusChange = async (newStatus: string) => {
+    if (currentUser) {
+      try {
+        const response = await axios.put(
+          `http://localhost:5110/api/users/update?id=${currentUser.id}`,
+          {
+            statusName: newStatus,
+          }
+        );
+
+        if (response.status === 200) {
+          dispatch(setUserStatus(newStatus));
+        } else {
+          alert("Failed to update status.");
+        }
+      } catch (error) {
+        console.error("Status update error:", error);
+        alert("An error occurred while updating status.");
+      }
+    }
+  };
 
   const handleReadNotification = async (notificationIds: number[]) => {
     await axios.post(
@@ -59,10 +83,6 @@ export default function Navbar() {
       connection?.off("ReceiveNotification");
     };
   }, [connection]);
-
-  useEffect(() => {
-    console.log(notifications);
-  }, [notifications]);
 
   const handleLogOut = () => {
     localStorage.removeItem("id");
@@ -132,7 +152,7 @@ export default function Navbar() {
                   {notifications.map((notif) => (
                     <li
                       value={notif.id}
-                      onClick={ async (e)  => {
+                      onClick={async (e) => {
                         setNotifications((n) =>
                           n.map((noti) => {
                             if (noti.id == notif.id)
@@ -141,7 +161,7 @@ export default function Navbar() {
                           })
                         );
                         await handleReadNotification([notif.id]);
-                        if(notif.link) router.push(notif.link);
+                        if (notif.link) router.push(notif.link);
                       }}
                       key={notif.id}
                       className={`px-4 py-3 transition-colors duration-200 cursor-pointer ${
@@ -169,7 +189,7 @@ export default function Navbar() {
                   ))}
                 </ul>
                 <div className="text-center text-sm p-3 text-blue-600 dark:text-blue-400 hover:underline cursor-pointer">
-                  Tüm Bildirimleri Gör
+                  See All Notifications
                 </div>
               </div>
             )}
@@ -199,6 +219,22 @@ export default function Navbar() {
                     {currentUser.roleName}
                   </p>
                 </div>
+              </div>
+
+              {/* Status Seçimi */}
+              <div className="p-4 border-b border-gray-200 dark:border-gray-600">
+                <label className="block text-xs text-gray-600 dark:text-gray-300 mb-1">
+                  Status
+                </label>
+                <select
+                  value={currentUser.statusName}
+                  onChange={(e) => handleStatusChange(e.target.value)}
+                  className="w-full bg-gray-100 dark:bg-gray-800 text-sm text-gray-800 dark:text-gray-200 p-2 rounded"
+                >
+                  <option value="Available">Available</option>
+                  <option value="Busy">Busy</option>
+                  <option value="OnLeave">On Leave</option>
+                </select>
               </div>
 
               {/* Menü Seçenekleri */}

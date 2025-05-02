@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
 using backend.Dtos.User;
@@ -17,28 +18,58 @@ namespace backend.Mappers
                 Id = user.Id,
                 Name = user.Name,
                 LastName = user.LastName,
+                GenderName = user.GenderName,
                 ProficiencyLevelName = user.ProficiencyLevelName,
                 RoleName = user.RoleName,
                 TaskRoleName = user.TaskRoleName,
                 StatusName = user.StatusName,
                 Company = user.Company,
-                Phone = user.Phone
+                Phone = user.Phone,
+                IsActive = user.IsActive
             };
         }
 
-        public static User ToUser(this CreateUserDto createUserDto)
+        public static User FromRegisterToModel(this RegisterUserDto registerUserDto)
+        {
+            return new User
+            {
+                Birth = registerUserDto.Birth,
+                Company = registerUserDto.Company,
+                Email = registerUserDto.Email,
+                GenderName = registerUserDto.GenderName,
+                Name = registerUserDto.Name,
+                LastName = registerUserDto.LastName,
+                Password = registerUserDto.Password,
+                Phone = registerUserDto.Phone,
+                IsActive = true,
+            };
+        }
+
+        public static UpdateUserDto FromModelToUpdateDto(this User user)
+        {
+            return new UpdateUserDto
+            {
+                Email = user.Email,
+                LastName = user.LastName,
+                Name = user.Name,
+                Password = user.Password,
+                ProficiencyLevelName = user.ProficiencyLevelName,
+                RoleName = user.RoleName,
+                StatusName = user.StatusName,
+                TaskRoleName = user.TaskRoleName,
+                IsActive = user.IsActive
+            };
+        }
+
+        public static User FromCreateToModel(this CreateUserDto createUserDto)
         {
             return new User
             {
                 Email = createUserDto.Email,
-                Name = createUserDto.Name,
-                LastName = createUserDto.LastName,
-                Password = createUserDto.Password,
-                ProficiencyLevel = createUserDto.ProficiencyLevel,
-                Role = createUserDto.Role,
-                Status = createUserDto.Status,
-                Company = createUserDto.Company,
-                Phone = createUserDto.Phone
+                ProficiencyLevelName = string.IsNullOrWhiteSpace(createUserDto.ProficiencyLevelName) ? null : createUserDto.ProficiencyLevelName,
+                RoleName = string.IsNullOrWhiteSpace(createUserDto.RoleName) ? null : createUserDto.RoleName,
+                StatusName = string.IsNullOrWhiteSpace(createUserDto.StatusName) ? null : createUserDto.StatusName,
+                IsActive = false
             };
         }
 
@@ -68,8 +99,25 @@ namespace backend.Mappers
             if (!string.IsNullOrWhiteSpace(updateUserDto.StatusName))
                 userData.StatusName = updateUserDto.StatusName;
 
+            if (!string.IsNullOrWhiteSpace(updateUserDto.Phone))
+                userData.Phone = updateUserDto.Phone;
+
+            if (!string.IsNullOrWhiteSpace(updateUserDto.GenderName))
+                userData.GenderName = updateUserDto.GenderName;
+
+            if (!string.IsNullOrWhiteSpace(updateUserDto.Company))
+                userData.Company = updateUserDto.Company;
+
+            if (updateUserDto.Birth.HasValue)
+            {
+                userData.Birth = updateUserDto.Birth.Value;
+            }
+
+            userData.IsActive = updateUserDto.IsActive;
+
             return userData;
         }
+
 
     }
 }
