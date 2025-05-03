@@ -84,7 +84,7 @@ export default function CustomerDashboard() {
 
           {showChat && (
             <ClientChatModal onClose={() => setShowChat(false)}>
-              <ClientChatComponent {...{ customer: projectData.customer }} />
+              <ClientChatComponent {...{ target: projectData.manager }} />
             </ClientChatModal>
           )}
 

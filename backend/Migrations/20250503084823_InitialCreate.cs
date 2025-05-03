@@ -370,9 +370,11 @@ namespace backend.Migrations
                 column: "UserId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_ChatSessions_User1Id",
+                name: "IX_ChatSessions_User1Id_User2Id",
                 table: "ChatSessions",
-                column: "User1Id");
+                columns: new[] { "User1Id", "User2Id" },
+                unique: true,
+                filter: "EndedAt IS NULL");
 
             migrationBuilder.CreateIndex(
                 name: "IX_ChatSessions_User2Id",

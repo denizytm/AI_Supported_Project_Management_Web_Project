@@ -6,6 +6,8 @@ import { UserType } from "@/types/userType";
 import axios from "axios";
 import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
+import ClientChatModal from "./chat/ClientChatModal";
+import ClientChatComponent from "./chat/ClientChatComponent";
 
 interface ProjectTeamListProps {
   projectData: ProjectType;
@@ -22,6 +24,9 @@ export default function ProjectTeamList({
   const [selectedRemoveUserIds, setSelectedRemoveUserIds] = useState<number[]>(
     []
   );
+
+  const [showChat, setShowChat] = useState(false);
+  const [targetUser, setTargetUser] = useState<UserType | null>(null);
 
   const currentUser = useSelector((state: RootState) => state.currentUser.user);
 
@@ -76,7 +81,7 @@ export default function ProjectTeamList({
       console.error("Hata oluştu:", error);
     }
   };
-
+  if (!currentUser) return <>Loading...</>;
   return (
     <div className="bg-white dark:bg-gray-800 p-4 shadow-md rounded-md h-96 overflow-y-scroll relative">
       {/* Title + Manage Button */}
@@ -84,8 +89,8 @@ export default function ProjectTeamList({
         <h3 className="font-bold text-gray-700 dark:text-white">
           Project Team
         </h3>
-        {(currentUser?.roleName == "Admin" ||
-          currentUser?.roleName == "ItManager") && (
+        {(currentUser.roleName == "Admin" ||
+          currentUser.roleName == "ProjectManager") && (
           <button
             className="bg-blue-500 hover:bg-blue-600 text-white text-xs font-semibold px-3 py-1 rounded"
             onClick={() => setShowManageModal(true)}
@@ -102,6 +107,7 @@ export default function ProjectTeamList({
             <th className="p-2">Name</th>
             <th className="p-2">Role</th>
             <th className="p-2">Proficiency</th>
+            <th className="p-2">Action</th>
           </tr>
         </thead>
         <tbody>
@@ -111,6 +117,17 @@ export default function ProjectTeamList({
             </td>
             <td className="p-2">Project Manager</td>
             <td className="p-2"></td>
+            <td className="p-2">
+              <button
+                className="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded text-xs"
+                onClick={() => {
+                  setTargetUser(projectData?.manager);
+                  setShowChat(true);
+                }}
+              >
+                💬 Message
+              </button>
+            </td>
           </tr>
           {usersData.map((user: any, index: number) => (
             <tr key={index} className="border-b">
@@ -119,10 +136,29 @@ export default function ProjectTeamList({
               </td>
               <td className="p-2">{user.taskRoleName}</td>
               <td className="p-2">{user.proficiencyLevelName}</td>
+              <td className="p-2">
+                {currentUser.id != user.id && (
+                  <button
+                    className="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded text-xs"
+                    onClick={() => {
+                      setTargetUser(user);
+                      setShowChat(true);
+                    }}
+                  >
+                    💬 Message
+                  </button>
+                )}
+              </td>
             </tr>
           ))}
         </tbody>
       </table>
+
+      {showChat && targetUser && (
+        <ClientChatModal onClose={() => setShowChat(false)}>
+          <ClientChatComponent target={targetUser} />
+        </ClientChatModal>
+      )}
 
       {/* Manage Modal */}
       {showManageModal && (

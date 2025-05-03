@@ -86,6 +86,7 @@ export default function TaskManagement({ id, text }: TaskManagementProps) {
   const [maxDueDate, setMaxDueDate] = useState("");
 
   const [showChat, setShowChat] = useState(false);
+  const [showChat2, setShowChat2] = useState(false);
 
   const [ready1, setReady1] = useState(false);
 
@@ -222,10 +223,6 @@ export default function TaskManagement({ id, text }: TaskManagementProps) {
     }
   };
 
-  const handleMessagePM = (task: TaskType) => {
-    alert(`Message to PM about task: ${task.taskLabel}`);
-  };
-
   const handleSave = async () => {
     if (!selectedRequest) return;
 
@@ -325,23 +322,23 @@ export default function TaskManagement({ id, text }: TaskManagementProps) {
             </div>
 
             <div className="w-1/3 flex justify-end gap-3">
-              {currentUser.roleName == "Admin" ||
-                (currentUser.roleName == "ProjectManager" && (
-                  <>
-                    <button
-                      onClick={() => setShowChat(true)}
-                      className="bg-blue-600 hover:bg-blue-500 text-white p-4 rounded shadow"
-                    >
-                      💬 Chat With Client
-                    </button>
-                    <button
-                      className="bg-blue-600 hover:bg-blue-500 text-white p-4 rounded shadow"
-                      onClick={() => handleAutoAssign()}
-                    >
-                      🤖 Auto Assign Tasks
-                    </button>
-                  </>
-                ))}
+              {(currentUser.roleName == "Admin" ||
+                currentUser.roleName == "ProjectManager") && (
+                <>
+                  <button
+                    onClick={() => setShowChat(true)}
+                    className="bg-blue-600 hover:bg-blue-500 text-white p-4 rounded shadow"
+                  >
+                    💬 Chat With Client
+                  </button>
+                  <button
+                    className="bg-blue-600 hover:bg-blue-500 text-white p-4 rounded shadow"
+                    onClick={() => handleAutoAssign()}
+                  >
+                    🤖 Auto Assign Tasks
+                  </button>
+                </>
+              )}
             </div>
           </div>
 
@@ -366,7 +363,13 @@ export default function TaskManagement({ id, text }: TaskManagementProps) {
 
       {showChat && (
         <ClientChatModal onClose={() => setShowChat(false)}>
-          <ClientChatComponent {...{ customer: projectData.customer }} />
+          <ClientChatComponent {...{ target: projectData.customer }} />
+        </ClientChatModal>
+      )}
+
+      {currentUser.roleName == "Developer" && showChat2 && (
+        <ClientChatModal onClose={() => setShowChat2(false)}>
+          <ClientChatComponent {...{ target: projectData.manager }} />
         </ClientChatModal>
       )}
 
@@ -432,7 +435,7 @@ export default function TaskManagement({ id, text }: TaskManagementProps) {
                         ✅ {isDone ? "Completed" : "Done"}
                       </button>
                       <button
-                        onClick={() => handleMessagePM(task)}
+                        onClick={() => setShowChat2(true)}
                         className="bg-blue-600 hover:bg-blue-500 text-white px-3 py-1 rounded text-sm"
                       >
                         💬 Message PM

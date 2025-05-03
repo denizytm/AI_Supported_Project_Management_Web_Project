@@ -7,7 +7,6 @@ import { RootState } from "@/redux/store";
 import axios from "axios";
 import { getUserById } from "@/hooks/getUserById";
 import { UserType } from "@/types/userType";
-import { useRouter } from "next/navigation";
 import { useSignalR } from "@/context/SignalRContext";
 
 // User interface
@@ -28,11 +27,11 @@ interface Message {
 }
 
 interface ClientChatComponentProps {
-  customer: UserType;
+  target: UserType;
 }
 
 export default function ClientChatComponent({
-  customer,
+  target,
 }: ClientChatComponentProps) {
   const connectionRef = useRef<signalR.HubConnection | null>(null);
 
@@ -52,7 +51,7 @@ export default function ClientChatComponent({
     1: [],
   });
 
-  const [isProcessing, setIsProcessing] = useState(false);
+  const [sessionCheckDone, setSessionCheckDone] = useState(false);
 
   const { connection } = useSignalR();
 
@@ -99,47 +98,40 @@ export default function ClientChatComponent({
           setUsers(extractedUsers);
         }
       } catch (err) {
-        console.error("Mesajlar veya kullanıcılar alınamadı:", err);
+        console.error("Messages or Users couldn't found :", err);
       }
     }
   };
 
   useEffect(() => {
-    if (!currentUser || !customer || isProcessing) return;
+    if (!currentUser || !target || sessionCheckDone) return;
 
-    if (currentUser.roleName !== "Admin") {
-      (async () => {
-        await handleSessions();
-      })();
-    } else {
-      setIsProcessing(true);
+    (async () => {
+      try {
+        const response = await axios.get(
+          `http://localhost:5110/api/chat/session/get-session?user1Id=${currentUser.id}&user2Id=${target.id}`
+        );
 
-      (async () => {
-        try {
-          const response = await axios.get(
-            `http://localhost:5110/api/chat/session/get-session?user1Id=${currentUser.id}&user2Id=${customer.id}`
+        if (response.data?.result === false) {
+          await axios.post(
+            `http://localhost:5110/api/chat/session/create-session?user1Id=${currentUser.id}&user2Id=${target.id}`
           );
-
-          if (response.status && response.data.result === false) {
-            await axios.post(
-              `http://localhost:5110/api/chat/session/create-session?user1Id=${currentUser.id}&user2Id=${customer.id}`
-            );
-          }
-
-          await handleSessions();
-        } finally {
-          setIsProcessing(false);
         }
-      })();
-    }
-  }, [currentUser, customer]);
+
+        setSessionCheckDone(true);
+        await handleSessions();
+      } catch (err) {
+        console.error("Error during session check or creation:", err);
+      }
+    })();
+  }, [currentUser, target, sessionCheckDone]);
 
   useEffect(() => {
-    if (users && users.length && customer) {
-      const foundUser = users.find((user) => user.id == customer.id);
+    if (users && users.length && target) {
+      const foundUser = users.find((user) => user.id == target.id);
       setActiveUser(foundUser || null);
     }
-  }, [users, customer]);
+  }, [users, target]);
 
   useEffect(() => {
     if (!connection || !currentUser) return;
@@ -377,7 +369,7 @@ export default function ClientChatComponent({
             className="w-24 h-24 rounded-full shadow-lg mb-4 border-4 border-green-500"
           />
           <h3 className="text-lg font-bold text-white">
-            {customer.name} {customer.lastName}
+            {target.name} {target.lastName}
           </h3>
           <p className="text-green-400 text-sm mb-2">Client</p>
 
@@ -390,14 +382,14 @@ export default function ClientChatComponent({
               <h4 className="text-xs font-bold text-green-400 uppercase mb-1">
                 Phone
               </h4>
-              <p>{customer.phone}</p>
+              <p>{target.phone}</p>
             </div>
 
             <div>
               <h4 className="text-xs font-bold text-green-400 uppercase mb-1">
                 Email
               </h4>
-              <p className="break-all">{customer.email}</p>
+              <p className="break-all">{target.email}</p>
             </div>
           </div>
         </div>

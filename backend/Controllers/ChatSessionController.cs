@@ -23,7 +23,7 @@ namespace backend.Controllers
                 .Include(cS => cS.Messages)
                 .FirstOrDefaultAsync(s =>
                     (s.User1Id == user1Id && s.User2Id == user2Id || s.User1Id == user2Id && s.User2Id == user1Id)
-                    && s.EndedAt == null 
+                    && s.EndedAt == null
                 );
 
             if (session == null)
@@ -31,7 +31,8 @@ namespace backend.Controllers
                 return Ok(new { result = false });
             }
 
-            return Ok(new {
+            return Ok(new
+            {
                 result = true,
                 session
             });
@@ -45,13 +46,13 @@ namespace backend.Controllers
                 var existingSession = await _context.ChatSessions
                     .FirstOrDefaultAsync(s =>
                         (s.User1Id == user1Id && s.User2Id == user2Id || s.User1Id == user2Id && s.User2Id == user1Id)
-                        && s.EndedAt == null
-                    );
+                        && s.EndedAt == null);
 
                 if (existingSession != null)
                 {
                     return BadRequest(new { message = "An active chat session already exists between these users." });
                 }
+
 
                 var newSession = new ChatSession
                 {

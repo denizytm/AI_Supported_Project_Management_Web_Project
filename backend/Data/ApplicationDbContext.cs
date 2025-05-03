@@ -29,7 +29,6 @@ namespace backend.Data
                 .HasForeignKey(p => p.CustomerId)
                 .OnDelete(DeleteBehavior.Restrict);
 
-
             modelBuilder.Entity<User>()
                 .HasOne(u => u.Manager)
                 .WithMany()
@@ -65,6 +64,12 @@ namespace backend.Data
                 .WithMany()
                 .HasForeignKey(cs => cs.User2Id)
                 .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<ChatSession>()
+            .HasIndex(c => new { c.User1Id, c.User2Id })
+            .IsUnique()
+            .HasFilter("EndedAt IS NULL");
+
 
         }
 

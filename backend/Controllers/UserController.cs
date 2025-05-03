@@ -266,8 +266,9 @@ namespace backend.Controllers
         [HttpPost("create")]
         public async Task<IActionResult> CreateUser([FromBody] CreateUserDto createUserDto)
         {
-            var user = createUserDto.FromCreateToModel();
 
+            var user = createUserDto.FromCreateToModel();
+            
             _context.Users.Add(user);
             await _context.SaveChangesAsync();
 

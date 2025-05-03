@@ -44,9 +44,11 @@ namespace backend.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("User1Id");
-
                     b.HasIndex("User2Id");
+
+                    b.HasIndex("User1Id", "User2Id")
+                        .IsUnique()
+                        .HasFilter("EndedAt IS NULL");
 
                     b.ToTable("ChatSessions");
                 });
