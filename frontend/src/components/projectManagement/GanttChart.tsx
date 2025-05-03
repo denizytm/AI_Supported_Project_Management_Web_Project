@@ -44,11 +44,12 @@ export default function GanttChart({
               LabelName: task.taskLabel.label,
               StartDate: new Date(task.startDateString),
               EndDate: new Date(task.dueDateString),
-              Progress: task.progress,
+              Progress: task.statusName == "Done" ? 100 : 0,
               Priority: task.priorityName,
               Assigned: task.assignedUser
                 ? `${task.assignedUser.name} ${task.assignedUser.lastName}`
                 : "None",
+              Proficiency : task.assignedUser?.proficiencyLevelName,
               Status: task.statusName,
               Predecessor: task?.taskId?.toString() || "",
               TaskLevel: task.taskLevelName,
@@ -75,6 +76,7 @@ export default function GanttChart({
     child: "subtasks",
     priority: "Priority",
     assigned: "Assigned",
+    proficiency: "Proficiency",
     dependency: "Predecessor",
     taskLevel: "TaskLevel",
   };
@@ -107,6 +109,7 @@ export default function GanttChart({
 
     const taskLevelCell = cells[3];
     const priorityCell = cells[4]; 
+    const proficiencyCell = cells[6]; 
 
     if (data.TaskLevel === "Beginner") {
       taskLevelCell.style.color = "#22c55e"; 
@@ -116,7 +119,6 @@ export default function GanttChart({
       taskLevelCell.style.color = "#ef4444";
     }
 
-    // Priority Renkleri
     if (data.Priority === "Low") {
       priorityCell.style.color = "#22c55e"; 
     } else if (data.Priority === "Medium") {
@@ -124,6 +126,15 @@ export default function GanttChart({
     } else if (data.Priority === "High" || data.Priority === "Critical") {
       priorityCell.style.color = "#ef4444"; 
     }
+
+    if (data.Proficiency === "Junior") {
+      proficiencyCell.style.color = "#22c55e"; 
+    } else if (data.TaskLevel === "Mid") {
+      proficiencyCell.style.color = "#eab308"; 
+    } else if (data.TaskLevel === "Senior") {
+      proficiencyCell.style.color = "#ef4444";
+    }
+
   };
 
   const handleRowSelect = (args: any) => {
@@ -177,6 +188,7 @@ export default function GanttChart({
               width="120"
             ></ColumnDirective>
             <ColumnDirective field="Assigned"></ColumnDirective>
+            <ColumnDirective field="Proficiency"></ColumnDirective>
             <ColumnDirective field="Status"></ColumnDirective>
             <ColumnDirective field="Progress"></ColumnDirective>
             <ColumnDirective field="Duration"></ColumnDirective>

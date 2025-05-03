@@ -391,7 +391,7 @@ export default function TaskManagement({ id, text }: TaskManagementProps) {
             {projectData.manager.lastName}
           </p>
           <p className="text-gray-500 dark:text-gray-300">
-            <strong>Completion:</strong> {projectData.progress}
+            <strong>Progress:</strong> {projectData.progress}%
           </p>
         </div>
 

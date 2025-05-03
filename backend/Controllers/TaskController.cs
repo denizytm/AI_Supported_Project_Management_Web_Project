@@ -144,7 +144,6 @@ namespace backend.Controllers
         {
             try
             {
-
                 var taskTypeData = await _context.TaskTypes
                     .FirstOrDefaultAsync(tt => tt.Name == createTaskDto.TaskTypeName);
 
@@ -173,16 +172,30 @@ namespace backend.Controllers
                 var taskData = createTaskDto.fromCreateDtoToTask(taskTypeData, taskLabelData);
 
                 var result = await _context.Tasks.AddAsync(taskData);
+                await _context.SaveChangesAsync();
 
-                if (result.Entity != null)
+                var projectId = taskData.ProjectId;
+
+                var projectTasks = await _context.Tasks
+                    .Where(t => t.ProjectId == projectId)
+                    .ToListAsync();
+
+                var total = projectTasks.Count;
+                var doneCount = projectTasks.Count(t => t.StatusName == "Done");
+                var progress = total > 0 ? (int)Math.Round((double)(doneCount * 100) / total) : 0;
+
+                var project = await _context.Projects.FindAsync(projectId);
+                if (project != null)
                 {
+                    project.Progress = progress;
                     await _context.SaveChangesAsync();
-                    return Ok(new
-                    {
-                        message = "Task has been created."
-                    });
                 }
-                return BadRequest();
+
+
+                return Ok(new
+                {
+                    message = "Task has been created."
+                });
             }
             catch (Exception ex)
             {
@@ -192,6 +205,7 @@ namespace backend.Controllers
                 });
             }
         }
+
 
         [HttpPut("update")]
         public async Task<IActionResult> UpdateTask(UpdateTaskDto updateTaskDto, int id)
@@ -224,11 +238,27 @@ namespace backend.Controllers
                     await _context.SaveChangesAsync();
                 }
 
-                
-
                 await _context.SaveChangesAsync();
 
                 await _taskRepository.UpdateAsync(id, updateTaskDto, taskLabelData, taskTypeData);
+
+
+                var projectTasks = await _context.Tasks
+                    .Where(t => t.ProjectId == task.ProjectId)
+                    .ToListAsync();
+
+                var total = projectTasks.Count;
+                var doneCount = projectTasks.Count(t => t.Status == TaskStatus.Done);
+
+                var progress = total > 0 ? (int)Math.Round((double)(doneCount * 100) / total) : 0;
+
+                var project = await _context.Projects.FindAsync(task.ProjectId);
+                if (project != null)
+                {
+                    project.Progress = progress;
+                    await _context.SaveChangesAsync();
+                }
+
 
                 return Ok("The task has been updated");
             }
@@ -241,6 +271,7 @@ namespace backend.Controllers
             }
         }
 
+
         [HttpDelete("delete")]
         public async Task<IActionResult> DeleteTask(int id)
         {
@@ -252,7 +283,11 @@ namespace backend.Controllers
                     return BadRequest(new { message = $"No task found with the id value : {id}" });
                 }
 
-                var dependedTasks = await _context.Tasks.Where(task => task.TaskId == id).ToListAsync();
+                int? projectId = task.ProjectId;
+
+                var dependedTasks = await _context.Tasks
+                    .Where(t => t.TaskId == id)
+                    .ToListAsync();
 
                 foreach (var taskData in dependedTasks)
                 {
@@ -261,6 +296,24 @@ namespace backend.Controllers
 
                 _context.Tasks.Remove(task);
                 await _context.SaveChangesAsync();
+
+                if (projectId.HasValue)
+                {
+                    var projectTasks = await _context.Tasks
+                        .Where(t => t.ProjectId == projectId)
+                        .ToListAsync();
+
+                    var total = projectTasks.Count;
+                    var doneCount = projectTasks.Count(t => t.Status == TaskStatus.Done);
+                    var progress = total > 0 ? (int)Math.Round((double)(doneCount * 100) / total) : 0;
+
+                    var project = await _context.Projects.FindAsync(projectId.Value);
+                    if (project != null)
+                    {
+                        project.Progress = progress;
+                        await _context.SaveChangesAsync();
+                    }
+                }
 
                 return Ok(new
                 {
@@ -275,5 +328,6 @@ namespace backend.Controllers
                 });
             }
         }
+
     }
 }

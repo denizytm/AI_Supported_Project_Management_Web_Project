@@ -203,51 +203,62 @@ namespace backend.Data
                 var users = context.Users.ToList();
                 var taskFaker = new Faker<backend.Models.Task>()
                     .RuleFor(t => t.Description, f => f.Lorem.Sentence())
-                    .RuleFor(t => t.TaskTypeId, f => f.Random.Int(1, context.TaskTypes.ToList().Count))
+                    .RuleFor(t => t.TaskTypeId, f => f.Random.Int(1, context.TaskTypes.Count()))
                     .RuleFor(t => t.StartDate, f => f.Date.Between(new DateTime(2025, 1, 1), new DateTime(2025, 12, 31)))
                     .RuleFor(t => t.DueDate, (f, t) => f.Date.Between(t.StartDate.AddDays(1), t.StartDate.AddDays(30)))
                     .RuleFor(t => t.TaskLevel, f => f.PickRandom<TaskLevel>())
                     .RuleFor(t => t.Priority, f => f.PickRandom<Priority>())
-                    .RuleFor(t => t.Status, f => f.PickRandom<TaskStatus>())
-                    .RuleFor(t => t.ProjectId, f => f.Random.Int(1, context.Projects.ToList().Count))
-                    .RuleFor(t => t.TaskLabelId, f => f.Random.Int(1, context.TaskLabels.ToList().Count))
+                    .RuleFor(t => t.ProjectId, f => f.Random.Int(1, context.Projects.Count()))
+                    .RuleFor(t => t.TaskLabelId, f => f.Random.Int(1, context.TaskLabels.Count()))
                     .RuleFor(t => t.UserId, (f, t) =>
+                        {
+                            List<int> userIds;
+
+                            if (t.TaskLevelName == "Beginner")
+                            {
+                                userIds = context.UserProjects
+                                    .Where(up => up.ProjectId == t.ProjectId)
+                                    .Select(up => up.UserId)
+                                    .ToList();
+                            }
+                            else if (t.TaskLevelName == "Intermediate")
+                            {
+                                userIds = context.UserProjects
+                                    .Where(up => up.ProjectId == t.ProjectId)
+                                    .Include(up => up.User)
+                                    .Where(up => up.User.ProficiencyLevel != ProficiencyLevel.Junior)
+                                    .Select(up => up.UserId)
+                                    .ToList();
+                            }
+                            else
+                            {
+                                userIds = context.UserProjects
+                                    .Where(up => up.ProjectId == t.ProjectId)
+                                    .Include(up => up.User)
+                                    .Where(up => up.User.ProficiencyLevel == ProficiencyLevel.Senior)
+                                    .Select(up => up.UserId)
+                                    .ToList();
+                            }
+
+                            return userIds.Any()
+                                ? (f.Random.Double() < 0.35 ? null : f.PickRandom(userIds))
+                                : null;
+
+                        })
+                    .RuleFor(t => t.Status, (f, t) =>
                     {
-                        if (t.TaskLevelName == "Beginner")
+                        if (t.UserId.HasValue)
                         {
-                            var userIds = context.UserProjects
-                                .Where(up => up.ProjectId == t.ProjectId)
-                                .Select(up => up.UserId)
-                                .ToList();
-
-                            return userIds.Any() ? f.PickRandom(userIds) : 1;
-                        }
-                        else if (t.TaskLevelName == "Intermediate")
-                        {
-                            var userIds = context.UserProjects
-                                .Where(up => up.ProjectId == t.ProjectId)
-                                .Include(up => up.User)
-                                .Where(up => up.User.ProficiencyLevel != ProficiencyLevel.Junior)
-                                .Select(up => up.UserId)
-                                .ToList();
-
-                            return userIds.Any() ? f.PickRandom(userIds) : 1;
+                            return f.Random.Double() < 0.3 ? TaskStatus.Done : TaskStatus.InProgress;
                         }
                         else
                         {
-                            var userIds = context.UserProjects
-                                .Where(up => up.ProjectId == t.ProjectId)
-                                .Include(up => up.User)
-                                .Where(up => up.User.ProficiencyLevel == ProficiencyLevel.Senior)
-                                .Select(up => up.UserId)
-                                .ToList();
-
-                            return userIds.Any() ? f.PickRandom(userIds) : 1;
+                            return TaskStatus.ToDo;
                         }
                     });
 
 
-                var tasks = taskFaker.Generate(150);
+                var tasks = taskFaker.Generate(100);
                 context.Tasks.AddRange(tasks);
                 context.SaveChanges();
 

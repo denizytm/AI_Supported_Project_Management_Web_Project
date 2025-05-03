@@ -18,6 +18,6 @@ namespace backend.Dtos.Task
         public string Note { get; set; } = String.Empty;
         public int ProjectId { get; set; }
         public int? TaskId { get; set; }
-        public int UserId { get; set; }
+        public int? UserId { get; set; }
     }
 }
