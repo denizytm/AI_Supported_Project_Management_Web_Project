@@ -151,7 +151,7 @@ export default function TaskManagement({ id, text }: TaskManagementProps) {
         "http://localhost:5110/api/chatbot/confirm-assignments",
         finalAssignments
       );
-      alert("Tasks successfully assigned");
+      window.location.reload();
       setShowAssignmentModal(false);
     } catch (err) {
       console.error(err);

@@ -91,7 +91,7 @@ const AssignmentPreviewModal: React.FC<AssignmentPreviewModalProps> = ({
                       {assignment.taskLevel == "Expert"
                         ? users
                             .filter(
-                              (user) => user.statusName == "Available" && (user.proficiencyLevelName == "Expert")
+                              (user) => user.statusName == "Available" && (user.proficiencyLevelName == "Senior")
                             )
                             .map((user) => (
                               <option key={user.id} value={user.id}>
@@ -101,7 +101,7 @@ const AssignmentPreviewModal: React.FC<AssignmentPreviewModalProps> = ({
                         : assignment.taskLevel == "Intermediate"
                         ? users
                             .filter(
-                              (user) =>  user.statusName == "Available" &&  (user.proficiencyLevelName != "Beginner")
+                              (user) =>  user.statusName == "Available" &&  (user.proficiencyLevelName != "Junior")
                             )
                             .map((user) => (
                               <option key={user.id} value={user.id}>

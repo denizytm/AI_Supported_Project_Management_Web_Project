@@ -102,6 +102,7 @@ namespace backend.Controllers
                 .Where(t => t.ProjectId == ProjectId)
                 .Where(t => t.Status == TaskStatus.ToDo)
                 .Include(t => t.TaskType)
+                .Include(t => t.TaskLabel)
                 .ToListAsync();
 
             var availableUsers = await _context.UserProjects
@@ -110,12 +111,6 @@ namespace backend.Controllers
                 .Include(uP => uP.User)
                 .Select(uP => uP.User)
                 .ToListAsync();
-
-            /* var assignedUsers = await _context.Tasks
-                .Where(t => t.ProjectId == ProjectId)
-                .Include(t => t.AssignedUser)
-                .ToListAsync();
-            */
 
             if (!unassignedTasks.Any() || !availableUsers.Any())
             {
@@ -127,68 +122,66 @@ namespace backend.Controllers
                 .Select((task, index) => new { task, index })
                 .GroupBy(x => x.index / batchSize)
                 .Select(g => g.Select(x => x.task).ToList())
+                .Take(3)
                 .ToList();
 
             List<object> allAssignments = new List<object>();
-
-            List<String> responseList = new List<string>();
+            List<string> responseList = new List<string>();
 
             foreach (var batch in taskBatches)
             {
-
                 string pastAssignments = string.Join(",\n", allAssignments.Select(a =>
-                $"{{ \"UserId\": {a.GetType().GetProperty("UserId")?.GetValue(a)}, \"TaskId\": {a.GetType().GetProperty("TaskId")?.GetValue(a)} }}"));
+                    $"{{ \"UserId\": {a.GetType().GetProperty("UserId")?.GetValue(a)}, \"TaskId\": {a.GetType().GetProperty("TaskId")?.GetValue(a)} }}"));
 
                 string prompt = $@"
-                    You are an AI assistant that assigns tasks to the most suitable users.
+            You are an AI assistant that assigns tasks to the most suitable users.
 
-                    Objective: Assign tasks to users with the right skills and within allowed limits.
+            Objective: Assign tasks to users based on skills, time, and allowed capacity.
 
-                    Previous Assignments:
-                    [
-                        {pastAssignments}
+            Previous Assignments:
+            [
+                {pastAssignments}
+            ]
+
+            Tasks to Assign:
+            {string.Join("\n", batch.Select(t => $@"
+            - Task ID: {t.Id}
+              Description: {t.Description}
+              Level: {t.TaskLevel} (0 = Beginner, 1 = Intermediate, 2 = Expert)
+              Priority: {t.Priority}
+              Label: {t.TaskLabel.Label}
+              Start: {t.StartDate}
+              Due: {t.DueDate}
+            "))}
+
+            Available Users:
+            {string.Join("\n", availableUsers.Select(u => $@"
+            - User ID: {u.Id}
+              Name: {u.Name} {u.LastName}
+              ProficiencyLevel: {u.ProficiencyLevel} (0 = Beginner, 1 = Intermediate, 2 = Expert)
+              TaskRole: {u.TaskRole}
+            "))}
+
+            **Assignment Rules (strictly enforce all):**
+            1. A user's `ProficiencyLevel` must be **equal to or greater** than the task's `TaskLevel`.
+            2. A user can only be assigned tasks that match their `TaskRole` and the task's `Label`.
+            3. Assigned tasks for the same user **must not overlap** in date ranges.
+            4. Task limits per user:
+               - Beginner → max 1 task
+               - Intermediate → max 2 tasks
+               - Expert → max 3 tasks
+            5. If a task cannot be assigned, use: `AssignedUserId = 0`.
+
+            **Output must be valid JSON. No extra text or explanation. Example:**
+             [
+                      {{ ""TaskId"": 101, ""AssignedUserId"": 55 }},
+                      {{ ""TaskId"": 102, ""AssignedUserId"": 0 }}
                     ]
-
-                    Tasks to Assign:
-                    {string.Join("\n", batch.Select(t => $@"
-                    - Task ID: {t.Id}
-                      Description: {t.Description}
-                      Level: {t.TaskLevel}
-                      Priority: {t.Priority}
-                      Role: {t.TaskType.Name}
-                      Start: {t.StartDate}
-                      Due: {t.DueDate}
-                    "))}
-
-                    Available Users:
-                    {string.Join("\n", availableUsers.Select(u => $@"
-                    - User ID: {u.Id}
-                      Name: {u.Name} {u.LastName}
-                      Proficiency Level: {u.ProficiencyLevel} (0 = Beginner, 1 = Intermediate, 2 = Expert)
-                      Role: {u.TaskRole}
-                    "))}
-
-                    **Assignment Rules (You must follow all of these strictly):**
-                    1. A user's `ProficiencyLevel` must be **equal to or greater** than the task's `TaskLevel`.
-                    2. Assigned tasks for the same user **must not overlap** in date ranges.
-                    3. **Task limits based on proficiency:**
-                       - Beginner (0) → **max 1** task
-                       - Intermediate (1) → **max 2** tasks
-                       - Expert (2) → **max 3** tasks
-                    4. If you can't assign a task, set `AssignedUserId` to `0`.
-
-                    Example Output (strict JSON, no comments, no extra text):
-                        [
-                          {{ ""TaskId"": 32, ""AssignedUserId"": 67 }},
-                          {{ ""TaskId"": 85, ""AssignedUserId"": 0 }}
-                        ]
-                ";
+        ";
 
                 var response = await chatService.GetChatMessageContentAsync(prompt);
                 string aiResponse = response?.ToString() ?? "";
-
                 aiResponse = aiResponse.Replace("```json", "").Replace("```", "").Trim();
-
                 responseList.Add(aiResponse.Replace("\n", "").Replace("\t", ""));
 
                 List<TaskAssignment>? assignments;
@@ -207,7 +200,59 @@ namespace backend.Controllers
                 }
 
                 var validUserIds = availableUsers.Select(u => u.Id).ToHashSet();
-                var validAssignments = assignments.Where(a => validUserIds.Contains(a.AssignedUserId)).ToList();
+                var userMap = availableUsers.ToDictionary(u => u.Id, u => u);
+
+                var preValidAssignments = assignments
+                    .Where(a => a.AssignedUserId != 0 && validUserIds.Contains(a.AssignedUserId))
+                    .Where(a =>
+                    {
+                        var task = batch.FirstOrDefault(t => t.Id == a.TaskId);
+                        var user = userMap[a.AssignedUserId];
+
+                        if (task == null || user == null)
+                            return false;
+
+                        if (task.TaskLabel.Label != user.TaskRole.ToString())
+                            return false;
+
+                        if ((int?)user.ProficiencyLevel < (int)task.TaskLevel)
+                            return false;
+
+                        return true;
+                    })
+                    .ToList();
+
+                var validAssignments = new List<TaskAssignment>();
+                var grouped = preValidAssignments.GroupBy(a => a.AssignedUserId);
+
+                foreach (var group in grouped)
+                {
+                    var user = userMap[group.Key];
+                    int limit = user.ProficiencyLevel switch
+                    {
+                        ProficiencyLevel.Junior => 1,
+                        ProficiencyLevel.Mid => 2,
+                        ProficiencyLevel.Senior => 3,
+                        _ => 1
+                    };
+
+                    var userAssignedTasks = new List<Models.Task>();
+
+                    foreach (var assignment in group)
+                    {
+                        var task = batch.FirstOrDefault(t => t.Id == assignment.TaskId);
+                        if (task == null) continue;
+
+                        bool overlaps = userAssignedTasks.Any(existing =>
+                            task.StartDate <= existing.DueDate && task.DueDate >= existing.StartDate);
+
+                        if (!overlaps && userAssignedTasks.Count < limit)
+                        {
+                            validAssignments.Add(assignment);
+                            userAssignedTasks.Add(task);
+                        }
+                    }
+                }
 
                 foreach (var assignment in validAssignments)
                 {

@@ -11,22 +11,22 @@ namespace backend.Data
             if (!context.Users.Any())
             {
                 var faker = new Faker<User>()
-                    .RuleFor(u => u.Name, f => f.Name.FirstName())
-                    .RuleFor(u => u.LastName, f => f.Name.LastName())
-                    .RuleFor(u => u.Email, f => f.Internet.Email())
-                    .RuleFor(u => u.Password, f => f.Internet.Password(10))
-                    .RuleFor(u => u.Birth, f => f.Date.Between(new DateTime(1970, 1, 1), new DateTime(2003, 12, 31)))
-                    .RuleFor(u => u.Gender, f => f.PickRandom<Gender>())
-                    .RuleFor(u => u.Phone, f => f.Phone.PhoneNumber("5##-###-####"))
-                    .RuleFor(u => u.Role, f => f.PickRandom<Role>())
-                    .RuleFor(u => u.Company, f => f.Company.CompanyName())
-                    .RuleFor(u => u.ProficiencyLevel, f => f.PickRandom<ProficiencyLevel>())
-                    .RuleFor(u => u.Status, f => f.PickRandom<AvailabilityStatus>())
-                    .RuleFor(u => u.TaskRole, f => f.PickRandom<TaskRole>())
-                    .RuleFor(u => u.UserProjects, f => new List<UserProject>())
-                    .RuleFor(u => u.Tasks, f => new List<backend.Models.Task>())
-                    .RuleFor(u => u.IsActive, f => true)
-                    .RuleFor(u => u.ManagerId, f => null);
+                   .RuleFor(u => u.Name, f => f.Name.FirstName())
+                   .RuleFor(u => u.LastName, f => f.Name.LastName())
+                   .RuleFor(u => u.Email, f => f.Internet.Email())
+                   .RuleFor(u => u.Password, f => f.Internet.Password(10))
+                   .RuleFor(u => u.Birth, f => f.Date.Between(new DateTime(1970, 1, 1), new DateTime(2003, 12, 31)))
+                   .RuleFor(u => u.Gender, f => f.PickRandom<Gender>())
+                   .RuleFor(u => u.Phone, f => f.Phone.PhoneNumber("5##-###-####"))
+                   .RuleFor(u => u.Role, f => f.PickRandom<Role>())
+                   .RuleFor(u => u.Company, f => f.Company.CompanyName())
+                   .RuleFor(u => u.ProficiencyLevel, f => f.PickRandom<ProficiencyLevel>())
+                   .RuleFor(u => u.Status, f => AvailabilityStatus.Available)
+                   .RuleFor(u => u.TaskRole, f => f.PickRandom<TaskRole>())
+                   .RuleFor(u => u.UserProjects, f => new List<UserProject>())
+                   .RuleFor(u => u.Tasks, f => new List<backend.Models.Task>())
+                   .RuleFor(u => u.IsActive, f => true)
+                   .RuleFor(u => u.ManagerId, f => null);
 
                 var users = faker.Generate(100);
 
@@ -40,26 +40,40 @@ namespace backend.Data
                 }
 
                 context.Users.AddRange(users);
-                context.SaveChanges();
 
-                var allUsers = context.Users.ToList();
-                var itManagers = allUsers.Where(u => u.Role == Role.ProjectManager).ToList();
-                var developers = allUsers.Where(u => u.Role == Role.Developer).ToList();
-                var random = new Random();
+                faker = new Faker<User>()
+                    .RuleFor(u => u.Name, f => f.Name.FirstName())
+                    .RuleFor(u => u.LastName, f => f.Name.LastName())
+                    .RuleFor(u => u.Email, f => f.Internet.Email())
+                    .RuleFor(u => u.Password, f => f.Internet.Password(10))
+                    .RuleFor(u => u.Birth, f => f.Date.Between(new DateTime(1970, 1, 1), new DateTime(2003, 12, 31)))
+                    .RuleFor(u => u.Gender, f => f.PickRandom<Gender>())
+                    .RuleFor(u => u.Phone, f => f.Phone.PhoneNumber("5##-###-####"))
+                    .RuleFor(u => u.Role, f => Role.Developer)
+                    .RuleFor(u => u.Company, f => f.Company.CompanyName())
+                    .RuleFor(u => u.ProficiencyLevel, f => f.PickRandom<ProficiencyLevel>())
+                    .RuleFor(u => u.Status, f => AvailabilityStatus.Available)
+                    .RuleFor(u => u.TaskRole, f => f.PickRandom<TaskRole>())
+                    .RuleFor(u => u.UserProjects, f => new List<UserProject>())
+                    .RuleFor(u => u.Tasks, f => new List<backend.Models.Task>())
+                    .RuleFor(u => u.IsActive, f => true)
+                    .RuleFor(u => u.ManagerId, f => null);
 
-                foreach (var dev in developers)
+                users = faker.Generate(100);
+
+                foreach (var user in users)
                 {
-                    if (itManagers.Any())
+                    if (user.Role == Role.Admin || user.Role == Role.Client)
                     {
-                        var randomManager = itManagers[random.Next(itManagers.Count)];
-                        dev.ManagerId = randomManager.Id;
+                        user.TaskRole = default;
+                        user.ProficiencyLevel = default;
                     }
                 }
 
-                context.Users.UpdateRange(developers);
+                context.Users.AddRange(users);
+
                 context.SaveChanges();
             }
-
 
             if (!context.ProjectTypes.Any())
             {
@@ -95,7 +109,7 @@ namespace backend.Data
                     .RuleFor(p => p.CustomerId, f => clients[random.Next(clients.Count)].Id)
                     .RuleFor(p => p.Budget, f => f.Random.Decimal(100, 10000));
 
-                var projects = projectFaker.Generate(12);
+                var projects = projectFaker.Generate(6);
 
                 context.Projects.AddRange(projects);
                 context.SaveChanges();
@@ -187,11 +201,11 @@ namespace backend.Data
                 var labels = new List<TaskLabel>
                     {
                         new TaskLabel { Label = "Frontend" },
+                        new TaskLabel { Label = "Designer" },
                         new TaskLabel { Label = "Backend" },
                         new TaskLabel { Label = "AI" },
                         new TaskLabel { Label = "Mobile" },
-                        new TaskLabel { Label = "UX/UI" },
-                        new TaskLabel { Label = "Database" }
+                        new TaskLabel { Label = "Fullstack" }
                     };
 
                 context.TaskLabels.AddRange(labels);
@@ -212,7 +226,7 @@ namespace backend.Data
                     .RuleFor(t => t.TaskLabelId, f => f.Random.Int(1, context.TaskLabels.Count()))
                     .RuleFor(t => t.UserId, (f, t) =>
                         {
-                            List<int> userIds;
+                            /* List<int> userIds;
 
                             if (t.TaskLevelName == "Beginner")
                             {
@@ -242,23 +256,24 @@ namespace backend.Data
 
                             return userIds.Any()
                                 ? (f.Random.Double() < 0.35 ? null : f.PickRandom(userIds))
-                                : null;
-
+                                : null; */
+                            return null;
                         })
                     .RuleFor(t => t.Status, (f, t) =>
                     {
-                        if (t.UserId.HasValue)
+                        /* if (t.UserId.HasValue)
                         {
                             return f.Random.Double() < 0.3 ? TaskStatus.Done : TaskStatus.InProgress;
                         }
                         else
                         {
                             return TaskStatus.ToDo;
-                        }
+                        } */
+                        return TaskStatus.ToDo;
                     });
 
 
-                var tasks = taskFaker.Generate(100);
+                var tasks = taskFaker.Generate(150);
                 context.Tasks.AddRange(tasks);
                 context.SaveChanges();
 

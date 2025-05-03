@@ -20,7 +20,7 @@ public enum TaskRole
     Backend,
     AI,
     Mobile,
-    Fullstack
+    Fullstack,
 }
 
 public enum ProficiencyLevel
