@@ -1,5 +1,6 @@
 "use client";
 
+import EditUserModal from "@/components/hr/EditUserModal";
 import { RootState } from "@/redux/store";
 import { UserType } from "@/types/userType";
 import axios from "axios";
@@ -55,7 +56,13 @@ export default function page() {
   ];
   const proficiencyLevels = ["Junior", "Mid", "Senior"];
 
+  const roles = [
+    "Developer",
+    "ProjectManager"
+  ]
+
   const [selectedUser, setSelectedUser] = useState<UserType | null>(null);
+  const [role, setRole] = useState("");
   const [taskRole, setTaskRole] = useState("");
   const [proficiencyLevel, setProficiencyLevel] = useState("");
 
@@ -86,35 +93,12 @@ export default function page() {
   const openEditModal = (user: UserType) => {
     setSelectedUser(user);
     setTaskRole(user.taskRoleName);
+    setRole(user.roleName);
     setProficiencyLevel(user.proficiencyLevelName);
   };
 
   const closeModal = () => {
     setSelectedUser(null);
-  };
-
-  const handleSave = async () => {
-    if (!selectedUser) return;
-
-    try {
-      const response = await fetch(
-        `http://localhost:5110/api/users/update?id=${selectedUser.id}`,
-        {
-          method: "PUT",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            taskRoleName: taskRole,
-            proficiencyLevelName: proficiencyLevel,
-          }),
-        }
-      );
-
-      if (!response.ok) throw new Error("Update failed");
-      closeModal();
-      window.location.reload();
-    } catch (error) {
-      alert(`Error: ${(error as Error).message}`);
-    }
   };
 
   const handleSearch = () => {
@@ -394,7 +378,7 @@ export default function page() {
                     <td className="px-4 py-2">{user.statusName}</td>
                     <td className="px-4 py-2 text-center">
                       {currentUser.roleName === "Admin" &&
-                      user.roleName === "Developer" ? (
+                      (user.roleName === "Developer" || user.roleName === "ProjectManager") ? (
                         <button
                           className="text-xs text-blue-400 hover:underline"
                           onClick={() => openEditModal(user)}
@@ -411,60 +395,21 @@ export default function page() {
             </table>
             {/* MODAL */}
             {selectedUser && (
-              <div className="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50">
-                <div className="bg-gray-800 p-6 rounded-xl w-96 text-white">
-                  <h2 className="text-lg font-bold mb-4">
-                    Edit User: {selectedUser.name} {selectedUser.lastName}
-                  </h2>
-
-                  <div className="mb-4">
-                    <label className="block text-sm mb-1">Task Role</label>
-                    <select
-                      className="w-full p-2 rounded bg-gray-700 text-white"
-                      value={taskRole}
-                      onChange={(e) => setTaskRole(e.target.value)}
-                    >
-                      {taskRoles.map((role) => (
-                        <option key={role} value={role}>
-                          {role}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-
-                  <div className="mb-4">
-                    <label className="block text-sm mb-1">
-                      Proficiency Level
-                    </label>
-                    <select
-                      className="w-full p-2 rounded bg-gray-700 text-white"
-                      value={proficiencyLevel}
-                      onChange={(e) => setProficiencyLevel(e.target.value)}
-                    >
-                      {proficiencyLevels.map((level) => (
-                        <option key={level} value={level}>
-                          {level}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-
-                  <div className="flex justify-end gap-3">
-                    <button
-                      className="bg-gray-600 px-4 py-2 rounded hover:bg-gray-500"
-                      onClick={closeModal}
-                    >
-                      Cancel
-                    </button>
-                    <button
-                      className="bg-blue-600 px-4 py-2 rounded hover:bg-blue-500"
-                      onClick={handleSave}
-                    >
-                      Save
-                    </button>
-                  </div>
-                </div>
-              </div>
+              <EditUserModal
+                {...{
+                  closeModal,
+                  proficiencyLevel,
+                  proficiencyLevels,
+                  selectedUser,
+                  setProficiencyLevel,
+                  role,
+                  setRole,
+                  setTaskRole,
+                  taskRole,
+                  roles,
+                  taskRoles,
+                }}
+              />
             )}
             <div className="flex justify-center mt-6 flex-wrap gap-2">
               {(() => {

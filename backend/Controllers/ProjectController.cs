@@ -308,6 +308,36 @@ namespace backend.Controllers
             }
         }
 
+        [HttpGet("user-projects")]
+        public async Task<IActionResult> GetProjectsByUserId([FromQuery] int userId)
+        {
+            try
+            {
+                var userProjects = await _context.UserProjects
+                    .Where(up => up.UserId == userId)
+                    .Include(up => up.Project)
+                        .ThenInclude(p => p.ProjectType)
+                    .Include(up => up.Project)
+                        .ThenInclude(p => p.Manager)
+                    .Include(up => up.Project)
+                        .ThenInclude(p => p.Customer)
+                    .ToListAsync();
+
+                var projects = userProjects
+                    .Select(up => up.Project)
+                    .Distinct()
+                    .Select(p => p.ToProjectDto()) 
+                    .ToList();
+
+                return Ok(projects);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = $"An error occurred while fetching user's projects: {ex.Message}" });
+            }
+        }
+
+
         [HttpPost("add")]
         public async Task<IActionResult> CreateProject(CreateProjectDto createProjectDto, [FromServices] IHubContext<ChatHub, IChatClient> hubContext)
         {
@@ -321,7 +351,6 @@ namespace backend.Controllers
                 {
                     await _context.SaveChangesAsync();
 
-                    // ChatSession başlat
                     var chatSession = new ChatSession
                     {
                         User1Id = project.ManagerId,
@@ -485,7 +514,7 @@ namespace backend.Controllers
         [HttpPut("update")]
         public async Task<IActionResult> UpdateProject([FromBody] EditProjectDto editProjectDto, int id)
         {
-   
+
             try
             {
                 var project = await _context.Projects.FindAsync(id);

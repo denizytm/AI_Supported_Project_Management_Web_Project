@@ -15,10 +15,10 @@ import DeleteTaskModal from "@/components/projectManagement/DeleteTaskModal";
 import AssignmentPreviewModal from "@/components/projectManagement/pManagementChatbot/AssignmentPreviewModal";
 import ClientChatModal from "@/components/projectManagement/chat/ClientChatModal";
 import ClientChatComponent from "@/components/projectManagement/chat/ClientChatComponent";
-import * as signalR from "@microsoft/signalr";
 import { useSelector } from "react-redux";
 import { RootState } from "@/redux/store";
 import { useSignalR } from "@/context/SignalRContext";
+import { useChatContext } from "@/context/ChatContext";
 
 interface TaskManagementProps {
   id: number;
@@ -29,7 +29,7 @@ export default function TaskManagement({ id, text }: TaskManagementProps) {
   const [projectData, setProjectData] = useState<ProjectType>({
     id: 0,
     budget: 0,
-    description : "",
+    description: "",
     deadline: "0000-00-00",
     manager: {
       id: 0,
@@ -113,6 +113,16 @@ export default function TaskManagement({ id, text }: TaskManagementProps) {
 
   const router = useRouter();
   const searchParams = useSearchParams();
+
+  const { setIsChatOpen } = useChatContext();
+
+  useEffect(() => {
+    if (showChat || showChat2) {
+      setIsChatOpen(true);
+    } else {
+      setIsChatOpen(false);
+    }
+  }, [showChat, showChat2]);
 
   const handleAutoAssign = async () => {
     try {
@@ -198,6 +208,20 @@ export default function TaskManagement({ id, text }: TaskManagementProps) {
 
     return () => {
       connection.off("ReceiveProjectRequest", handleProjectRequest);
+    };
+  }, [connection]);
+
+  useEffect(() => {
+    if (!connection) return;
+
+    const handleTaskAssignment = (task: TaskType) => {
+      setAssignedTasks((prev) => [...prev, task]);
+    };
+
+    connection.on("ReceiveTaskAssignment", handleTaskAssignment);
+
+    return () => {
+      connection.off("ReceiveTaskAssignment", handleTaskAssignment);
     };
   }, [connection]);
 
@@ -426,10 +450,10 @@ export default function TaskManagement({ id, text }: TaskManagementProps) {
                         {task.description}
                       </p>
                     </div>
-                    <div className="flex gap-2">
+                    <div className="flex gap-1 flex-wrap">
                       <button
                         onClick={() => handleMarkComplete(task.id)}
-                        className={`px-3 py-1 rounded text-sm ${
+                        className={`px-2 py-1 rounded text-xs ${
                           isDone
                             ? "bg-gray-400 text-white cursor-not-allowed"
                             : "bg-green-600 hover:bg-green-500 text-white"
@@ -440,7 +464,7 @@ export default function TaskManagement({ id, text }: TaskManagementProps) {
                       </button>
                       <button
                         onClick={() => setShowChat2(true)}
-                        className="bg-blue-600 hover:bg-blue-500 text-white px-3 py-1 rounded text-sm"
+                        className="bg-blue-600 hover:bg-blue-500 text-white px-2 py-1 rounded text-xs"
                       >
                         💬 Message PM
                       </button>

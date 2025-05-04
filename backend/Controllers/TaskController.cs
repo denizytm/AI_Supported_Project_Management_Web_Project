@@ -5,10 +5,12 @@ using System.Threading.Tasks;
 using backend.Data;
 using backend.Dtos.Task;
 using backend.Dtos.User;
+using backend.Hubs;
 using backend.Interfaces;
 using backend.Mappers;
 using backend.Models;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 
 namespace backend.Controllers
@@ -140,13 +142,12 @@ namespace backend.Controllers
         }
 
         [HttpPost("add")]
-        public async Task<IActionResult> CreateTask(CreateTaskDto createTaskDto)
+        public async Task<IActionResult> CreateTask(CreateTaskDto createTaskDto, [FromServices] IHubContext<ChatHub, IChatClient> hubContext)
         {
             try
             {
                 var taskTypeData = await _context.TaskTypes
                     .FirstOrDefaultAsync(tt => tt.Name == createTaskDto.TaskTypeName);
-
                 if (taskTypeData == null)
                 {
                     taskTypeData = new TaskType { Name = createTaskDto.TaskTypeName };
@@ -156,7 +157,6 @@ namespace backend.Controllers
 
                 var taskLabelData = await _context.TaskLabels
                     .FirstOrDefaultAsync(tl => tl.Label == createTaskDto.TaskLabelName);
-
                 if (taskLabelData == null)
                 {
                     taskLabelData = new TaskLabel { Label = createTaskDto.TaskLabelName };
@@ -164,51 +164,40 @@ namespace backend.Controllers
                     await _context.SaveChangesAsync();
                 }
 
+                var task = createTaskDto.fromCreateDtoToTask(taskTypeData, taskLabelData);
+                var result = await _context.Tasks.AddAsync(task);
                 await _context.SaveChangesAsync();
 
-                taskTypeData = await _context.TaskTypes.FirstOrDefaultAsync(tt => tt.Name == createTaskDto.TaskTypeName);
-                taskLabelData = await _context.TaskLabels.FirstOrDefaultAsync(tl => tl.Label == createTaskDto.TaskLabelName);
-
-                var taskData = createTaskDto.fromCreateDtoToTask(taskTypeData, taskLabelData);
-
-                var result = await _context.Tasks.AddAsync(taskData);
-                await _context.SaveChangesAsync();
-
-                var projectId = taskData.ProjectId;
-
-                var projectTasks = await _context.Tasks
-                    .Where(t => t.ProjectId == projectId)
-                    .ToListAsync();
-
+                var projectTasks = await _context.Tasks.Where(t => t.ProjectId == task.ProjectId).ToListAsync();
                 var total = projectTasks.Count;
-                var doneCount = projectTasks.Count(t => t.StatusName == "Done");
+                var doneCount = projectTasks.Count(t => t.Status == TaskStatus.Done);
                 var progress = total > 0 ? (int)Math.Round((double)(doneCount * 100) / total) : 0;
 
-                var project = await _context.Projects.FindAsync(projectId);
+                var project = await _context.Projects.FindAsync(task.ProjectId);
                 if (project != null)
                 {
                     project.Progress = progress;
                     await _context.SaveChangesAsync();
                 }
 
-
-                return Ok(new
+                if (task.UserId.HasValue && ChatHub.UserConnections.TryGetValue(task.UserId.Value, out var connectionId))
                 {
-                    message = "Task has been created."
-                });
+                    var taskDto = task.ToTaskDto();
+                    await hubContext.Clients.Client(connectionId).ReceiveTaskAssignment(taskDto);
+                }
+
+                return Ok(new { message = "Task has been created." });
             }
             catch (Exception ex)
             {
-                return BadRequest(new
-                {
-                    message = $"An error occurred while creating the task : {ex.Message}"
-                });
+                return BadRequest(new { message = $"An error occurred while creating the task : {ex.Message}" });
             }
         }
 
 
+
         [HttpPut("update")]
-        public async Task<IActionResult> UpdateTask(UpdateTaskDto updateTaskDto, int id)
+        public async Task<IActionResult> UpdateTask(UpdateTaskDto updateTaskDto, int id, [FromServices] IHubContext<ChatHub, IChatClient> hubContext)
         {
             try
             {
@@ -257,6 +246,25 @@ namespace backend.Controllers
                 {
                     project.Progress = progress;
                     await _context.SaveChangesAsync();
+                }
+
+                var notification = new Notification
+                {
+                    TargetUserId = project.ManagerId,
+                    Title = "Task Updated",
+                    Message = $"A task in project \"{project.Name}\" was updated.",
+                    CreatedAt = DateTime.UtcNow,
+                    IsRead = false,
+                    Link = $"/projects/management?id={project.Id}"
+                };
+
+                await _context.Notifications.AddAsync(notification);
+                await _context.SaveChangesAsync();
+
+                if (ChatHub.UserConnections.TryGetValue(project.ManagerId, out var connectionId))
+                {
+                    var dto = notification.FromModelToDto();
+                    await hubContext.Clients.Client(connectionId).ReceiveNotification(dto);
                 }
 
 

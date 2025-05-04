@@ -81,6 +81,7 @@ export default function AddProjectModal({
         { ...formData }
       );
       if (response.status) {
+        fetchProjects();
         setAddModelVisible(false);
       }
     } catch (error) {

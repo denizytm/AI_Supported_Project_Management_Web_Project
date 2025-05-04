@@ -1,5 +1,6 @@
 "use client";
 
+import { useChatContext } from "@/context/ChatContext";
 import { useSignalR } from "@/context/SignalRContext";
 import { setUserStatus } from "@/redux/slices/userSlice";
 import { RootState } from "@/redux/store";
@@ -28,6 +29,7 @@ export default function Navbar() {
   const dispatch = useDispatch();
   const { connection } = useSignalR();
   const router = useRouter();
+  const { isChatOpen } = useChatContext();
 
   useEffect(() => {
     if (currentUser)
@@ -74,15 +76,21 @@ export default function Navbar() {
   useEffect(() => {
     if (connection) {
       connection.on("ReceiveNotification", (notification: NotificationType) => {
-        console.log("📢 Yeni bildirim:", notification);
-        setNotifications((prev) => [notification, ...prev]);
+        console.log("New notification :", notification);
+        if (isChatOpen && notification.title === "New Message") {
+          setNotifications(prev => [{...notification,isRead : true},...prev])
+          handleReadNotification([notification.id]);
+        }else {
+          setNotifications((prev) => [notification, ...prev]);
+        }
+
       });
     }
 
     return () => {
       connection?.off("ReceiveNotification");
     };
-  }, [connection]);
+  }, [connection, isChatOpen]);
 
   const handleLogOut = () => {
     localStorage.removeItem("id");

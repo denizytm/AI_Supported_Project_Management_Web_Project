@@ -9,6 +9,7 @@ import ClientChatModal from "@/components/projectManagement/chat/ClientChatModal
 import ClientChatComponent from "@/components/projectManagement/chat/ClientChatComponent";
 import NewRequestModal from "@/components/client/NewRequestModal";
 import { HiH1 } from "react-icons/hi2";
+import { useChatContext } from "@/context/ChatContext";
 
 export default function CustomerDashboard() {
   const [projects, setProjects] = useState<ProjectType[]>([]);
@@ -21,6 +22,16 @@ export default function CustomerDashboard() {
   const [showNewRequestModal, setShowNewRequestModal] = useState(false);
 
   const currentUser = useSelector((state: RootState) => state.currentUser.user);
+
+  const { setIsChatOpen } = useChatContext();
+
+  useEffect(() => {
+    if (showChat) {
+      setIsChatOpen(true);
+    } else {
+      setIsChatOpen(false);
+    }
+  }, [showChat]);
 
   useEffect(() => {
     if (currentUser) {

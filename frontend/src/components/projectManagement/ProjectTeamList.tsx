@@ -8,6 +8,7 @@ import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import ClientChatModal from "./chat/ClientChatModal";
 import ClientChatComponent from "./chat/ClientChatComponent";
+import { useChatContext } from "@/context/ChatContext";
 
 interface ProjectTeamListProps {
   projectData: ProjectType;
@@ -29,6 +30,16 @@ export default function ProjectTeamList({
   const [targetUser, setTargetUser] = useState<UserType | null>(null);
 
   const currentUser = useSelector((state: RootState) => state.currentUser.user);
+
+  const { setIsChatOpen } = useChatContext();
+
+  useEffect(() => {
+    if (showChat) {
+      setIsChatOpen(true);
+    } else {
+      setIsChatOpen(false);
+    }
+  }, [showChat]);
 
   useEffect(() => {
     (async () => {

@@ -21,7 +21,7 @@ namespace backend.Controllers
 
         public ChatController(IHubContext<ChatHub, IChatClient> hubContext, ApplicationDbContext context)
         {
-            _context = context; // get DBcontext and hubContext
+            _context = context;
             _hubContext = hubContext;
         }
 
@@ -98,10 +98,9 @@ namespace backend.Controllers
                 await _context.SaveChangesAsync();
 
                 session = await _context.ChatSessions.FirstOrDefaultAsync(s =>
-                ((s.User1Id == request.SenderUserId && s.User2Id == request.ReceiverUserId) ||
-                 (s.User1Id == request.ReceiverUserId && s.User2Id == request.SenderUserId)) &&
-                s.EndedAt == null);
-
+                    ((s.User1Id == request.SenderUserId && s.User2Id == request.ReceiverUserId) ||
+                     (s.User1Id == request.ReceiverUserId && s.User2Id == request.SenderUserId)) &&
+                    s.EndedAt == null);
             }
 
             var message = new PrivateMessage
@@ -116,18 +115,31 @@ namespace backend.Controllers
             _context.PrivateMessages.Add(message);
             await _context.SaveChangesAsync();
 
+            var notification = new Notification
+            {
+                TargetUserId = request.ReceiverUserId,
+                Title = "New Message",
+                Message = request.Content,
+                CreatedAt = DateTime.UtcNow,
+                IsRead = false,
+                Link = $"/chat?userId={request.SenderUserId}"
+            };
+
+            _context.Notifications.Add(notification);
+            await _context.SaveChangesAsync();
+
             if (ChatHub.UserConnections.TryGetValue(request.ReceiverUserId, out var connectionId))
             {
+                var notificationDto = notification.FromModelToDto();
+                await _hubContext.Clients.Client(connectionId).ReceiveNotification(notificationDto);
+
                 await _hubContext.Clients.Client(connectionId)
-                    .ReceiveMessage(request.SenderUserId, $"{request.Content}");
-                return Ok(new {
-                    ChatHub.UserConnections,
-                    connectionId
-                });
+                    .ReceiveMessage(request.SenderUserId, request.Content);
             }
 
-            return Ok(new { session.Id }); 
+            return Ok(new { session.Id });
         }
+
 
     }
 

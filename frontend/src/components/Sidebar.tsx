@@ -11,6 +11,7 @@ import {
   FaProjectDiagram,
   FaUserTie,
   FaFolder,
+  FaClipboardList,
 } from "react-icons/fa";
 import { useSelector } from "react-redux";
 
@@ -42,6 +43,12 @@ export default function Sidebar() {
       icon: <FaProjectDiagram />,
       link: "/projects",
       roles: ["Admin", "ProjectManager", "Developer"],
+    },
+    {
+      name: "My Projects",
+      icon: <FaClipboardList  />,
+      link: "/projects/user",
+      roles: ["ProjectManager", "Developer"],
     },
     {
       name: "Client",
