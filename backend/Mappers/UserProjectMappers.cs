@@ -11,8 +11,7 @@ namespace backend.Mappers
     {
         public static UserProjectDto ToUserProjectDto(this UserProject userProject){
             return new UserProjectDto {
-                id = userProject.id,
-                Project = userProject.Project.ToProjectDto(),
+                Id = userProject.Id,
                 ProjectId = userProject.ProjectId,
                 User = userProject.User.ToUserDto(),
                 UserId = userProject.UserId

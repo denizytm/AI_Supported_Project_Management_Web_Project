@@ -89,8 +89,8 @@ export default function CreateTaskModal({
   if (!ready) return <div>Loading...</div>;
   if (!modalVisibleStatus.create) return null;
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-60">
-      <div className="bg-white p-6 rounded-lg shadow-lg w-96">
+    <div className="fixed inset-0 z-50 bg-black bg-opacity-50 backdrop-blur-sm flex items-center justify-center">
+      <div className="bg-white dark:bg-gray-800 max-h-[85vh] overflow-y-auto p-6 rounded-lg shadow-lg w-[90%] max-w-xl mt-[80px]">
         <h2 className="text-xl font-bold mb-4">Add New Task</h2>
 
         <label htmlFor="name">Task Name</label>

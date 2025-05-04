@@ -79,11 +79,11 @@ namespace backend.Data
             {
                 var names = new List<ProjectType>
                     {
+                        new ProjectType { Name = "ERP" },
                         new ProjectType { Name = "Web" },
                         new ProjectType { Name = "Mobile" },
-                        new ProjectType { Name = "AI" },
-                        new ProjectType { Name = "ERP" },
                         new ProjectType { Name = "Application" },
+                        new ProjectType { Name = "AI" },
                     };
 
                 context.ProjectTypes.AddRange(names);

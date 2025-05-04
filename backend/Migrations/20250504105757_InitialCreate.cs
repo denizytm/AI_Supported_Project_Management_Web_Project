@@ -342,14 +342,14 @@ namespace backend.Migrations
                 name: "UserProjects",
                 columns: table => new
                 {
-                    id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
                     UserId = table.Column<int>(type: "int", nullable: false),
-                    ProjectId = table.Column<int>(type: "int", nullable: false)
+                    ProjectId = table.Column<int>(type: "int", nullable: false),
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1")
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_UserProjects", x => x.id);
+                    table.PrimaryKey("PK_UserProjects", x => new { x.UserId, x.ProjectId });
                     table.ForeignKey(
                         name: "FK_UserProjects_Projects_ProjectId",
                         column: x => x.ProjectId,
@@ -460,11 +460,6 @@ namespace backend.Migrations
                 name: "IX_UserProjects_ProjectId",
                 table: "UserProjects",
                 column: "ProjectId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_UserProjects_UserId",
-                table: "UserProjects",
-                column: "UserId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Users_ManagerId",

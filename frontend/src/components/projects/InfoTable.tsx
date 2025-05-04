@@ -1,34 +1,68 @@
-export default function InfoTable() {
+export interface InfoTableProps {
+  generalInfo: {
+    projectCount: number;
+    finishedProjectCount: number;
+    onGoingProjectCount: number;
+    onHoldProjectCount: number;
+  };
+  projectTypes: {
+    erp: number;
+    web: number;
+    mobile: number;
+    application: number;
+    ai: number;
+  };
+}
+
+export default function InfoTable({ generalInfo, projectTypes }: InfoTableProps) {
   return (
-    <div className="grid grid-cols-3 gap-4 mb-6">
-      <div className="bg-white dark:bg-gray-800 p-4 rounded-md shadow">
-        <h3 className="font-semibold mb-2">General Information</h3>
-        <ul className="text-sm">
-          <li>Total Projects: 13</li>
-          <li>Finished Projects: 22</li>
-          <li>Ongoing Projects: 11</li>
-          <li>Delayed Projects: 1</li>
-          <li>Projects on Risk: 3</li>
-          <li>Total Connections: 27</li>
-          <li>Total Errors: 12</li>
+    <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+      {/* General Information */}
+      <div className="bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-lg border border-gray-200 dark:border-gray-700 hover:shadow-xl transition-shadow duration-300">
+        <h3 className="text-lg font-bold mb-4 text-gray-700 dark:text-white">
+          📊 General Information
+        </h3>
+        <ul className="text-sm text-gray-600 dark:text-gray-300 space-y-2">
+          <li>
+            ✅ Total Projects: <strong>{generalInfo.projectCount}</strong>
+          </li>
+          <li>
+            🏁 Finished Projects:{" "}
+            <strong>{generalInfo.finishedProjectCount}</strong>
+          </li>
+          <li>
+            🚧 Ongoing Projects:{" "}
+            <strong>{generalInfo.onGoingProjectCount}</strong>
+          </li>
+          <li>
+            🚧 Onhold Projects:{" "}
+            <strong>{generalInfo.onHoldProjectCount}</strong>
+          </li>
         </ul>
       </div>
 
-      <div className="bg-white dark:bg-gray-800 p-4 rounded-md shadow">
-        <h3 className="font-semibold mb-2">Distribution by Project Type</h3>
-        <ul className="text-sm">
-          <li>ERP: 1</li>
-          <li>Web: 2</li>
-          <li>Mobile: 1</li>
-          <li>Application: 2</li>
-          <li>AI: 5</li>
+      {/* Distribution by Project Type */}
+      <div className="bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-lg border border-gray-200 dark:border-gray-700 hover:shadow-xl transition-shadow duration-300">
+        <h3 className="text-lg font-bold mb-4 text-gray-700 dark:text-white">
+          📂 Distribution by Project Type
+        </h3>
+        <ul className="text-sm text-gray-600 dark:text-gray-300 space-y-2">
+          <li>
+            🧾 ERP: <strong>{projectTypes.erp}</strong>
+          </li>
+          <li>
+            💻 Web: <strong>{projectTypes.web}</strong>
+          </li>
+          <li>
+            📱 Mobile: <strong>{projectTypes.mobile}</strong>
+          </li>
+          <li>
+            🧩 Application: <strong>{projectTypes.application}</strong>
+          </li>
+          <li>
+            🤖 AI: <strong>{projectTypes.ai}</strong>
+          </li>
         </ul>
-      </div>
-
-      <div className="bg-white dark:bg-gray-800 p-4 rounded-md shadow">
-        <h3 className="font-semibold mb-2">Time Line</h3>
-        <p className="text-sm">Start Date: 05/05/1998</p>
-        <p className="text-sm">End Date: 31/12/2025</p>
       </div>
     </div>
   );

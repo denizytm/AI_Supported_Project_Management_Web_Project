@@ -9,11 +9,11 @@ namespace backend.Dtos.UserProject
 {
     public class UserProjectDto
     {
-        public int id { get; set; }
+        public int Id { get; set; }
         public int UserId { get; set; }
-        public UserDto User { get; set; } = null!;
+        public UserDto? User { get; set; } = null!;
 
         public int ProjectId { get; set; }
-        public ProjectDto Project { get; set; } = null!;
+        public ProjectDto? Project { get; set; } = null!;
     }
 }

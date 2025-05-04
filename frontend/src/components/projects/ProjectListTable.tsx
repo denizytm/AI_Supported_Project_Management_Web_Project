@@ -1,5 +1,7 @@
+import { RootState } from "@/redux/store";
 import { ProjectType } from "@/types/projectType";
 import { useRouter } from "next/navigation";
+import { useSelector } from "react-redux";
 
 interface ProjectListTableProps {
   projects: Array<ProjectType>;
@@ -18,6 +20,9 @@ export default function ProjectListTable({
 }: ProjectListTableProps) {
   const router = useRouter();
 
+  const currentUser = useSelector((state: RootState) => state.currentUser.user);
+
+  if (!currentUser) return <>Loading...</>;
   return (
     <div className="bg-white dark:bg-gray-800 p-4 rounded-md shadow overflow-auto">
       <table className="w-full text-left border-collapse">
@@ -48,13 +53,22 @@ export default function ProjectListTable({
               <td className="p-2">{project.progress}%</td>
               <td className="p-2">{project.statusName}</td>
               <td className="p-2">{project.priorityName}</td>
-              <td
-                onClick={() =>
-                  router.push(`/projects/management?id=${project.id}`)
-                }
-                className="p-2 text-blue-500 cursor-pointer"
-              >
-                View
+              <td className="p-2 text-blue-500 cursor-pointer">
+                {(currentUser.roleName == "Admin" ||
+                  (currentUser.roleName == "ProjectManager" &&
+                    project.manager.id == currentUser.id) ||
+                  (currentUser.roleName == "Developer" &&
+                    project.userProjects.some(
+                      (up) => up.userId === currentUser.id
+                    ))) && (
+                  <button
+                    onClick={() =>
+                      router.push(`/projects/management?id=${project.id}`)
+                    }
+                  >
+                    View
+                  </button>
+                )}
               </td>
             </tr>
           ))}

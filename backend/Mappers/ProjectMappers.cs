@@ -3,14 +3,17 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using backend.Dtos.Project;
+using backend.Dtos.UserProject;
 using backend.Models;
 
 namespace backend.Mappers
 {
     public static class ProjectMappers
     {
-        public static ProjectDto ToProjectDto(this Project project){
-            return new ProjectDto {
+        public static ProjectDto ToProjectDto(this Project project)
+        {
+            return new ProjectDto
+            {
                 Id = project.Id,
                 Budget = project.Budget,
                 Deadline = project.Deadline,
@@ -26,12 +29,21 @@ namespace backend.Mappers
                 CustomerId = project.CustomerId,
                 Manager = project.Manager.ToUserDto(),
                 Customer = project.Customer.ToUserDto(),
-                ProjectRequests = project.ProjectRequests.Select(pR => pR.FromProjectRequestToDto()).ToList()
+                ProjectRequests = project.ProjectRequests.Select(pR => pR.FromProjectRequestToDto()).ToList(),
+                UserProjects = project.UserProjects.Select(up => new UserProjectDto
+                {
+                    Id = up.Id,
+                    UserId = up.UserId,
+                    ProjectId = up.ProjectId
+                }).ToList()
+
             };
         }
 
-        public static Project FromCreateToProject(this CreateProjectDto createProjectDto){
-            return new Project {
+        public static Project FromCreateToProject(this CreateProjectDto createProjectDto)
+        {
+            return new Project
+            {
                 Budget = createProjectDto.Budget,
                 Deadline = createProjectDto.Deadline,
                 Description = createProjectDto.Description,

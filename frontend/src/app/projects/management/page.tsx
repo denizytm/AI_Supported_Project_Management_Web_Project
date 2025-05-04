@@ -29,6 +29,7 @@ export default function TaskManagement({ id, text }: TaskManagementProps) {
   const [projectData, setProjectData] = useState<ProjectType>({
     id: 0,
     budget: 0,
+    description : "",
     deadline: "0000-00-00",
     manager: {
       id: 0,
@@ -392,6 +393,9 @@ export default function TaskManagement({ id, text }: TaskManagementProps) {
           </p>
           <p className="text-gray-500 dark:text-gray-300">
             <strong>Progress:</strong> {projectData.progress}%
+          </p>
+          <p className="text-gray-500 dark:text-gray-300">
+            <strong>Description:</strong> {projectData.description}
           </p>
         </div>
 

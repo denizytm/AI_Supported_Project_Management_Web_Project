@@ -18,16 +18,17 @@ namespace backend.Mappers
                 Id = user.Id,
                 Name = user.Name,
                 LastName = user.LastName,
-                GenderName = user.GenderName,
-                ProficiencyLevelName = user.ProficiencyLevelName,
-                RoleName = user.RoleName,
-                TaskRoleName = user.TaskRoleName,
-                StatusName = user.StatusName,
+                GenderName = user.Gender?.ToString() ?? "Undefined",
+                ProficiencyLevelName = user.ProficiencyLevel?.ToString() ?? "Unknown",
+                RoleName = user.Role.ToString(),
+                TaskRoleName = user.TaskRole?.ToString() ?? "Unknown",
+                StatusName = user.Status.ToString(),
                 Company = user.Company,
                 Phone = user.Phone,
                 IsActive = user.IsActive
             };
         }
+
 
         public static User FromRegisterToModel(this RegisterUserDto registerUserDto)
         {

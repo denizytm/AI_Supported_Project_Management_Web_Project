@@ -28,23 +28,75 @@ namespace backend.Controllers
         }
 
         [HttpGet("all")]
-        public async Task<IActionResult> GetProjects(int page = 1)
+        public async Task<IActionResult> GetProjects(
+            int page = 1,
+            string? projectType = null,
+            string? manager = null,
+            string? process = null,
+            string? priority = null,
+            string? search = null)
         {
             try
             {
                 int perPage = 10;
 
-                var projects = await _context.Projects
-                    .Skip((page - 1) * perPage)
-                    .Take(perPage)
+                var query = _context.Projects
                     .Include(p => p.Manager)
                     .Include(p => p.Customer)
                     .Include(p => p.ProjectType)
+                    .Include(p => p.UserProjects)
+                    .AsQueryable();
+
+                if (!string.IsNullOrEmpty(search))
+                    query = query.Where(p => p.Name.Contains(search));
+
+                if (!string.IsNullOrEmpty(projectType))
+                    query = query.Where(p => p.ProjectType.Name == projectType);
+
+                if (!string.IsNullOrEmpty(manager))
+                    query = query.Where(p => (p.Manager.Name + " " + p.Manager.LastName).Contains(manager));
+
+                if (!string.IsNullOrEmpty(process))
+                    query = query.Where(p => p.Status.ToString() == process);
+
+                if (!string.IsNullOrEmpty(priority))
+                    query = query.Where(p => p.Priority.ToString() == priority);
+
+                var totalProjects = await query.CountAsync();
+
+                var pagedProjects = await query
+                    .Skip((page - 1) * perPage)
+                    .Take(perPage)
                     .ToListAsync();
 
-                var projectDtos = projects.Select(p => p.ToProjectDto());
+                var projectDtos = pagedProjects.Select(p => p.ToProjectDto());
 
-                return Ok(projectDtos);
+                var generalInfos = new
+                {
+                    projectCount = totalProjects,
+                    finishedProjectCount = await query.Where(p => p.Status == ProjectStatus.Completed).CountAsync(),
+                    onGoingProjectCount = await query.Where(p => p.Status == ProjectStatus.Active).CountAsync(),
+                    onHoldProjectCount = await query.Where(p => p.Status == ProjectStatus.OnHold).CountAsync(),
+                };
+
+                var projectTypes = new
+                {
+                    erp = await query.Where(p => p.ProjectType.Name == "ERP").CountAsync(),
+                    web = await query.Where(p => p.ProjectType.Name == "Web").CountAsync(),
+                    mobile = await query.Where(p => p.ProjectType.Name == "Mobile").CountAsync(),
+                    application = await query.Where(p => p.ProjectType.Name == "Application").CountAsync(),
+                    ai = await query.Where(p => p.ProjectType.Name == "AI").CountAsync()
+                };
+
+                var managers = await _context.Projects.Include(p => p.Manager).Select(p => p.Manager).ToListAsync();
+
+                return Ok(new
+                {
+                    projectDtos,
+                    generalInfos,
+                    projectTypes,
+                    managers
+                });
             }
             catch (Exception ex)
             {
@@ -54,6 +106,7 @@ namespace backend.Controllers
                 });
             }
         }
+
 
 
         [HttpGet("find")]
@@ -161,7 +214,7 @@ namespace backend.Controllers
 
                 var projectUsers = _context.UserProjects.Where(up => up.ProjectId == id).Select(up => new UserProjectDto
                 {
-                    id = project.Id,
+                    Id = project.Id,
                     User = up.User.ToUserDto(),
                     ProjectId = up.ProjectId
                 }).ToList();
@@ -430,8 +483,9 @@ namespace backend.Controllers
 
 
         [HttpPut("update")]
-        public async Task<IActionResult> UpdateProject(Project projectData, int id)
+        public async Task<IActionResult> UpdateProject([FromBody] EditProjectDto editProjectDto, int id)
         {
+   
             try
             {
                 var project = await _context.Projects.FindAsync(id);
@@ -440,6 +494,18 @@ namespace backend.Controllers
                     return BadRequest(new { message = $"No project found with the id value : {id}" });
                 }
 
+                // Güncelleme işlemleri
+                project.Name = editProjectDto.Name;
+                project.Description = editProjectDto.Description;
+                project.ProjectTypeId = editProjectDto.ProjectTypeId;
+                project.StartDate = editProjectDto.StartDate;
+                project.Deadline = editProjectDto.Deadline;
+                project.Priority = Enum.Parse<ProjectPriority>(editProjectDto.PriorityName);
+                project.Status = Enum.Parse<ProjectStatus>(editProjectDto.StatusName);
+                project.ManagerId = editProjectDto.ManagerId;
+                project.CustomerId = editProjectDto.CustomerId;
+                project.Budget = editProjectDto.Budget;
+
                 await _context.SaveChangesAsync();
                 return Ok("The project has been updated");
             }
@@ -447,7 +513,7 @@ namespace backend.Controllers
             {
                 return BadRequest(new
                 {
-                    message = $"There was an error while updating the user : {ex.Message}"
+                    message = $"There was an error while updating the project: {ex.Message}"
                 });
             }
         }

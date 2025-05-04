@@ -6,11 +6,13 @@ import { useEffect, useState } from "react";
 interface AddProjectModalParams {
   addModelVisible: boolean;
   setAddModelVisible: React.Dispatch<React.SetStateAction<boolean>>;
+  fetchProjects : () => void;
 }
 
 export default function AddProjectModal({
   addModelVisible,
   setAddModelVisible,
+  fetchProjects
 }: AddProjectModalParams) {
   const [formData, setFormData] = useState({
     name: "",
@@ -41,6 +43,7 @@ export default function AddProjectModal({
 
       if (response.status) {
         setProjectTypes(response.data);
+        fetchProjects();
       }
     })();
   }, []);
@@ -91,8 +94,8 @@ export default function AddProjectModal({
 
   if (!addModelVisible) return null;
   return (
-    <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 backdrop-blur-sm">
-      <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-lg w-96">
+    <div className="fixed inset-0 z-50 bg-black bg-opacity-50 backdrop-blur-sm flex items-center justify-center">
+      <div className="bg-white dark:bg-gray-800 max-h-[85vh] overflow-y-auto p-6 rounded-lg shadow-lg w-[90%] max-w-xl mt-[80px]">
         <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">
           Add New Project
         </h2>
@@ -240,7 +243,10 @@ export default function AddProjectModal({
               id="customerId"
               name="customerId"
               onChange={(e) =>
-                setFormData((prev) => ({ ...prev, customerId: +e.target.value }))
+                setFormData((prev) => ({
+                  ...prev,
+                  customerId: +e.target.value,
+                }))
               }
               className="w-full p-2 border border-gray-300 rounded-lg dark:bg-gray-700 dark:border-gray-600 dark:text-white"
             >
