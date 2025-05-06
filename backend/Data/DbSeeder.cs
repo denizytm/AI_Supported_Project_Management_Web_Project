@@ -107,9 +107,10 @@ namespace backend.Data
                     .RuleFor(p => p.ProjectTypeId, f => f.Random.Int(1, context.ProjectTypes.Count()))
                     .RuleFor(p => p.ManagerId, f => itManagers[random.Next(itManagers.Count)].Id)
                     .RuleFor(p => p.CustomerId, f => clients[random.Next(clients.Count)].Id)
-                    .RuleFor(p => p.Budget, f => f.Random.Decimal(100, 10000));
+                    .RuleFor(p => p.Budget, f => f.Random.Decimal(1000, 10000))
+                    .RuleFor(p => p.SpentBudget, (f, p) => f.Random.Decimal(0, p.Budget)); 
 
-                var projects = projectFaker.Generate(6);
+                var projects = projectFaker.Generate(15);
 
                 context.Projects.AddRange(projects);
                 context.SaveChanges();

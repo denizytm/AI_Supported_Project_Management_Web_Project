@@ -44,6 +44,9 @@ namespace backend.Models
         }
         [Column(TypeName = "decimal(10,2)")]
         public decimal Budget { get; set; }
+        
+        [Column(TypeName = "decimal(10,2)")]
+        public decimal SpentBudget { get; set; }
 
         public List<UserProject> UserProjects { get; set; } = new List<UserProject>();
 

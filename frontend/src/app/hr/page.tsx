@@ -56,10 +56,7 @@ export default function page() {
   ];
   const proficiencyLevels = ["Junior", "Mid", "Senior"];
 
-  const roles = [
-    "Developer",
-    "ProjectManager"
-  ]
+  const roles = ["Developer", "ProjectManager"];
 
   const [selectedUser, setSelectedUser] = useState<UserType | null>(null);
   const [role, setRole] = useState("");
@@ -224,6 +221,7 @@ export default function page() {
                 <option value="Admin">Admin</option>
                 <option value="ProjectManager">Project Manager</option>
                 <option value="Developer">Developer</option>
+                <option value="Client">Client</option>
               </select>
               <input
                 value={searchData}
@@ -282,6 +280,7 @@ export default function page() {
                       <option value="Developer">Developer</option>
                       <option value="ProjectManager">Project Manager</option>
                       <option value="Admin">Admin</option>
+                      <option value="Client">Client</option>
                     </select>
 
                     {newUser.roleName === "Developer" && (
@@ -304,23 +303,26 @@ export default function page() {
                       </select>
                     )}
 
-                    <select
-                      value={newUser.proficiencyLevelName}
-                      onChange={(e) =>
-                        setNewUser({
-                          ...newUser,
-                          proficiencyLevelName: e.target.value,
-                        })
-                      }
-                      className="bg-gray-700 p-2 rounded"
-                    >
-                      <option value="">Select Proficiency</option>
-                      {proficiencyLevels.map((level) => (
-                        <option key={level} value={level}>
-                          {level}
-                        </option>
-                      ))}
-                    </select>
+                    {(newUser.roleName === "Developer" ||
+                      newUser.roleName === "ProjectManager") && (
+                      <select
+                        value={newUser.proficiencyLevelName}
+                        onChange={(e) =>
+                          setNewUser({
+                            ...newUser,
+                            proficiencyLevelName: e.target.value,
+                          })
+                        }
+                        className="bg-gray-700 p-2 rounded"
+                      >
+                        <option value="">Select Proficiency</option>
+                        {proficiencyLevels.map((level) => (
+                          <option key={level} value={level}>
+                            {level}
+                          </option>
+                        ))}
+                      </select>
+                    )}
 
                     <select
                       value={newUser.statusName}
@@ -378,7 +380,8 @@ export default function page() {
                     <td className="px-4 py-2">{user.statusName}</td>
                     <td className="px-4 py-2 text-center">
                       {currentUser.roleName === "Admin" &&
-                      (user.roleName === "Developer" || user.roleName === "ProjectManager") ? (
+                      (user.roleName === "Developer" ||
+                        user.roleName === "ProjectManager") ? (
                         <button
                           className="text-xs text-blue-400 hover:underline"
                           onClick={() => openEditModal(user)}

@@ -64,7 +64,7 @@ export default function ProjectManagement() {
       );
 
       if (response.status) {
-        if (!response.data.projectDtos.length)
+        if (!response.data.projectDtos.length && selectedPage != 1)
           setSelectedPage(selectedPage - 1);
         setProjects(response.data.projectDtos);
         setGeneralInfo(response.data.generalInfos);

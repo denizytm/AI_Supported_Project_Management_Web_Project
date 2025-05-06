@@ -16,6 +16,7 @@ namespace backend.Mappers
             {
                 Id = project.Id,
                 Budget = project.Budget,
+                SpentBudget = project.SpentBudget,
                 Deadline = project.Deadline,
                 Description = project.Description,
                 Name = project.Name,
@@ -45,6 +46,7 @@ namespace backend.Mappers
             return new Project
             {
                 Budget = createProjectDto.Budget,
+                SpentBudget = 0,
                 Deadline = createProjectDto.Deadline,
                 Description = createProjectDto.Description,
                 Name = createProjectDto.Name,

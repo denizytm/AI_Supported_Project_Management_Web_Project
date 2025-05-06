@@ -24,7 +24,7 @@ export default function Sidebar() {
       name: "Dashboard",
       icon: <FaTachometerAlt />,
       link: "/dashboard",
-      roles: ["Admin", "ProjectManager", "Developer", "Client"],
+      roles: ["Admin", "ProjectManager", "Developer"],
     },
     {
       name: "Human Resources",
@@ -48,7 +48,7 @@ export default function Sidebar() {
       name: "My Projects",
       icon: <FaClipboardList  />,
       link: "/projects/user",
-      roles: ["ProjectManager", "Developer"],
+      roles: ["ProjectManager", "Developer", "Client"],
     },
     {
       name: "Client",

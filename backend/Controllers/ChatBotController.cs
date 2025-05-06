@@ -303,7 +303,6 @@ namespace backend.Controllers
                 if (task != null && user != null)
                 {
                     task.UserId = user.Id;
-                    // _context.Entry(task).State = EntityState.Modified; // opsiyonel
                 }
             }
 

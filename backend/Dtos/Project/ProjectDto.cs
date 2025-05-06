@@ -25,6 +25,7 @@ namespace backend.Dtos.Project
         public string StatusName { get ; set; } = String.Empty;
         [Column(TypeName = "decimal(10,2)")]
         public decimal Budget { get; set; }
+        public decimal SpentBudget { get; set; }
         public List<UserProjectDto> UserProjects { get; set; } = new List<UserProjectDto>();
         public int ManagerId { get; set; }
         public UserDto Manager { get; set; } = null!;

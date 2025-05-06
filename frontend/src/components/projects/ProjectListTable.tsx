@@ -5,19 +5,9 @@ import { useSelector } from "react-redux";
 
 interface ProjectListTableProps {
   projects: Array<ProjectType>;
-  addModelVisible: boolean;
-  setAddModelVisible: React.Dispatch<React.SetStateAction<boolean>>;
-  editModelVisible: boolean;
-  setEditModelVisible: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
-export default function ProjectListTable({
-  projects,
-  addModelVisible,
-  editModelVisible,
-  setAddModelVisible,
-  setEditModelVisible,
-}: ProjectListTableProps) {
+export default function ProjectListTable({ projects }: ProjectListTableProps) {
   const router = useRouter();
 
   const currentUser = useSelector((state: RootState) => state.currentUser.user);
@@ -58,6 +48,7 @@ export default function ProjectListTable({
                   (currentUser.roleName == "ProjectManager" &&
                     project.manager.id == currentUser.id) ||
                   (currentUser.roleName == "Developer" &&
+                    project.userProjects &&
                     project.userProjects.some(
                       (up) => up.userId === currentUser.id
                     ))) && (

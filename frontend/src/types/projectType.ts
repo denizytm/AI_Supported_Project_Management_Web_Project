@@ -31,6 +31,7 @@ export interface ProjectType {
   statusName: string;
   priorityName: string;
   budget: number;
+  spentBudget: number;
   userProjects ?: UserProjectType[];
   projectType: {
     id: number;

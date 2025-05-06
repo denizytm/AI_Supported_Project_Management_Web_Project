@@ -29,6 +29,7 @@ export default function TaskManagement({ id, text }: TaskManagementProps) {
   const [projectData, setProjectData] = useState<ProjectType>({
     id: 0,
     budget: 0,
+    spentBudget: 0,
     description: "",
     deadline: "0000-00-00",
     manager: {
@@ -111,6 +112,8 @@ export default function TaskManagement({ id, text }: TaskManagementProps) {
 
   const [assignedTasks, setAssignedTasks] = useState<TaskType[]>([]);
 
+  const [isAssigning, setIsAssigning] = useState(false);
+
   const router = useRouter();
   const searchParams = useSearchParams();
 
@@ -125,6 +128,7 @@ export default function TaskManagement({ id, text }: TaskManagementProps) {
   }, [showChat, showChat2]);
 
   const handleAutoAssign = async () => {
+    setIsAssigning(true);
     try {
       const res = await axios.get(
         `http://localhost:5110/api/chatbot/assign-tasks?projectId=${projectData.id}`
@@ -151,6 +155,8 @@ export default function TaskManagement({ id, text }: TaskManagementProps) {
     } catch (err) {
       console.error(err);
       alert("Task assignment failed.");
+    } finally {
+      setIsAssigning(false);
     }
   };
 
@@ -276,6 +282,36 @@ export default function TaskManagement({ id, text }: TaskManagementProps) {
   if (!ready1 || !currentUser) return <div>Loading...</div>;
   return (
     <div className="p-6 bg-gray-100 dark:bg-gray-900 min-h-screen">
+      {isAssigning && (
+        <div className="fixed inset-0 bg-black bg-opacity-40 z-50 flex items-center justify-center">
+          <div className="bg-white p-6 rounded shadow-lg flex items-center gap-3">
+            <svg
+              className="animate-spin h-6 w-6 text-blue-600"
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+            >
+              <circle
+                className="opacity-25"
+                cx="12"
+                cy="12"
+                r="10"
+                stroke="currentColor"
+                strokeWidth="4"
+              ></circle>
+              <path
+                className="opacity-75"
+                fill="currentColor"
+                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
+              ></path>
+            </svg>
+            <span className="text-gray-700 font-medium">
+              Assigning tasks...
+            </span>
+          </div>
+        </div>
+      )}
+
       <CreateTaskModal
         {...{
           modalVisibleStatus,

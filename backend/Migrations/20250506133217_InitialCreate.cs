@@ -170,6 +170,7 @@ namespace backend.Migrations
                     Priority = table.Column<int>(type: "int", nullable: false),
                     Status = table.Column<int>(type: "int", nullable: false),
                     Budget = table.Column<decimal>(type: "decimal(10,2)", nullable: false),
+                    SpentBudget = table.Column<decimal>(type: "decimal(10,2)", nullable: false),
                     ManagerId = table.Column<int>(type: "int", nullable: false),
                     CustomerId = table.Column<int>(type: "int", nullable: false),
                     ProjectTypeId = table.Column<int>(type: "int", nullable: false)

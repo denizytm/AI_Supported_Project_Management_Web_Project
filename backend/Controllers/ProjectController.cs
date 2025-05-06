@@ -27,6 +27,72 @@ namespace backend.Controllers
             _context = context;
         }
 
+        [HttpGet("dashboard/get-all")]
+        public async Task<IActionResult> GetProjectsForDashboard()
+        {
+            try
+            {
+
+                var query = _context.Projects
+                    .Include(p => p.Manager)
+                    .Include(p => p.Customer)
+                    .Include(p => p.ProjectType)
+                    .Include(p => p.UserProjects)
+                    .AsQueryable();
+
+                var totalProjects = await query.CountAsync();
+
+                var pagedProjects = await query
+                    .ToListAsync();
+
+                var projectDtos = pagedProjects.Select(p => p.ToProjectDto());
+
+                var generalInfos = new
+                {
+                    projectCount = totalProjects,
+                    finishedProjectCount = await query.Where(p => p.Status == ProjectStatus.Completed).CountAsync(),
+                    onGoingProjectCount = await query.Where(p => p.Status == ProjectStatus.Active).CountAsync(),
+                    onHoldProjectCount = await query.Where(p => p.Status == ProjectStatus.OnHold).CountAsync(),
+                };
+
+                var projectTypes = new
+                {
+                    erp = await query.Where(p => p.ProjectType.Name == "ERP").CountAsync(),
+                    web = await query.Where(p => p.ProjectType.Name == "Web").CountAsync(),
+                    mobile = await query.Where(p => p.ProjectType.Name == "Mobile").CountAsync(),
+                    application = await query.Where(p => p.ProjectType.Name == "Application").CountAsync(),
+                    ai = await query.Where(p => p.ProjectType.Name == "AI").CountAsync()
+                };
+
+                return Ok(new
+                {
+                    projectDtos,
+                    generalInfos,
+                    projectTypes,
+                });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new
+                {
+                    message = $"There was an error when fetching the projects: {ex.Message}"
+                });
+            }
+        }
+
+        [HttpGet("finance/get-all")]
+        public async Task<IActionResult> GetProjetcsForFinance()
+        {
+            var projects = await _context.Projects
+                .Include(p => p.Manager)
+                .Include(p => p.Customer)
+                .Include(p => p.ProjectType)
+                .ToListAsync();
+
+            var projectDtos = projects.Select(p => p.ToProjectDto());
+            return Ok(projectDtos);
+        }
+
         [HttpGet("all")]
         public async Task<IActionResult> GetProjects(
             int page = 1,
@@ -106,8 +172,6 @@ namespace backend.Controllers
                 });
             }
         }
-
-
 
         [HttpGet("find")]
         public async Task<IActionResult> GetProject(int id)
@@ -321,15 +385,41 @@ namespace backend.Controllers
                         .ThenInclude(p => p.Manager)
                     .Include(up => up.Project)
                         .ThenInclude(p => p.Customer)
+                    .Select(up => up.Project)
                     .ToListAsync();
 
-                var projects = userProjects
-                    .Select(up => up.Project)
+                var managerProjects = await _context.Projects
+                    .Where(p => p.ManagerId == userId)
+                    .Include(p => p.ProjectType)
+                    .Include(p => p.Manager)
+                    .Include(p => p.Customer)
+                    .ToListAsync();
+
+                var customerProjects = await _context.Projects
+                    .Where(p => p.CustomerId == userId)
+                    .Include(p => p.ProjectType)
+                    .Include(p => p.Manager)
+                    .Include(p => p.Customer)
+                    .ToListAsync();
+
+                var combinedProjects = userProjects
+                    .Concat(managerProjects)
+                    .Concat(customerProjects)
                     .Distinct()
-                    .Select(p => p.ToProjectDto()) 
+                    .Select(p => p.ToProjectDto())
                     .ToList();
 
-                return Ok(projects);
+                var managers = await _context.Projects
+                    .Include(p => p.Manager)
+                    .Select(p => p.Manager)
+                    .Distinct()
+                    .ToListAsync();
+
+                return Ok(new
+                {
+                    projectDtos = combinedProjects,
+                    managers
+                });
             }
             catch (Exception ex)
             {

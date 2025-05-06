@@ -12,7 +12,7 @@ using backend.Data;
 namespace backend.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20250504132258_InitialCreate")]
+    [Migration("20250506133217_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -191,6 +191,9 @@ namespace backend.Migrations
 
                     b.Property<int>("ProjectTypeId")
                         .HasColumnType("int");
+
+                    b.Property<decimal>("SpentBudget")
+                        .HasColumnType("decimal(10,2)");
 
                     b.Property<DateTime>("StartDate")
                         .HasColumnType("datetime2");

@@ -189,6 +189,9 @@ namespace backend.Migrations
                     b.Property<int>("ProjectTypeId")
                         .HasColumnType("int");
 
+                    b.Property<decimal>("SpentBudget")
+                        .HasColumnType("decimal(10,2)");
+
                     b.Property<DateTime>("StartDate")
                         .HasColumnType("datetime2");
 
