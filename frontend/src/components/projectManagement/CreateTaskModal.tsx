@@ -179,9 +179,9 @@ export default function CreateTaskModal({
             ? usersData.map((user) => (
                 <option
                   className={
-                    user.proficiencyLevelName == "Beginner"
+                    user.proficiencyLevelName == "Juinor"
                       ? "text-green-500"
-                      : user.proficiencyLevelName == "Intermediate"
+                      : user.proficiencyLevelName == "Mid"
                       ? "text-yellow-500"
                       : "text-red-500"
                   }
@@ -193,11 +193,11 @@ export default function CreateTaskModal({
               ))
             : formData.taskLevelName == "Intermediate"
             ? usersData
-                .filter((user) => user.proficiencyLevelName != "Beginner")
+                .filter((user) => user.proficiencyLevelName != "Junior")
                 .map((user) => (
                   <option
                     className={
-                      user.proficiencyLevelName == "Intermediate"
+                      user.proficiencyLevelName == "Mid"
                         ? "text-yellow-500"
                         : "text-red-500"
                     }
@@ -208,7 +208,7 @@ export default function CreateTaskModal({
                   </option>
                 ))
             : usersData
-                .filter((user) => user.proficiencyLevelName == "Expert")
+                .filter((user) => user.proficiencyLevelName == "Senior")
                 .map((user) => (
                   <option
                     className="text-red-500"

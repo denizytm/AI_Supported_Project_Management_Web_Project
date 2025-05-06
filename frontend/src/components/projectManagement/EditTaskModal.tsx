@@ -267,9 +267,9 @@ export default function EditTaskModal({
             ? usersData.map((user) => (
                 <option
                   className={
-                    user.proficiencyLevelName == "Beginner"
+                    user.proficiencyLevelName == "Junior"
                       ? "text-green-500"
-                      : user.proficiencyLevelName == "Intermediate"
+                      : user.proficiencyLevelName == "Mid"
                       ? "text-yellow-500"
                       : "text-red-500"
                   }
@@ -280,11 +280,11 @@ export default function EditTaskModal({
               ))
             : formData.taskLevelName == "Intermediate"
             ? usersData
-                .filter((user) => user.proficiencyLevelName != "Beginner")
+                .filter((user) => user.proficiencyLevelName != "Junior")
                 .map((user) => (
                   <option
                     className={
-                      user.proficiencyLevelName == "Intermediate"
+                      user.proficiencyLevelName == "Mid"
                         ? "text-yellow-500"
                         : "text-red-500"
                     }
@@ -294,7 +294,7 @@ export default function EditTaskModal({
                   </option>
                 ))
             : usersData
-                .filter((user) => user.proficiencyLevelName == "Expert")
+                .filter((user) => user.proficiencyLevelName == "Senior")
                 .map((user) => (
                   <option className="text-red-500" value={user.id}>
                     {user.name} {user.lastName} ({user.proficiencyLevelName})
