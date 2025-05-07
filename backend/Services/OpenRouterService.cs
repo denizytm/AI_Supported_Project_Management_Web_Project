@@ -33,7 +33,7 @@ namespace backend.Services
         {
             var payload = new
             {
-                model = "google/gemini-2.0-flash-exp:free",
+                model = "google/gemini-pro-1.5-exp",
                 messages = new[]
                 {
                 new { role = "user", content = prompt }
