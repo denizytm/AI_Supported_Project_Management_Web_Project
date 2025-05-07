@@ -153,7 +153,7 @@ export default function RegisterPage() {
               </label>
               <input
                 type="text"
-                className="mt-1 w-full rounded-md border border-gray-300 p-2"
+                className="mt-1 text-black w-full rounded-md border border-gray-300 p-2"
                 placeholder="Enter your name"
                 value={formData.name}
                 onChange={(e) =>
@@ -171,7 +171,7 @@ export default function RegisterPage() {
               </label>
               <input
                 type="text"
-                className="mt-1 w-full rounded-md border border-gray-300 p-2"
+                className="mt-1 text-black w-full rounded-md border border-gray-300 p-2"
                 placeholder="Enter your last name"
                 value={formData.lastName}
                 onChange={(e) =>
@@ -189,7 +189,7 @@ export default function RegisterPage() {
               </label>
               <input
                 type="email"
-                className="mt-1 w-full rounded-md border border-gray-300 p-2"
+                className="mt-1 text-black w-full rounded-md border border-gray-300 p-2"
                 placeholder="Enter your email"
                 value={formData.email}
                 onChange={(e) =>
@@ -207,7 +207,7 @@ export default function RegisterPage() {
               </label>
               <input
                 type="text"
-                className="mt-1 w-full rounded-md border border-gray-300 p-2"
+                className="mt-1 text-black w-full rounded-md border border-gray-300 p-2"
                 placeholder="Enter your phone number"
                 value={formData.phone}
                 onChange={(e) =>
@@ -225,7 +225,7 @@ export default function RegisterPage() {
               </label>
               <input
                 type="text"
-                className="mt-1 w-full rounded-md border border-gray-300 p-2"
+                className="mt-1 text-black w-full rounded-md border border-gray-300 p-2"
                 placeholder="Enter your company"
                 value={formData.company}
                 onChange={(e) =>
@@ -242,7 +242,7 @@ export default function RegisterPage() {
                 Gender
               </label>
               <select
-                className="mt-1 w-full rounded-md border border-gray-300 p-2"
+                className="mt-1 text-black w-full rounded-md border border-gray-300 p-2"
                 value={formData.genderName}
                 onChange={(e) =>
                   setFormData((d) => ({ ...d, genderName: e.target.value }))
@@ -251,7 +251,6 @@ export default function RegisterPage() {
                 <option value="">Select Gender</option>
                 <option value="Male">Male</option>
                 <option value="Female">Female</option>
-                <option value="Other">Other</option>
               </select>
               {errorMessages.genderName && (
                 <p className="text-red-500">{errorMessages.genderName}</p>
