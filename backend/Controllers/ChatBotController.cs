@@ -8,6 +8,7 @@ using backend.Dtos.ChatbotMessage;
 using backend.Interfaces;
 using backend.Mappers;
 using backend.Models;
+using backend.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.SemanticKernel.ChatCompletion;
@@ -21,9 +22,11 @@ namespace backend.Controllers
         private readonly ITaskRepository _taskRepository;
         private readonly IUserRepository _userRepository;
         private readonly ApplicationDbContext _context;
-        public ChatBotController(ApplicationDbContext context, ITaskRepository taskRepository, IUserRepository userRepository)
+        private readonly OpenRouterService _openRouterService;
+        public ChatBotController(ApplicationDbContext context, ITaskRepository taskRepository, IUserRepository userRepository, OpenRouterService openRouterService)
         {
             _context = context;
+            _openRouterService = openRouterService;
             _taskRepository = taskRepository;
             _userRepository = userRepository;
         }
@@ -309,6 +312,20 @@ namespace backend.Controllers
             await _context.SaveChangesAsync();
 
             return Ok(new { Message = "Assignments confirmed and saved." });
+        }
+
+        [HttpPost("test-openrouter")]
+        public async Task<IActionResult> TestOpenRouter([FromBody] string prompt)
+        {
+            try
+            {
+                var result = await _openRouterService.SendMessageAsync(prompt);
+                return Ok(new { response = result });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
         }
 
     }

@@ -3,6 +3,7 @@ using backend.Data;
 using backend.Extensions;
 using backend.Interfaces;
 using backend.Repository;
+using backend.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.SemanticKernel;
 
@@ -25,6 +26,8 @@ builder.Services.AddHttpClient();
 #pragma warning disable SKEXP0070
 builder.Services.AddKernel()
     .AddGoogleAIGeminiChatCompletion(configuration["GoogleAI:ModelId"], configuration["GoogleAI:ApiKey"]); 
+
+builder.Services.AddSingleton<OpenRouterService>();
 
 // adding the DB Context
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
