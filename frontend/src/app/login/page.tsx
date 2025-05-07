@@ -79,7 +79,7 @@ export default function LoginPage() {
               </label>
               <input
                 type="email"
-                className="mt-1 w-full rounded-md border border-gray-300 p-2 focus:border-gray-500 focus:ring-gray-500"
+                className="mt-1 w-full text-black rounded-md border border-gray-300 p-2 focus:border-gray-500 focus:ring-gray-500"
                 placeholder="Enter your email"
                 value={formData.email}
                 onChange={(e) =>
@@ -97,7 +97,7 @@ export default function LoginPage() {
               </label>
               <input
                 type="password"
-                className="mt-1 w-full rounded-md border border-gray-300 p-2 focus:border-gray-500 focus:ring-gray-500"
+                className="mt-1 w-full text-black rounded-md border border-gray-300 p-2 focus:border-gray-500 focus:ring-gray-500"
                 placeholder="Enter your password"
                 value={formData.password}
                 onChange={(e) =>
