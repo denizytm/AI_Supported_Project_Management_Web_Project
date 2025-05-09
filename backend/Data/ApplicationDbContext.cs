@@ -92,6 +92,5 @@ namespace backend.Data
         public DbSet<backend.Models.Task> Tasks { get; set; }
         public DbSet<TaskType> TaskTypes { get; set; }
         public DbSet<TaskLabel> TaskLabels { get; set; }
-        public DbSet<Resource> Resources { get; set; }
     }
 }

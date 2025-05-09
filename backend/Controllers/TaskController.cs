@@ -242,11 +242,13 @@ namespace backend.Controllers
                 var progress = total > 0 ? (int)Math.Round((double)(doneCount * 100) / total) : 0;
 
                 var project = await _context.Projects.FindAsync(task.ProjectId);
-                if (project != null)
+                if (project == null)
                 {
-                    project.Progress = progress;
-                    await _context.SaveChangesAsync();
+                    return BadRequest(new { message = "Project not found for the updated task." });
                 }
+
+                project.Progress = progress;
+                await _context.SaveChangesAsync();
 
                 var notification = new Notification
                 {
@@ -260,6 +262,7 @@ namespace backend.Controllers
 
                 await _context.Notifications.AddAsync(notification);
                 await _context.SaveChangesAsync();
+
 
                 if (ChatHub.UserConnections.TryGetValue(project.ManagerId, out var connectionId))
                 {

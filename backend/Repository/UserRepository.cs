@@ -38,14 +38,14 @@ namespace backend.Repository
             return await _context.Users.FirstOrDefaultAsync(data => data.Email == email);
         }
 
-        public async Task<User> RegisterAsync(User userData,RegisterUserDto registerUserDto)
+        public async Task<User> RegisterAsync(User userData, RegisterUserDto registerUserDto)
         {
             userData.Name = registerUserDto.Name;
             userData.LastName = registerUserDto.LastName;
             userData.Phone = registerUserDto.Phone;
             userData.GenderName = registerUserDto.GenderName;
             userData.Company = registerUserDto.Company;
-            userData.Password = HashHelper.HashPassword(registerUserDto.Password);;
+            userData.Password = HashHelper.HashPassword(registerUserDto.Password); ;
             userData.IsActive = true;
 
             return userData;
@@ -53,11 +53,16 @@ namespace backend.Repository
 
         public async Task<User> CreateAsync(User userModel)
         {
-            var userData = await _context.Users.AddAsync(userModel);
+            if (string.IsNullOrEmpty(userModel.Password))
+                throw new ArgumentException("Password cannot be null or empty.");
+
             userModel.Password = HashHelper.HashPassword(userModel.Password);
+
+            var userData = await _context.Users.AddAsync(userModel);
             await _context.SaveChangesAsync();
             return userData.Entity;
         }
+
 
         public async Task<User?> UpdateAsync(int id, UpdateUserDto updateUserDto)
         {

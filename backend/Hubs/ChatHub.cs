@@ -15,7 +15,7 @@ namespace backend.Hubs
         {
             await Clients.All.ReceiveMessage(0, message);
         }
-        public async Task Register(int userId)
+        public void Register(int userId)
         {
             if (!UserConnections.ContainsKey(userId))
             {

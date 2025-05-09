@@ -126,12 +126,18 @@ export default function EditTaskModal({
   };
 
   const handleSubmit = async () => {
-    if (selectedTask) {
-      const result = await axios.put(
-        `http://localhost:5110/api/tasks/update?id=${selectedTask.id}`,
-        formData
-      );
-      onClose();
+    try {
+      if (selectedTask) {
+        const response = await axios.put(
+          `http://localhost:5110/api/tasks/update?id=${selectedTask.id}`,
+          formData
+        );
+        if (response.status) {
+          window.location.reload();
+        }
+      }
+    } catch (error) {
+      console.log(error);
     }
   };
 

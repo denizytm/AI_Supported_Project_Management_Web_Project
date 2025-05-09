@@ -8,40 +8,11 @@ namespace backend.Data
     {
         public static void Seed(ApplicationDbContext context)
         {
+            var random = new Random();
+
             if (!context.Users.Any())
             {
                 var faker = new Faker<User>()
-                   .RuleFor(u => u.Name, f => f.Name.FirstName())
-                   .RuleFor(u => u.LastName, f => f.Name.LastName())
-                   .RuleFor(u => u.Email, f => f.Internet.Email())
-                   .RuleFor(u => u.Password, f => f.Internet.Password(10))
-                   .RuleFor(u => u.Birth, f => f.Date.Between(new DateTime(1970, 1, 1), new DateTime(2003, 12, 31)))
-                   .RuleFor(u => u.Gender, f => f.PickRandom<Gender>())
-                   .RuleFor(u => u.Phone, f => f.Phone.PhoneNumber("5##-###-####"))
-                   .RuleFor(u => u.Role, f => f.PickRandom<Role>())
-                   .RuleFor(u => u.Company, f => f.Company.CompanyName())
-                   .RuleFor(u => u.ProficiencyLevel, f => f.PickRandom<ProficiencyLevel>())
-                   .RuleFor(u => u.Status, f => AvailabilityStatus.Available)
-                   .RuleFor(u => u.TaskRole, f => f.PickRandom<TaskRole>())
-                   .RuleFor(u => u.UserProjects, f => new List<UserProject>())
-                   .RuleFor(u => u.Tasks, f => new List<backend.Models.Task>())
-                   .RuleFor(u => u.IsActive, f => true)
-                   .RuleFor(u => u.ManagerId, f => null);
-
-                var users = faker.Generate(100);
-
-                foreach (var user in users)
-                {
-                    if (user.Role == Role.Admin || user.Role == Role.Client)
-                    {
-                        user.TaskRole = default;
-                        user.ProficiencyLevel = default;
-                    }
-                }
-
-                context.Users.AddRange(users);
-
-                faker = new Faker<User>()
                     .RuleFor(u => u.Name, f => f.Name.FirstName())
                     .RuleFor(u => u.LastName, f => f.Name.LastName())
                     .RuleFor(u => u.Email, f => f.Internet.Email())
@@ -49,17 +20,17 @@ namespace backend.Data
                     .RuleFor(u => u.Birth, f => f.Date.Between(new DateTime(1970, 1, 1), new DateTime(2003, 12, 31)))
                     .RuleFor(u => u.Gender, f => f.PickRandom<Gender>())
                     .RuleFor(u => u.Phone, f => f.Phone.PhoneNumber("5##-###-####"))
-                    .RuleFor(u => u.Role, f => Role.Developer)
+                    .RuleFor(u => u.Role, f => f.PickRandom<Role>())
                     .RuleFor(u => u.Company, f => f.Company.CompanyName())
                     .RuleFor(u => u.ProficiencyLevel, f => f.PickRandom<ProficiencyLevel>())
-                    .RuleFor(u => u.Status, f => AvailabilityStatus.Available)
+                    .RuleFor(u => u.Status, _ => AvailabilityStatus.Available)
                     .RuleFor(u => u.TaskRole, f => f.PickRandom<TaskRole>())
-                    .RuleFor(u => u.UserProjects, f => new List<UserProject>())
-                    .RuleFor(u => u.Tasks, f => new List<backend.Models.Task>())
-                    .RuleFor(u => u.IsActive, f => true)
-                    .RuleFor(u => u.ManagerId, f => null);
+                    .RuleFor(u => u.UserProjects, _ => new List<UserProject>())
+                    .RuleFor(u => u.Tasks, _ => new List<backend.Models.Task>())
+                    .RuleFor(u => u.IsActive, _ => true)
+                    .RuleFor(u => u.ManagerId, _ => null);
 
-                users = faker.Generate(100);
+                var users = faker.Generate(200);
 
                 foreach (var user in users)
                 {
@@ -71,151 +42,113 @@ namespace backend.Data
                 }
 
                 context.Users.AddRange(users);
-
                 context.SaveChanges();
             }
 
             if (!context.ProjectTypes.Any())
             {
-                var names = new List<ProjectType>
-                    {
-                        new ProjectType { Name = "ERP" },
-                        new ProjectType { Name = "Web" },
-                        new ProjectType { Name = "Mobile" },
-                        new ProjectType { Name = "Application" },
-                        new ProjectType { Name = "AI" },
-                    };
+                var types = new[] { "ERP", "Web", "Mobile", "Application", "AI" }
+                    .Select(name => new ProjectType { Name = name }).ToList();
 
-                context.ProjectTypes.AddRange(names);
+                context.ProjectTypes.AddRange(types);
                 context.SaveChanges();
             }
 
             if (!context.Projects.Any())
             {
-                var itManagers = context.Users.Where(u => u.Role == Role.ProjectManager).ToList();
+                var managers = context.Users.Where(u => u.Role == Role.ProjectManager).ToList();
                 var clients = context.Users.Where(u => u.Role == Role.Client).ToList();
-                var random = new Random();
+                var typeCount = context.ProjectTypes.Count();
 
-                var projectFaker = new Faker<Project>()
-                    .RuleFor(p => p.Name, f => f.Company.CompanyName())
-                    .RuleFor(p => p.Description, f => f.Lorem.Paragraph())
-                    .RuleFor(p => p.StartDate, f => f.Date.Past(1))
-                    .RuleFor(p => p.Deadline, f => f.Date.Future(1))
-                    .RuleFor(p => p.Progress, f => f.Random.Int(1, 100))
-                    .RuleFor(p => p.Status, f => f.PickRandom<ProjectStatus>())
-                    .RuleFor(p => p.Priority, f => f.PickRandom<ProjectPriority>())
-                    .RuleFor(p => p.ProjectTypeId, f => f.Random.Int(1, context.ProjectTypes.Count()))
-                    .RuleFor(p => p.ManagerId, f => itManagers[random.Next(itManagers.Count)].Id)
-                    .RuleFor(p => p.CustomerId, f => clients[random.Next(clients.Count)].Id)
-                    .RuleFor(p => p.Budget, f => f.Random.Decimal(1000, 10000))
-                    .RuleFor(p => p.SpentBudget, (f, p) => f.Random.Decimal(0, p.Budget)); 
+                var projects = new List<Project>();
+                var sessions = new List<ChatSession>();
+                var requests = new List<ProjectRequest>();
 
-                var projects = projectFaker.Generate(15);
-
-                context.Projects.AddRange(projects);
-                context.SaveChanges();
-
-                foreach (var project in projects)
+                for (int i = 0; i < 6; i++)
                 {
-                    var chatSession = new ChatSession
+                    var manager = managers[random.Next(managers.Count)];
+                    var client = clients[random.Next(clients.Count)];
+
+                    var p = new Project
                     {
-                        User1Id = project.ManagerId,
-                        User2Id = project.CustomerId,
-                        StartedAt = DateTime.UtcNow
+                        Name = new Faker().Company.CompanyName(),
+                        Description = new Faker().Lorem.Paragraph(),
+                        StartDate = DateTime.UtcNow.AddDays(-random.Next(1, 100)),
+                        Deadline = DateTime.UtcNow.AddDays(random.Next(30, 90)),
+                        Progress = 0,
+                        Status = ProjectStatus.Active,
+                        Priority = ProjectPriority.Medium,
+                        ProjectTypeId = random.Next(1, typeCount + 1),
+                        ManagerId = manager.Id,
+                        CustomerId = client.Id,
+                        Budget = random.Next(1000, 10000),
+                        SpentBudget = random.Next(0, 5000)
                     };
-                    context.ChatSessions.Add(chatSession);
 
+                    projects.Add(p);
 
-                    var authorizedUsers = new List<int>();
-
-                    authorizedUsers.Add(project.ManagerId);
-
-                    authorizedUsers.Add(project.CustomerId);
-
-                    var developerIds = context.UserProjects
-                        .Where(up => up.ProjectId == project.Id && up.User.Role == Role.Developer)
-                        .Select(up => up.UserId)
-                        .ToList();
-
-                    authorizedUsers.AddRange(developerIds);
-
-                    int requestCount = random.Next(1, 5);
-
-                    for (int i = 0; i < requestCount; i++)
+                    sessions.Add(new ChatSession
                     {
-                        var requesterId = authorizedUsers[random.Next(authorizedUsers.Count)];
+                        User1Id = p.ManagerId,
+                        User2Id = p.CustomerId,
+                        StartedAt = DateTime.UtcNow
+                    });
 
-                        var projectRequest = new ProjectRequest
+                    for (int j = 0; j < random.Next(1, 4); j++)
+                    {
+                        requests.Add(new ProjectRequest
                         {
-                            ProjectId = project.Id,
-                            RequestedById = requesterId,
-                            Description = new Faker().Lorem.Sentence(10),
+                            Project = p,
+                            RequestedById = manager.Id,
+                            Description = new Faker().Lorem.Sentence(),
                             CriticLevel = new Faker().PickRandom<CriticLevel>(),
                             IsClosed = false,
                             CreatedAt = DateTime.UtcNow
-                        };
-
-                        context.ProjectRequests.Add(projectRequest);
+                        });
                     }
                 }
 
+                context.Projects.AddRange(projects);
+                context.ChatSessions.AddRange(sessions);
+                context.ProjectRequests.AddRange(requests);
                 context.SaveChanges();
             }
-
 
             if (!context.UserProjects.Any())
             {
-                var users = context.Users
-                    .Where(u => u.Role == Role.Developer)
-                    .ToList();
-
+                var devs = context.Users.Where(u => u.Role == Role.Developer).ToList();
                 var projects = context.Projects.ToList();
-                var faker = new Faker();
 
-                foreach (User user in users)
+                var assignments = devs.Select(dev => new UserProject
                 {
-                    var randomProject = faker.PickRandom(projects);
-                    user.UserProjects.Add(new UserProject { UserId = user.Id, ProjectId = randomProject.Id });
-                }
+                    UserId = dev.Id,
+                    ProjectId = projects[random.Next(projects.Count)].Id
+                }).ToList();
 
+                context.UserProjects.AddRange(assignments);
                 context.SaveChanges();
             }
 
-
             if (!context.TaskTypes.Any())
             {
-                var names = new List<TaskType>
-                    {
-                        new TaskType { Name = "Research" },
-                        new TaskType { Name = "Design" },
-                        new TaskType { Name = "Development" },
-                        new TaskType { Name = "Testing" },
-                        new TaskType { Name = "Bugfix" },
-                    };
+                var taskTypes = new[] { "Research", "Design", "Development", "Testing", "Bugfix" }
+                    .Select(name => new TaskType { Name = name }).ToList();
 
-                context.TaskTypes.AddRange(names);
+                context.TaskTypes.AddRange(taskTypes);
                 context.SaveChanges();
             }
 
             if (!context.TaskLabels.Any())
             {
-                var labels = new List<TaskLabel>
-                    {
-                        new TaskLabel { Label = "Frontend" },
-                        new TaskLabel { Label = "Designer" },
-                        new TaskLabel { Label = "Backend" },
-                        new TaskLabel { Label = "AI" },
-                        new TaskLabel { Label = "Mobile" },
-                        new TaskLabel { Label = "Fullstack" }
-                    };
+                var taskLabels = new[] { "Frontend", "Designer", "Backend", "AI", "Mobile", "Fullstack" }
+                    .Select(label => new TaskLabel { Label = label }).ToList();
 
-                context.TaskLabels.AddRange(labels);
+                context.TaskLabels.AddRange(taskLabels);
                 context.SaveChanges();
             }
 
             if (!context.Tasks.Any())
             {
-                var users = context.Users.ToList();
                 var taskFaker = new Faker<backend.Models.Task>()
                     .RuleFor(t => t.Description, f => f.Lorem.Sentence())
                     .RuleFor(t => t.TaskTypeId, f => f.Random.Int(1, context.TaskTypes.Count()))
@@ -225,97 +158,13 @@ namespace backend.Data
                     .RuleFor(t => t.Priority, f => f.PickRandom<Priority>())
                     .RuleFor(t => t.ProjectId, f => f.Random.Int(1, context.Projects.Count()))
                     .RuleFor(t => t.TaskLabelId, f => f.Random.Int(1, context.TaskLabels.Count()))
-                    .RuleFor(t => t.UserId, (f, t) =>
-                        {
-                            /* List<int> userIds;
-
-                            if (t.TaskLevelName == "Beginner")
-                            {
-                                userIds = context.UserProjects
-                                    .Where(up => up.ProjectId == t.ProjectId)
-                                    .Select(up => up.UserId)
-                                    .ToList();
-                            }
-                            else if (t.TaskLevelName == "Intermediate")
-                            {
-                                userIds = context.UserProjects
-                                    .Where(up => up.ProjectId == t.ProjectId)
-                                    .Include(up => up.User)
-                                    .Where(up => up.User.ProficiencyLevel != ProficiencyLevel.Junior)
-                                    .Select(up => up.UserId)
-                                    .ToList();
-                            }
-                            else
-                            {
-                                userIds = context.UserProjects
-                                    .Where(up => up.ProjectId == t.ProjectId)
-                                    .Include(up => up.User)
-                                    .Where(up => up.User.ProficiencyLevel == ProficiencyLevel.Senior)
-                                    .Select(up => up.UserId)
-                                    .ToList();
-                            }
-
-                            return userIds.Any()
-                                ? (f.Random.Double() < 0.35 ? null : f.PickRandom(userIds))
-                                : null; */
-                            return null;
-                        })
-                    .RuleFor(t => t.Status, (f, t) =>
-                    {
-                        /* if (t.UserId.HasValue)
-                        {
-                            return f.Random.Double() < 0.3 ? TaskStatus.Done : TaskStatus.InProgress;
-                        }
-                        else
-                        {
-                            return TaskStatus.ToDo;
-                        } */
-                        return TaskStatus.ToDo;
-                    });
-
+                    .RuleFor(t => t.UserId, _ => null)
+                    .RuleFor(t => t.Status, _ => TaskStatus.ToDo);
 
                 var tasks = taskFaker.Generate(150);
                 context.Tasks.AddRange(tasks);
                 context.SaveChanges();
-
-                var projects = context.Projects.ToList();
-                var random = new Random();
-
-                foreach (var project in projects)
-                {
-                    var projectTasks = tasks.Where(t => t.ProjectId == project.Id).ToList();
-
-                    foreach (var task in projectTasks)
-                    {
-                        if (projectTasks.Count > 1 && random.NextDouble() < 0.7)
-                        {
-                            var potentialPredecessors = projectTasks
-                                .Where(t => t.Id != task.Id && t.DueDate < task.StartDate && task.TaskTypeId == t.TaskTypeId)
-                                .ToList();
-
-                            if (potentialPredecessors.Any())
-                            {
-                                task.TaskId = potentialPredecessors.OrderBy(_ => Guid.NewGuid()).First().Id;
-                            }
-                        }
-                    }
-                }
-
-                context.SaveChanges();
             }
-
-            if (!context.Resources.Any())
-            {
-                var resourceFaker = new Faker<Resource>()
-                    .RuleFor(r => r.Name, f => f.Commerce.ProductName())
-                    .RuleFor(r => r.Type, f => f.PickRandom<ResourceType>())
-                    .RuleFor(r => r.Cost, f => f.Random.Double(100, 10000));
-
-                var resources = resourceFaker.Generate(30);
-                context.Resources.AddRange(resources);
-                context.SaveChanges();
-            }
-
         }
     }
 }

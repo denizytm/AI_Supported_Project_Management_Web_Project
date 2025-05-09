@@ -266,27 +266,6 @@ namespace backend.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Resources",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Type = table.Column<int>(type: "int", nullable: false),
-                    Cost = table.Column<double>(type: "float", nullable: false),
-                    AssignedProjectId = table.Column<int>(type: "int", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Resources", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_Resources_Projects_AssignedProjectId",
-                        column: x => x.AssignedProjectId,
-                        principalTable: "Projects",
-                        principalColumn: "Id");
-                });
-
-            migrationBuilder.CreateTable(
                 name: "Tasks",
                 columns: table => new
                 {
@@ -428,11 +407,6 @@ namespace backend.Migrations
                 column: "ProjectTypeId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Resources_AssignedProjectId",
-                table: "Resources",
-                column: "AssignedProjectId");
-
-            migrationBuilder.CreateIndex(
                 name: "IX_Tasks_DependingTaskId",
                 table: "Tasks",
                 column: "DependingTaskId");
@@ -482,9 +456,6 @@ namespace backend.Migrations
 
             migrationBuilder.DropTable(
                 name: "ProjectRequests");
-
-            migrationBuilder.DropTable(
-                name: "Resources");
 
             migrationBuilder.DropTable(
                 name: "Tasks");

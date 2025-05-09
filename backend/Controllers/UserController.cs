@@ -58,8 +58,10 @@ namespace backend.Controllers
 
             if (!string.IsNullOrWhiteSpace(proficiency))
             {
-                var normalizedProf = proficiency.Trim().ToLower();
-                query = query.Where(u => u.ProficiencyLevel.ToString().ToLower() == normalizedProf);
+                if (Enum.TryParse<ProficiencyLevel>(proficiency, true, out var profLevel))
+                {
+                    query = query.Where(u => u.ProficiencyLevel == profLevel);
+                }
             }
 
             if (!string.IsNullOrWhiteSpace(search))
@@ -268,7 +270,7 @@ namespace backend.Controllers
         {
 
             var user = createUserDto.FromCreateToModel();
-            
+
             _context.Users.Add(user);
             await _context.SaveChangesAsync();
 
@@ -292,9 +294,9 @@ namespace backend.Controllers
                     });
                 }
 
-                existingUser = await _userContext.RegisterAsync(existingUser,registerUserDto);
+                existingUser = await _userContext.RegisterAsync(existingUser, registerUserDto);
 
-                var updatedUser = await _userContext.UpdateAsync(existingUser.Id,existingUser.FromModelToUpdateDto());
+                var updatedUser = await _userContext.UpdateAsync(existingUser.Id, existingUser.FromModelToUpdateDto());
 
                 if (updatedUser != null)
                 {

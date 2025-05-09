@@ -60,8 +60,13 @@ namespace backend.Models
         public string? GenderName
         {
             get => Gender.ToString();
-            set => Gender = Enum.Parse<Gender>(value);
+            set
+            {
+                if (!string.IsNullOrEmpty(value))
+                    Gender = Enum.Parse<Gender>(value);
+            }
         }
+
         public string? Phone { get; set; } = String.Empty;
         public int? ManagerId { get; set; }
         public User? Manager { get; set; } = null!;

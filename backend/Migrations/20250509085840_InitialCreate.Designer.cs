@@ -12,7 +12,7 @@ using backend.Data;
 namespace backend.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20250506133217_InitialCreate")]
+    [Migration("20250509085840_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -269,34 +269,6 @@ namespace backend.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("ProjectTypes");
-                });
-
-            modelBuilder.Entity("backend.Models.Resource", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<int?>("AssignedProjectId")
-                        .HasColumnType("int");
-
-                    b.Property<double>("Cost")
-                        .HasColumnType("float");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("Type")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("AssignedProjectId");
-
-                    b.ToTable("Resources");
                 });
 
             modelBuilder.Entity("backend.Models.Task", b =>
@@ -590,15 +562,6 @@ namespace backend.Migrations
                     b.Navigation("Project");
 
                     b.Navigation("RequestedBy");
-                });
-
-            modelBuilder.Entity("backend.Models.Resource", b =>
-                {
-                    b.HasOne("backend.Models.Project", "AssignedProject")
-                        .WithMany()
-                        .HasForeignKey("AssignedProjectId");
-
-                    b.Navigation("AssignedProject");
                 });
 
             modelBuilder.Entity("backend.Models.Task", b =>

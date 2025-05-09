@@ -268,34 +268,6 @@ namespace backend.Migrations
                     b.ToTable("ProjectTypes");
                 });
 
-            modelBuilder.Entity("backend.Models.Resource", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<int?>("AssignedProjectId")
-                        .HasColumnType("int");
-
-                    b.Property<double>("Cost")
-                        .HasColumnType("float");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("Type")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("AssignedProjectId");
-
-                    b.ToTable("Resources");
-                });
-
             modelBuilder.Entity("backend.Models.Task", b =>
                 {
                     b.Property<int>("Id")
@@ -587,15 +559,6 @@ namespace backend.Migrations
                     b.Navigation("Project");
 
                     b.Navigation("RequestedBy");
-                });
-
-            modelBuilder.Entity("backend.Models.Resource", b =>
-                {
-                    b.HasOne("backend.Models.Project", "AssignedProject")
-                        .WithMany()
-                        .HasForeignKey("AssignedProjectId");
-
-                    b.Navigation("AssignedProject");
                 });
 
             modelBuilder.Entity("backend.Models.Task", b =>

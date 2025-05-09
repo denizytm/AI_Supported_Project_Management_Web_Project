@@ -276,19 +276,24 @@ namespace backend.Controllers
                     return BadRequest(new { message = $"No project found with the id value : {id}" });
                 }
 
-                var projectUsers = _context.UserProjects.Where(up => up.ProjectId == id).Select(up => new UserProjectDto
-                {
-                    Id = project.Id,
-                    User = up.User.ToUserDto(),
-                    ProjectId = up.ProjectId
-                }).ToList();
+                var projectUsers = new List<UserProjectDto>(_context.UserProjects
+                    .Where(up => up.ProjectId == id)
+                    .Select(up => new UserProjectDto
+                    {
+                        Id = project.Id,
+                        User = up.User.ToUserDto(),
+                        ProjectId = up.ProjectId
+                    }));
 
                 var users = new List<UserDto>();
 
                 for (var i = 0; i < projectUsers.Count; i++)
                 {
-                    var userId = projectUsers[i].User.Id;
-                    users.Add(_context.Users.Where(u => u.Id == userId).First().ToUserDto());
+                    var user = projectUsers[i].User;
+                    if (user != null)
+                    {
+                        users.Add(_context.Users.Where(u => u.Id == user.Id).First().ToUserDto());
+                    }
                 }
 
                 var tasks = _context.Tasks

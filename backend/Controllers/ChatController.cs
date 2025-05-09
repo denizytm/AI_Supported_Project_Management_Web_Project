@@ -101,6 +101,10 @@ namespace backend.Controllers
                     ((s.User1Id == request.SenderUserId && s.User2Id == request.ReceiverUserId) ||
                      (s.User1Id == request.ReceiverUserId && s.User2Id == request.SenderUserId)) &&
                     s.EndedAt == null);
+
+                if (session == null)
+                    return StatusCode(500, "Chat session could not created.");
+
             }
 
             var message = new PrivateMessage

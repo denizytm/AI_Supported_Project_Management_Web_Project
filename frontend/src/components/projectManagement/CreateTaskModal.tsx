@@ -80,10 +80,16 @@ export default function CreateTaskModal({
   };
 
   const handleSubmit = async () => {
-    const result = await axios.post("http://localhost:5110/api/tasks/add", {
-      ...formData,
-    });
-    onClose();
+    try {
+      const response = await axios.post("http://localhost:5110/api/tasks/add", {
+        ...formData,
+      });
+      if (response.status) {
+        window.location.reload();
+      }
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   if (!ready) return <div>Loading...</div>;
