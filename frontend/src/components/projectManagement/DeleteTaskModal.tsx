@@ -36,7 +36,7 @@ const DeleteTaskModal = ({
     try {
       const response = await axios.delete(`http://localhost:5110/api/tasks/delete?id=${id}`);
       if(response.status){
-        onClose();
+        window.location.reload();
       }
     } catch (error) {
       console.log(error);
@@ -54,7 +54,7 @@ const DeleteTaskModal = ({
           Select Task
         </label>
         <select
-          className="w-full p-2 border border-gray-300 rounded mb-4"
+          className="w-full text-black p-2 border border-gray-300 rounded mb-4"
           value={selectedTaskId ?? ""}
           onChange={(e) => setSelectedTaskId(Number(e.target.value))}
         >

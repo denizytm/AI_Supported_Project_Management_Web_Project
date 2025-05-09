@@ -152,7 +152,7 @@ export default function EditTaskModal({
         <label htmlFor="statusName">Select Task to Edit</label>
         <select
           name="taskId"
-          className="w-full p-2 border rounded mb-2 overflow-scroll"
+          className="w-full text-black p-2 border rounded mb-2 overflow-scroll"
           onChange={(e) => {
             setSelectedTask(tasks.find((task) => task.id == +e.target.value));
           }}
@@ -182,7 +182,7 @@ export default function EditTaskModal({
           name="description"
           type="text"
           placeholder="Task Name"
-          className="w-full p-2 border rounded mb-2"
+          className="w-full text-black p-2 border rounded mb-2"
           onChange={handleChange}
           value={formData.description}
         />
@@ -191,7 +191,7 @@ export default function EditTaskModal({
         <input
           list="taskTypeList"
           name="taskTypeName"
-          className="w-full p-2 border rounded mb-2"
+          className="w-full text-black p-2 border rounded mb-2"
           value={formData.taskTypeName}
           onChange={handleChange}
         />
@@ -205,7 +205,7 @@ export default function EditTaskModal({
         <input
           list="taskLabelList"
           name="taskLabelName"
-          className="w-full p-2 border rounded mb-2"
+          className="w-full text-black p-2 border rounded mb-2"
           value={formData.taskLabelName}
           onChange={handleChange}
         />
@@ -219,7 +219,7 @@ export default function EditTaskModal({
         <input
           name="startDate"
           type="date"
-          className="w-full p-2 border rounded mb-2"
+          className="w-full text-black p-2 border rounded mb-2"
           value={formData.startDate}
           onChange={handleChange}
           min="2020-01-01"
@@ -230,7 +230,7 @@ export default function EditTaskModal({
         <input
           name="dueDate"
           type="date"
-          className="w-full p-2 border rounded mb-2"
+          className="w-full text-black p-2 border rounded mb-2"
           value={formData.dueDate}
           onChange={handleChange}
           min="2020-01-01"
@@ -240,7 +240,7 @@ export default function EditTaskModal({
         <label htmlFor="priorityName">Priority</label>
         <select
           name="priorityName"
-          className="w-full p-2 border rounded mb-2"
+          className="w-full text-black p-2 border rounded mb-2"
           value={formData.priorityName}
           onChange={handleChange}
         >
@@ -252,7 +252,7 @@ export default function EditTaskModal({
         <label htmlFor="taskLevelName">Task Level</label>
         <select
           name="taskLevelName"
-          className="w-full p-2 border rounded mb-2"
+          className="w-full text-black p-2 border rounded mb-2"
           value={formData.taskLevelName}
           onChange={handleChange}
         >
@@ -264,7 +264,7 @@ export default function EditTaskModal({
         <label htmlFor="userId">Assign to</label>
         <select
           name="userId"
-          className="w-full p-2 border rounded mb-2"
+          className="w-full text-black p-2 border rounded mb-2"
           value={formData.userId}
           onChange={handleChange}
         >
@@ -311,7 +311,7 @@ export default function EditTaskModal({
         <label htmlFor="statusName">Status</label>
         <select
           name="statusName"
-          className="w-full p-2 border rounded mb-2"
+          className="w-full text-black p-2 border rounded mb-2"
           value={formData.statusName}
           onChange={handleChange}
         >
@@ -323,7 +323,7 @@ export default function EditTaskModal({
         <label htmlFor="statusName">Depending On</label>
         <select
           name="taskId"
-          className="w-full p-2 border rounded mb-2 overflow-scroll"
+          className="w-full text-black p-2 border rounded mb-2 overflow-scroll"
           value={formData.taskId}
           onChange={handleChange}
         >

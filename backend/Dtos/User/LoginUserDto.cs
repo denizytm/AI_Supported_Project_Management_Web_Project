@@ -8,7 +8,7 @@ using backend.Models;
 
 namespace backend.Dtos.User
 {
-    public class LoginUserDto
+public class LoginUserDto
     {
         public string Email { get; set; } = String.Empty;
         public string Password { get; set; } = String.Empty;

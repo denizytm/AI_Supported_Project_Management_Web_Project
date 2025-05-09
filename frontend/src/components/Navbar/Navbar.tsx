@@ -17,6 +17,7 @@ import {
   FaCalendar,
 } from "react-icons/fa";
 import { useDispatch, useSelector } from "react-redux";
+import CalendarPopover from "./CalendarPopover";
 
 export default function Navbar() {
   const [darkMode, setDarkMode] = useState(false);
@@ -30,6 +31,8 @@ export default function Navbar() {
   const { connection } = useSignalR();
   const router = useRouter();
   const { isChatOpen } = useChatContext();
+
+  const [showCalendar, setShowCalendar] = useState(false);
 
   useEffect(() => {
     if (currentUser)
@@ -78,12 +81,14 @@ export default function Navbar() {
       connection.on("ReceiveNotification", (notification: NotificationType) => {
         console.log("New notification :", notification);
         if (isChatOpen && notification.title === "New Message") {
-          setNotifications(prev => [{...notification,isRead : true},...prev])
+          setNotifications((prev) => [
+            { ...notification, isRead: true },
+            ...prev,
+          ]);
           handleReadNotification([notification.id]);
-        }else {
+        } else {
           setNotifications((prev) => [notification, ...prev]);
         }
-
       });
     }
 
@@ -97,6 +102,10 @@ export default function Navbar() {
     window.location.reload();
   };
 
+  useEffect(() => {
+    console.log(notifications);
+  }, [notifications]);
+
   if (!currentUser) return <>Loading...</>;
   return (
     <nav
@@ -107,16 +116,6 @@ export default function Navbar() {
         <button onClick={() => router.push("/dashboard")}>
           <h1 className="text-xl font-bold dark:text-white">ERP</h1>
         </button>
-        <div
-          className="flex items-center gap-2 cursor-pointer"
-          onClick={() => setDarkMode(!darkMode)}
-        >
-          {darkMode ? (
-            <FaRegMoon className="text-white text-lg" />
-          ) : (
-            <FaRegSun className="text-blue-500 text-lg" />
-          )}
-        </div>
       </div>
 
       <div className="flex items-center gap-4">
@@ -134,11 +133,15 @@ export default function Navbar() {
       </div>
 
       <div className="relative flex items-center gap-4 text-gray-600 dark:text-gray-300">
-        <FaCalendar className="cursor-pointer" />
+        <FaCalendar
+          className="cursor-pointer text-xl text-white"
+          onClick={() => setShowCalendar((prev) => !prev)}
+        />
+
+        {showCalendar && <CalendarPopover />}
         <FaCog className="cursor-pointer" />
 
         <div className="flex items-center gap-4 relative text-gray-700 dark:text-white">
-          {/* 🔔 Notification Icon */}
           <div className="relative">
             <FaBell
               className="cursor-pointer text-lg"
@@ -169,7 +172,11 @@ export default function Navbar() {
                           })
                         );
                         await handleReadNotification([notif.id]);
-                        if (notif.link) router.push(notif.link);
+                        if (notif.link) {
+                          setTimeout(() => {
+                            router.push(notif.link);
+                          }, 150);
+                        }
                       }}
                       key={notif.id}
                       className={`px-4 py-3 transition-colors duration-200 cursor-pointer ${
@@ -179,7 +186,11 @@ export default function Navbar() {
                       }`}
                     >
                       <div className="flex flex-col">
-                        <span className={`font-semibold`}>{notif.title}</span>
+                        <span className={`font-semibold`}>
+                          {notif.title == "New Message"
+                            ? notif.senderName
+                            : notif.title}
+                        </span>
                         <span
                           className={`text-sm mt-1 ${
                             notif.isRead
@@ -212,7 +223,6 @@ export default function Navbar() {
 
           {userMenuOpen && (
             <div className="absolute right-0 mt-2 w-64 bg-white dark:bg-gray-700 rounded-md shadow-lg border dark:border-gray-600 z-50">
-              {/* Profil Bilgisi */}
               <div className="p-4 border-b border-gray-200 dark:border-gray-600 flex items-center gap-3">
                 <img
                   src={`https://ui-avatars.com/api/?name=${currentUser.name}+${currentUser.lastName}&background=random`}
@@ -229,7 +239,6 @@ export default function Navbar() {
                 </div>
               </div>
 
-              {/* Status Seçimi */}
               <div className="p-4 border-b border-gray-200 dark:border-gray-600">
                 <label className="block text-xs text-gray-600 dark:text-gray-300 mb-1">
                   Status
@@ -245,14 +254,7 @@ export default function Navbar() {
                 </select>
               </div>
 
-              {/* Menü Seçenekleri */}
               <ul className="p-2">
-                <li className="px-4 py-2 text-gray-800 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-600 cursor-pointer">
-                  My Profile
-                </li>
-                <li className="px-4 py-2 text-gray-800 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-600 cursor-pointer">
-                  Settings
-                </li>
                 <li
                   onClick={handleLogOut}
                   className="px-4 py-2 text-red-600 dark:text-red-400 hover:bg-gray-100 dark:hover:bg-gray-600 cursor-pointer"

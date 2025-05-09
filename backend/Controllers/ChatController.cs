@@ -119,10 +119,13 @@ namespace backend.Controllers
             _context.PrivateMessages.Add(message);
             await _context.SaveChangesAsync();
 
+            var senderUser = await _context.Users.FindAsync(request.SenderUserId);
+
             var notification = new Notification
             {
                 TargetUserId = request.ReceiverUserId,
                 Title = "New Message",
+                SenderName = senderUser.Name + " " + senderUser.LastName,
                 Message = request.Content,
                 CreatedAt = DateTime.UtcNow,
                 IsRead = false,

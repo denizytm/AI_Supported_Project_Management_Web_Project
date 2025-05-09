@@ -24,10 +24,22 @@ export default function AddProjectModal({
     statusName: "",
     managerId: 0,
     customerId: 0,
+    budget: 0,
   });
-  const [searchTerm, setSearchTerm] = useState("");
-  const [filteredUsers, setFilteredUsers] = useState<UserType[]>([]);
-  const [selectedUser, setSelectedUser] = useState<string | null>(null);
+
+  const [errorMessages, setErrorMessages] = useState({
+    name: "",
+    description: "",
+    projectTypeId: "",
+    startDate: "",
+    deadline: "",
+    priorityName: "",
+    statusName: "",
+    managerId: "",
+    customerId: "",
+    budget: "",
+  });
+
   const [projectTypes, setProjectTypes] = useState<
     { id: number; name: string }[]
   >([]);
@@ -45,7 +57,7 @@ export default function AddProjectModal({
 
       if (response.status) {
         setProjectTypes(response.data);
-        fetchProjects(); 
+        fetchProjects();
       }
     })();
   }, [addModelVisible]);
@@ -76,7 +88,55 @@ export default function AddProjectModal({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log(formData);
+
+    let c = 0;
+
+    const validations: {
+      key: keyof typeof formData;
+      message: string;
+      condition?: (v: any) => boolean;
+    }[] = [
+      { key: "name", message: "Please enter a project name." },
+      { key: "description", message: "Please enter a project description." },
+      {
+        key: "projectTypeId",
+        message: "Please select a project type.",
+        condition: (v) => v === 0 || v === "",
+      },
+      { key: "startDate", message: "Please enter a start date." },
+      { key: "deadline", message: "Please enter a deadline." },
+      { key: "priorityName", message: "Please select a priority." },
+      { key: "statusName", message: "Please enter a status." },
+      {
+        key: "managerId",
+        message: "Please select a manager.",
+        condition: (v) => !v,
+      },
+      {
+        key: "customerId",
+        message: "Please select a customer.",
+        condition: (v) => !v,
+      },
+      {
+        key: "budget",
+        message: "Please enter a budget for the project.",
+        condition: (v) => !v,
+      },
+    ];
+
+    validations.forEach(({ key, message, condition }) => {
+      const isInvalid = condition ? condition(formData[key]) : !formData[key];
+
+      if (isInvalid) {
+        setErrorMessages((em) => ({ ...em, [key]: message }));
+        c = 1;
+      } else {
+        setErrorMessages((em) => ({ ...em, [key]: "" }));
+      }
+    });
+
+    if (c) return;
+
     try {
       const response = await axios.post(
         "http://localhost:5110/api/projects/add",
@@ -116,6 +176,9 @@ export default function AddProjectModal({
               onChange={handleChange}
               className="w-full p-2 border border-gray-300 rounded-lg dark:bg-gray-700 dark:border-gray-600 dark:text-white"
             />
+            {errorMessages.name && (
+              <p className="text-red-500">{errorMessages.name}</p>
+            )}
           </div>
 
           {/* Description */}
@@ -130,6 +193,9 @@ export default function AddProjectModal({
               onChange={handleChange}
               className="w-full p-2 border border-gray-300 rounded-lg dark:bg-gray-700 dark:border-gray-600 dark:text-white"
             />
+            {errorMessages.description && (
+              <p className="text-red-500">{errorMessages.description}</p>
+            )}
           </div>
 
           {/* Project Type */}
@@ -150,6 +216,9 @@ export default function AddProjectModal({
                 </option>
               ))}
             </select>
+            {errorMessages.projectTypeId && (
+              <p className="text-red-500">{errorMessages.projectTypeId}</p>
+            )}
           </div>
 
           {/* Start Date */}
@@ -158,12 +227,16 @@ export default function AddProjectModal({
               Start Date
             </label>
             <input
+              value={formData.startDate}
               type="date"
               id="startDate"
               name="startDate"
               onChange={handleChange}
               className="w-full p-2 border border-gray-300 rounded-lg dark:bg-gray-700 dark:border-gray-600 dark:text-white"
             />
+            {errorMessages.startDate && (
+              <p className="text-red-500">{errorMessages.startDate}</p>
+            )}
           </div>
 
           {/* Deadline */}
@@ -172,12 +245,16 @@ export default function AddProjectModal({
               Deadline
             </label>
             <input
+              value={formData.deadline}
               type="date"
               id="deadline"
               name="deadline"
               onChange={handleChange}
               className="w-full p-2 border border-gray-300 rounded-lg dark:bg-gray-700 dark:border-gray-600 dark:text-white"
             />
+            {errorMessages.deadline && (
+              <p className="text-red-500">{errorMessages.deadline}</p>
+            )}
           </div>
 
           {/* Priority */}
@@ -196,6 +273,9 @@ export default function AddProjectModal({
               <option value="Medium">Medium</option>
               <option value="High">High</option>
             </select>
+            {errorMessages.priorityName && (
+              <p className="text-red-500">{errorMessages.priorityName}</p>
+            )}
           </div>
 
           {/* Status */}
@@ -214,6 +294,9 @@ export default function AddProjectModal({
               <option value="OnHold">On Hold</option>
               <option value="Completed">Completed</option>
             </select>
+            {errorMessages.statusName && (
+              <p className="text-red-500">{errorMessages.statusName}</p>
+            )}
           </div>
 
           {/* Manager Seçimi */}
@@ -236,6 +319,9 @@ export default function AddProjectModal({
                 </option>
               ))}
             </select>
+            {errorMessages.managerId && (
+              <p className="text-red-500">{errorMessages.managerId}</p>
+            )}
           </div>
 
           <div>
@@ -254,12 +340,17 @@ export default function AddProjectModal({
               className="w-full p-2 border border-gray-300 rounded-lg dark:bg-gray-700 dark:border-gray-600 dark:text-white"
             >
               <option value="">Select Client</option>
-              {clients.map((client) => (
-                <option key={client.id} value={client.id}>
-                  {client.name} {client.lastName}
-                </option>
-              ))}
+              {clients
+                .filter((c) => c.name != "")
+                .map((client) => (
+                  <option key={client.id} value={client.id}>
+                    {client.name} {client.lastName}
+                  </option>
+                ))}
             </select>
+            {errorMessages.customerId && (
+              <p className="text-red-500">{errorMessages.customerId}</p>
+            )}
           </div>
 
           {/* Budget */}
@@ -275,6 +366,9 @@ export default function AddProjectModal({
               placeholder="Budget"
               className="w-full p-2 border border-gray-300 rounded-lg dark:bg-gray-700 dark:border-gray-600 dark:text-white"
             />
+            {errorMessages.budget && (
+              <p className="text-red-500">{errorMessages.budget}</p>
+            )}
           </div>
 
           {/* Submit Buttons */}

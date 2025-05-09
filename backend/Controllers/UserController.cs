@@ -259,6 +259,13 @@ namespace backend.Controllers
         public async Task<IActionResult> CreateUser([FromBody] CreateUserDto createUserDto)
         {
 
+            var existingUser = await _context.Users.FirstOrDefaultAsync(user => user.Email == createUserDto.Email);
+
+            if(existingUser != null) return Ok(new {
+                result = false,
+                message = "There's already an already an user exists with this email"
+            });
+
             var user = createUserDto.FromCreateToModel();
 
             _context.Users.Add(user);

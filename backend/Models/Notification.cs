@@ -13,6 +13,7 @@ namespace backend.Models
         public string? Link { get; set; } 
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
         public bool IsRead { get; set; } = false;
+        public string SenderName { get; set; } = String.Empty;
         public int TargetUserId { get; set; }
         public User TargetUser { get; set; } = null!;
     }

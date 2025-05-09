@@ -21,7 +21,6 @@ namespace backend.Controllers
             _context = context;
         }
 
-        // Kullanıcının bildirimlerini getir
         [HttpGet("get")]
         public async Task<IActionResult> GetNotifications(int userId)
         {
@@ -33,7 +32,6 @@ namespace backend.Controllers
             return Ok(notifications);
         }
 
-        // Yeni bir bildirim oluştur
         [HttpPost("create")]
         public async Task<IActionResult> CreateNotification(
             [FromBody] CreateNotificationDto createNotificationDto,

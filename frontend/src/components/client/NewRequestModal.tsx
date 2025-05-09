@@ -1,7 +1,18 @@
 import { useState } from "react";
 import axios from "axios";
+import { ProjectRequestType } from "@/types/projectType";
 
-export default function NewRequestModal({ projectId, userId, onClose }: any) {
+interface NewRequestModalProps {
+  projectId: number;
+  userId: number;
+  onClose: () => void;
+}
+
+export default function NewRequestModal({
+  projectId,
+  userId,
+  onClose,
+}: NewRequestModalProps) {
   const [description, setDescription] = useState("");
   const [criticalLevel, setCriticalLevel] = useState("Low");
 
@@ -14,15 +25,20 @@ export default function NewRequestModal({ projectId, userId, onClose }: any) {
       isClosed: false,
     });
     try {
-      await axios.post("http://localhost:5110/api/project/requests/create-request", {
-        description,
-        criticLevelName: criticalLevel,
-        projectId,
-        requestedById: userId,
-        isClosed: false,
-        createdAt: new Date().toISOString(),
-      });
-      onClose(); // Modalı kapat
+      const response = await axios.post(
+        "http://localhost:5110/api/project/requests/create-request",
+        {
+          description,
+          criticLevelName: criticalLevel,
+          projectId,
+          requestedById: userId,
+          isClosed: false,
+          createdAt: new Date().toISOString(),
+        }
+      );
+      if (response.status) {
+        window.location.reload();
+      }
     } catch (err) {
       console.error("Request submission failed", err);
     }

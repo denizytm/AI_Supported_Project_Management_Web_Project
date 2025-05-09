@@ -17,7 +17,7 @@ namespace backend.Mappers
                 ClosedAt = projectRequest.ClosedAt,
                 ClosingNote = projectRequest.ClosingNote ?? "", 
                 CreatedAt = projectRequest.CreatedAt,
-                CriticLevelName = projectRequest.CriticLevelName ?? "Unknown", 
+                CriticLevelName = projectRequest.CriticLevelName ?? "Low", 
                 Description = projectRequest.Description ?? "",
                 IsClosed = projectRequest.IsClosed,
                 RequestedBy = projectRequest.RequestedBy.ToUserDto(),

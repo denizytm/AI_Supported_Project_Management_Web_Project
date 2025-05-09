@@ -30,44 +30,50 @@ export default function ClientRequestsContainer({
           </thead>
           <tbody>
             {projectRequests &&
-              projectRequests.map((request) => (
-                <tr
-                  className={`border-b hover:bg-gray-100 dark:hover:bg-gray-800 transition ${
-                    request.isClosed ? "opacity-50" : ""
-                  }`}
-                >
-                  <td
-                    className={
-                      "px-3 py-2 font-semibold whitespace-nowrap " +
-                      (request.criticLevelName === "Low"
-                        ? "text-green-500"
-                        : request.criticLevelName === "Medium"
-                        ? "text-yellow-500"
-                        : request.criticLevelName === "High"
-                        ? "text-red-500"
-                        : "text-red-700")
-                    }
+              projectRequests
+                .sort(
+                  (a, b) =>
+                    new Date(b.createdAt).getTime() -
+                    new Date(a.createdAt).getTime()
+                )
+                .map((request) => (
+                  <tr
+                    className={`border-b hover:bg-gray-100 dark:hover:bg-gray-800 transition ${
+                      request.isClosed ? "opacity-50" : ""
+                    }`}
                   >
-                    {request.criticLevelName}
-                  </td>
-                  <td className="px-3 py-2 text-gray-700 dark:text-gray-300 max-w-[180px] truncate">
-                    {request.description}
-                  </td>
-                  <td className="px-3 py-2">
-                    <button
-                      className="text-blue-500 hover:text-blue-700 font-semibold"
-                      onClick={() => {
-                        setSelectedRequest(request);
-                        setIsCompleted(request.isClosed || false);
-                        setCompletionNote(request.closingNote || "");
-                      }}
-                      disabled={request.isClosed}
+                    <td
+                      className={
+                        "px-3 py-2 font-semibold whitespace-nowrap " +
+                        (request.criticLevelName === "Low"
+                          ? "text-green-500"
+                          : request.criticLevelName === "Medium"
+                          ? "text-yellow-500"
+                          : request.criticLevelName === "High"
+                          ? "text-red-500"
+                          : "text-red-700")
+                      }
                     >
-                      {request.isClosed ? "Done" : "See"}
-                    </button>
-                  </td>
-                </tr>
-              ))}
+                      {request.criticLevelName}
+                    </td>
+                    <td className="px-3 py-2 text-gray-700 dark:text-gray-300 max-w-[180px] truncate">
+                      {request.description}
+                    </td>
+                    <td className="px-3 py-2">
+                      <button
+                        className="text-blue-500 hover:text-blue-700 font-semibold"
+                        onClick={() => {
+                          setSelectedRequest(request);
+                          setIsCompleted(request.isClosed || false);
+                          setCompletionNote(request.closingNote || "");
+                        }}
+                        disabled={request.isClosed}
+                      >
+                        {request.isClosed ? "Done" : "See"}
+                      </button>
+                    </td>
+                  </tr>
+                ))}
           </tbody>
         </table>
       </div>

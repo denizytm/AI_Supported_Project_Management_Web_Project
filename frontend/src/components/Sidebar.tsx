@@ -55,12 +55,6 @@ export default function Sidebar() {
       link: "/client",
       roles: ["Client"],
     },
-    {
-      name: "Documents",
-      icon: <FaFolder />,
-      link: "/documents",
-      roles: ["Admin", "ProjectManager"],
-    },
   ]);
 
   const [filteredMenuItems, setFilteredMenuItems] = useState<

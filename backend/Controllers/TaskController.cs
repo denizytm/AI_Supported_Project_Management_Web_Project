@@ -89,6 +89,14 @@ namespace backend.Controllers
             }
         }
 
+        [HttpGet("user")]
+        public async Task<IActionResult> GetTasksAssignedToUser(int id)
+        {
+            var assignedTasks = await _context.Tasks.Where(t => t.UserId == id).Include(t => t.TaskLabel).ToListAsync();
+            var taskDtos = assignedTasks.Select(t => t.ToTaskDto());
+            return Ok(taskDtos);
+        }
+
         [HttpGet("find")]
         public async Task<IActionResult> GetTask(int id)
         {

@@ -177,7 +177,7 @@ namespace backend.Controllers
         {
             try
             {
-                var project = await _context.Projects.Include(p => p.Manager).Where(p => p.Id == id).FirstAsync();
+                var project = await _context.Projects.Include(p => p.Manager).Where(p => p.Id == id).FirstOrDefaultAsync();
 
                 if (project == null)
                 {
@@ -266,6 +266,7 @@ namespace backend.Controllers
                     .Where(p => p.Id == id)
                     .Include(p => p.Customer)
                     .Include(p => p.Manager)
+                    .Include(p => p.ProjectRequests)
                     .FirstOrDefaultAsync();
 
                 if (project == null)
@@ -430,15 +431,25 @@ namespace backend.Controllers
                 {
                     await _context.SaveChangesAsync();
 
-                    var chatSession = new ChatSession
-                    {
-                        User1Id = project.ManagerId,
-                        User2Id = project.CustomerId,
-                        StartedAt = DateTime.UtcNow
-                    };
+                    var existingSession = await _context.ChatSessions
+                        .Where(c =>
+                            (c.User1Id == project.ManagerId && c.User2Id == project.CustomerId) ||
+                            (c.User2Id == project.ManagerId && c.User1Id == project.CustomerId)
+                        )
+                        .FirstOrDefaultAsync(); 
 
-                    await _context.ChatSessions.AddAsync(chatSession);
-                    await _context.SaveChangesAsync();
+                    if (existingSession == null)
+                    {
+                        var chatSession = new ChatSession
+                        {
+                            User1Id = project.ManagerId,
+                            User2Id = project.CustomerId,
+                            StartedAt = DateTime.UtcNow
+                        };
+
+                        await _context.ChatSessions.AddAsync(chatSession);
+                        await _context.SaveChangesAsync();
+                    }
 
                     var managerNotification = new Notification
                     {

@@ -78,29 +78,23 @@ namespace backend.Controllers
 
         [HttpPost("create-request")]
         public async Task<IActionResult> CreateProjectRequest(
-            [FromBody] CreateProjectRequestDto requestDto
+            [FromBody] CreateProjectRequestDto createProjectRequestDto
         )
         {
             try
             {
-                var request = new ProjectRequest
-                {
-                    ProjectId = requestDto.ProjectId,
-                    RequestedById = requestDto.RequestedById,
-                    Description = requestDto.Description,
-                    CriticLevelName = requestDto.CriticLevelName,
-                    IsClosed = false,
-                    CreatedAt = DateTime.UtcNow
-                };
+                var request = createProjectRequestDto.FromCreateDtoToModel();
 
                 await _context.ProjectRequests.AddAsync(request);
                 await _context.SaveChangesAsync();
+
+                request = await _context.ProjectRequests.Where(pr => pr.Id == request.Id).Include(pr => pr.RequestedBy).FirstAsync();
 
                 var dto = request.FromProjectRequestToDto();
 
                 foreach (var connection in ChatHub.UserConnections.Values)
                 {
-                    await _hubContext.Clients.Client(connection).ReceiveProjectRequest(request.FromProjectRequestToDto());
+                    await _hubContext.Clients.Client(connection).ReceiveProjectRequest(dto);
                 }
 
                 return Ok(new

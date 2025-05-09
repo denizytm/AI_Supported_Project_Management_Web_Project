@@ -13,6 +13,7 @@ namespace backend.Dtos.Notification
         public string Message { get; set; } = string.Empty;
         public string? Link { get; set; }
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+        public string SenderName { get; set; } = String.Empty;
         public bool IsRead { get; set; } = false;
         public int TargetUserId { get; set; }
         public UserDto TargetUser { get; set; } = null!;

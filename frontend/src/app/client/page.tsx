@@ -21,6 +21,9 @@ export default function CustomerDashboard() {
   const [showChat, setShowChat] = useState(false);
   const [showNewRequestModal, setShowNewRequestModal] = useState(false);
 
+  const [selectedRequest, setSelectedRequest] = useState<any | null>(null);
+  const [showRequestModal, setShowRequestModal] = useState(false);
+
   const currentUser = useSelector((state: RootState) => state.currentUser.user);
 
   const { setIsChatOpen } = useChatContext();
@@ -165,23 +168,84 @@ export default function CustomerDashboard() {
                   <th className="p-2">Description</th>
                   <th className="p-2">Status</th>
                   <th className="p-2">Date</th>
+                  <th className="p-2">Actions</th>
                 </tr>
               </thead>
               <tbody>
                 {projectData.projectRequests &&
-                  projectData.projectRequests.map((r) => (
-                    <tr
-                      key={r.id}
-                      className="border-b hover:bg-gray-50 dark:hover:bg-gray-900"
-                    >
-                      <td className="p-2">{r.criticLevelName}</td>
-                      <td className="p-2 truncate max-w-xs">{r.description}</td>
-                      <td className="p-2">{r.isClosed ? "Closed" : "Open"}</td>
-                      <td className="p-2">{r.createdAt}</td>
-                    </tr>
-                  ))}
+                  projectData.projectRequests
+                    .sort(
+                      (a, b) =>
+                        new Date(b.createdAt).getTime() -
+                        new Date(a.createdAt).getTime()
+                    )
+                    .map((r) => (
+                      <tr
+                        key={r.id}
+                        className="border-b hover:bg-gray-50 dark:hover:bg-gray-900"
+                      >
+                        <td className="p-2">{r.criticLevelName}</td>
+                        <td className="p-2 truncate max-w-xs">
+                          {r.description}
+                        </td>
+                        <td className="p-2">
+                          {r.isClosed ? "Closed" : "Open"}
+                        </td>
+                        <td className="p-2">{r.createdAt}</td>
+                        <td className="p-2">
+                          {r.isClosed && (
+                            <button
+                              onClick={() => {
+                                setSelectedRequest(r);
+                                setShowRequestModal(true);
+                              }}
+                              className="text-blue-600 underline hover:text-blue-800"
+                            >
+                              View
+                            </button>
+                          )}
+                        </td>
+                      </tr>
+                    ))}
               </tbody>
             </table>
+          </div>
+        </div>
+      )}
+      {showRequestModal && selectedRequest && (
+        <div className="fixed inset-0 z-50 bg-black bg-opacity-50 backdrop-blur-sm flex items-center justify-center">
+          <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow max-w-md w-full">
+            <h2 className="text-xl font-bold mb-4 text-gray-900 dark:text-white">
+              Request Details
+            </h2>
+            <div className="space-y-2 text-sm text-gray-800 dark:text-gray-200">
+              <p>
+                <strong>Description:</strong> {selectedRequest.description}
+              </p>
+              <p>
+                <strong>Critic Level:</strong> {selectedRequest.criticLevelName}
+              </p>
+              <p>
+                <strong>Status:</strong>{" "}
+                {selectedRequest.isClosed ? "Closed" : "Open"}
+              </p>
+              <p>
+                <strong>Created At:</strong>{" "}
+                {new Date(selectedRequest.createdAt).toLocaleString()}
+              </p>
+              <p>
+                <strong>Closing Note:</strong>{" "}
+                {selectedRequest.closingNote || "—"}
+              </p>
+            </div>
+            <div className="mt-4 flex justify-end">
+              <button
+                onClick={() => setShowRequestModal(false)}
+                className="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded"
+              >
+                Close
+              </button>
+            </div>
           </div>
         </div>
       )}

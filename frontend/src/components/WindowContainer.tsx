@@ -1,6 +1,6 @@
 "use client";
 import React, { ReactNode, useEffect, useRef, useState } from "react";
-import Navbar from "./Navbar";
+import Navbar from "./Navbar/Navbar";
 import Sidebar from "./Sidebar";
 import { useDispatch } from "react-redux";
 import { setUser } from "@/redux/slices/userSlice";
@@ -45,6 +45,19 @@ export default function Container({ children }: ContainerProps) {
     dispatch(setUser(userData));
   };
 
+  useEffect(() => {
+    const handleLogin = async () => {
+      const id = localStorage.getItem("id");
+      if (id) await handleFetchUserData(id);
+    };
+
+    window.addEventListener("user-logged-in", handleLogin);
+
+    return () => {
+      window.removeEventListener("user-logged-in", handleLogin);
+    };
+  }, []);
+
   if (!isReady) return <div>Loading...</div>;
   return (
     <SignalRProvider>
@@ -72,7 +85,7 @@ export default function Container({ children }: ContainerProps) {
                       width: "89%",
                       paddingTop: 50,
                       paddingBottom: 50,
-                      minHeight : "96vh"
+                      minHeight: "96vh",
                     }
                   : { width: "100%" }
               }

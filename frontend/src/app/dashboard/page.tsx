@@ -1,8 +1,11 @@
 "use client";
 
+import { RootState } from "@/redux/store";
 import { ProjectType } from "@/types/projectType";
 import axios from "axios";
+import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import { useSelector } from "react-redux";
 import {
   BarChart,
   Bar,
@@ -36,6 +39,14 @@ export default function Dashboard() {
       spent: number;
     }[]
   >([]);
+
+  const currentUser = useSelector((state: RootState) => state.currentUser.user);
+
+  const router = useRouter();
+
+  useEffect(() => {
+    if (currentUser && currentUser.roleName == "Client") router.push("/client");
+  }, [currentUser]);
 
   useEffect(() => {
     (async () => {

@@ -48,6 +48,18 @@ export default function CreateTaskModal({
     userId: null,
   });
 
+  const [errorMessages, setErrorMessages] = useState({
+    description: "",
+    taskTypeName: "",
+    taskLabelName: "",
+    startDate: "",
+    dueDate: "",
+    taskLevelName: "",
+    priorityName: "",
+    statusName: "",
+    progress: "",
+  });
+
   const [ready, setReady] = useState(false);
   const [taskTypes, setTaskTypes] = useState<TasktypeType[]>([]);
   const [taskLabels, setTaskLabels] = useState<TaskLabelType[]>([]);
@@ -80,6 +92,36 @@ export default function CreateTaskModal({
   };
 
   const handleSubmit = async () => {
+    let c = 0;
+
+    const validations: {
+      key: keyof typeof formData;
+      message: string;
+      condition?: (v: any) => boolean;
+    }[] = [
+      { key: "description", message: "Please enter a task description." },
+      { key: "taskTypeName", message: "Please select a task type." },
+      { key: "taskLabelName", message: "Please select a task label." },
+      { key: "startDate", message: "Please enter a start date." },
+      { key: "dueDate", message: "Please enter a due date." },
+      { key: "taskLevelName", message: "Please select a task level." },
+      { key: "priorityName", message: "Please select a priority." },
+      { key: "statusName", message: "Please enter a status." },
+    ];
+
+    validations.forEach(({ key, message, condition }) => {
+      const isInvalid = condition ? condition(formData[key]) : !formData[key];
+
+      if (isInvalid) {
+        setErrorMessages((em) => ({ ...em, [key]: message }));
+        c = 1;
+      } else {
+        setErrorMessages((em) => ({ ...em, [key]: "" }));
+      }
+    });
+
+    if (c) return;
+
     try {
       const response = await axios.post("http://localhost:5110/api/tasks/add", {
         ...formData,
@@ -104,15 +146,18 @@ export default function CreateTaskModal({
           name="description"
           type="text"
           placeholder="Task Name"
-          className="w-full p-2 border rounded mb-2"
+          className="w-full text-black p-2 border rounded mb-2"
           onChange={handleChange}
         />
+        {errorMessages.description && (
+          <p className="text-red-500">{errorMessages.description}</p>
+        )}
 
         <label htmlFor="taskTypeName">Task Type</label>
         <input
           list="taskTypeList"
           name="taskTypeName"
-          className="w-full p-2 border rounded mb-2"
+          className="w-full text-black p-2 border rounded mb-2"
           onChange={handleChange}
         />
         <datalist id="taskTypeList">
@@ -120,12 +165,15 @@ export default function CreateTaskModal({
             <option key={type.id} value={type.name} />
           ))}
         </datalist>
+        {errorMessages.taskTypeName && (
+          <p className="text-red-500">{errorMessages.taskTypeName}</p>
+        )}
 
         <label htmlFor="taskLabelName">Task Label</label>
         <input
           list="taskLabelList"
           name="taskLabelName"
-          className="w-full p-2 border rounded mb-2"
+          className="w-full text-black p-2 border rounded mb-2"
           onChange={handleChange}
         />
         <datalist id="taskLabelList">
@@ -133,51 +181,66 @@ export default function CreateTaskModal({
             <option key={label.id} value={label.label} />
           ))}
         </datalist>
+        {errorMessages.taskLabelName && (
+          <p className="text-red-500">{errorMessages.taskLabelName}</p>
+        )}
 
         <label htmlFor="startDate">Start Date</label>
         <input
           value={formData.startDate}
           name="startDate"
           type="date"
-          className="w-full p-2 border rounded mb-2"
+          className="w-full text-black p-2 border rounded mb-2"
           onChange={handleChange}
         />
+        {errorMessages.startDate && (
+          <p className="text-red-500">{errorMessages.startDate}</p>
+        )}
 
         <label htmlFor="dueDate">Due Date</label>
         <input
           value={formData.dueDate}
           name="dueDate"
           type="date"
-          className="w-full p-2 border rounded mb-2"
+          className="w-full text-black p-2 border rounded mb-2"
           onChange={handleChange}
         />
+        {errorMessages.dueDate && (
+          <p className="text-red-500">{errorMessages.dueDate}</p>
+        )}
 
         <label htmlFor="priorityName">Priority</label>
         <select
           name="priorityName"
-          className="w-full p-2 border rounded mb-2"
+          className="w-full text-black p-2 border rounded mb-2"
           onChange={handleChange}
         >
           <option value="Low">Low</option>
           <option value="Medium">Medium</option>
           <option value="Critical">Critical</option>
         </select>
+        {errorMessages.priorityName && (
+          <p className="text-red-500">{errorMessages.priorityName}</p>
+        )}
 
         <label htmlFor="taskLevelName">Task Level</label>
         <select
           name="taskLevelName"
-          className="w-full p-2 border rounded mb-2"
+          className="w-full text-black p-2 border rounded mb-2"
           onChange={handleChange}
         >
           <option value={"Beginner"}>Beginner</option>
           <option value={"Intermediate"}>Intermediate</option>
           <option value={"Expert"}>Expert</option>
         </select>
+        {errorMessages.taskLevelName && (
+          <p className="text-red-500">{errorMessages.taskLevelName}</p>
+        )}
 
         <label htmlFor="userId">Assign to</label>
         <select
           name="userId"
-          className="w-full p-2 border rounded mb-2"
+          className="w-full text-black p-2 border rounded mb-2"
           onChange={handleChange}
         >
           <option value="">Select User</option>
@@ -229,18 +292,21 @@ export default function CreateTaskModal({
         <label htmlFor="statusName">Status</label>
         <select
           name="statusName"
-          className="w-full p-2 border rounded mb-2"
+          className="w-full text-black p-2 border rounded mb-2"
           onChange={handleChange}
         >
           <option value="ToDo">To do</option>
           <option value="InProgress">In Progress</option>
           <option value="Done">Done</option>
         </select>
+        {errorMessages.statusName && (
+          <p className="text-red-500">{errorMessages.statusName}</p>
+        )}
 
         <label htmlFor="statusName">Depending On</label>
         <select
           name="taskId"
-          className="w-full p-2 border rounded mb-2 overflow-scroll"
+          className="w-full text-black p-2 border rounded mb-2 overflow-scroll"
           onChange={handleChange}
         >
           <option value="">None</option>
