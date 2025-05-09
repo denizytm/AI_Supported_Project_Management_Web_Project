@@ -12,8 +12,10 @@ import { useSignalR } from "@/context/SignalRContext";
 // User interface
 interface User {
   id: number;
+  roleName: string;
   name: string;
   email: string;
+  phone: string;
   lastActivity?: string;
   isOnline?: boolean;
 }
@@ -90,6 +92,8 @@ export default function ClientChatComponent({
                 email: otherUser.email,
                 lastActivity: new Date().toLocaleDateString(),
                 isOnline: otherUser.statusName === "Available",
+                phone: otherUser.phone,
+                roleName: otherUser.roleName,
               });
             }
           });
@@ -368,10 +372,8 @@ export default function ClientChatComponent({
             src="https://randomuser.me/api/portraits/men/32.jpg"
             className="w-24 h-24 rounded-full shadow-lg mb-4 border-4 border-green-500"
           />
-          <h3 className="text-lg font-bold text-white">
-            {target.name} {target.lastName}
-          </h3>
-          <p className="text-green-400 text-sm mb-2">Client</p>
+          <h3 className="text-lg font-bold text-white">{activeUser?.name}</h3>
+          <p className="text-green-400 text-sm mb-2">{activeUser?.roleName}</p>
 
           {/* Ayırıcı */}
           <hr className="border-t-2 border-green-500 w-full mb-6" />
@@ -382,14 +384,14 @@ export default function ClientChatComponent({
               <h4 className="text-xs font-bold text-green-400 uppercase mb-1">
                 Phone
               </h4>
-              <p>{target.phone}</p>
+              <p>{activeUser?.phone}</p>
             </div>
 
             <div>
               <h4 className="text-xs font-bold text-green-400 uppercase mb-1">
                 Email
               </h4>
-              <p className="break-all">{target.email}</p>
+              <p className="break-all">{activeUser?.email}</p>
             </div>
           </div>
         </div>

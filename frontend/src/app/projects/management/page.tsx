@@ -4,12 +4,10 @@ import { TaskType } from "@/types/taskType";
 import axios from "axios";
 import { useRouter, useSearchParams } from "next/navigation";
 import React, { useEffect, useState } from "react";
-import { Plus, Pencil, Trash2 } from "lucide-react";
 import { ProjectRequestType, ProjectType } from "@/types/projectType";
 import { UserType } from "@/types/userType";
 import ProjectTeamList from "@/components/projectManagement/ProjectTeamList";
 import CreateTaskModal from "@/components/projectManagement/CreateTaskModal";
-import GanttChart from "@/components/projectManagement/GanttChart";
 import EditTaskModal from "@/components/projectManagement/EditTaskModal";
 import DeleteTaskModal from "@/components/projectManagement/DeleteTaskModal";
 import AssignmentPreviewModal from "@/components/projectManagement/pManagementChatbot/AssignmentPreviewModal";
@@ -19,6 +17,10 @@ import { useSelector } from "react-redux";
 import { RootState } from "@/redux/store";
 import { useSignalR } from "@/context/SignalRContext";
 import { useChatContext } from "@/context/ChatContext";
+import GanttChartContainer from "@/components/projectManagement/GanttChartContainer";
+import DeveloperTaskContainer from "@/components/projectManagement/DeveloperTaskContainer";
+import ClientInfoContainer from "@/components/projectManagement/ClientInfoContainer";
+import ClientRequestsContainer from "@/components/projectManagement/ClientRequestsContainer";
 
 interface TaskManagementProps {
   id: number;
@@ -128,6 +130,7 @@ export default function TaskManagement({ id, text }: TaskManagementProps) {
   }, [showChat, showChat2]);
 
   const handleAutoAssign = async () => {
+    console.trace("handleAutoAssign");
     setIsAssigning(true);
     try {
       const res = await axios.get(
@@ -163,6 +166,7 @@ export default function TaskManagement({ id, text }: TaskManagementProps) {
   const handleConfirmAssignments = async (
     finalAssignments: { taskId: number; assignedUserId: number }[]
   ) => {
+    console.trace("handleConfirmAssignments");
     try {
       await axios.post(
         "http://localhost:5110/api/chatbot/confirm-assignments",
@@ -186,7 +190,9 @@ export default function TaskManagement({ id, text }: TaskManagementProps) {
 
   useEffect(() => {
     (async () => {
+      console.trace("useEffect");
       const id = searchParams.get("id");
+      console.log(id);
       const response = await axios.get(
         `http://localhost:5110/api/projects/management?id=${id}`
       );
@@ -232,6 +238,7 @@ export default function TaskManagement({ id, text }: TaskManagementProps) {
   }, [connection]);
 
   const handleMarkComplete = async (taskId: number) => {
+    console.trace("handleMarkComplete");
     try {
       const response = await axios.put(
         `http://localhost:5110/api/tasks/update?id=${taskId}`,
@@ -256,7 +263,7 @@ export default function TaskManagement({ id, text }: TaskManagementProps) {
 
   const handleSave = async () => {
     if (!selectedRequest) return;
-
+    console.trace("handleSave");
     try {
       const response = await axios.put(
         `http://localhost:5110/api/project/requests/${selectedRequest.id}/close`,
@@ -345,73 +352,17 @@ export default function TaskManagement({ id, text }: TaskManagementProps) {
         </button>
       </div>
       {/* Task Table and Gantt Chart */}
-      <div className="grid grid-cols-8 gap-4">
-        <div className="col-span-12 bg-white dark:bg-gray-800 p-4 shadow-md rounded-md overflow-auto">
-          <h3 className="text-center text-2xl my-5">{projectData.name}</h3>
-          <div className="flex justify-between items-center bg-gray-200 dark:bg-gray-700 p-2 rounded-md w-full">
-            <div className="w-1/3 flex gap-2">
-              <button
-                onClick={() =>
-                  setModalVisibleStatus((oD) => ({ ...oD, create: true }))
-                }
-                className="p-2 bg-white dark:bg-gray-800 shadow-md rounded-lg hover:bg-gray-100"
-              >
-                <Plus size={20} />
-              </button>
-              <button
-                onClick={() =>
-                  setModalVisibleStatus((oD) => ({ ...oD, edit: true }))
-                }
-                className="p-2 bg-white dark:bg-gray-800 shadow-md rounded-lg hover:bg-gray-100"
-              >
-                <Pencil size={20} />
-              </button>
-              <button
-                onClick={() =>
-                  setModalVisibleStatus((oD) => ({ ...oD, delete: true }))
-                }
-                className="p-2 bg-white dark:bg-gray-800 shadow-md rounded-lg hover:bg-gray-100"
-              >
-                <Trash2 size={20} />
-              </button>
-            </div>
-
-            <div className="w-1/3 flex justify-center">
-              <h2 className="text-2xl font-bold text-gray-700 dark:text-white">
-                Task Management
-              </h2>
-            </div>
-
-            <div className="w-1/3 flex justify-end gap-3">
-              {(currentUser.roleName == "Admin" ||
-                currentUser.roleName == "ProjectManager") && (
-                <>
-                  <button
-                    onClick={() => setShowChat(true)}
-                    className="bg-blue-600 hover:bg-blue-500 text-white p-4 rounded shadow"
-                  >
-                    💬 Chat With Client
-                  </button>
-                  <button
-                    className="bg-blue-600 hover:bg-blue-500 text-white p-4 rounded shadow"
-                    onClick={() => handleAutoAssign()}
-                  >
-                    🤖 Auto Assign Tasks
-                  </button>
-                </>
-              )}
-            </div>
-          </div>
-
-          {isHidden ? (
-            <></>
-          ) : (
-            <GanttChart
-              {...{ taskMap, taskTypes, projectId: projectData.id, tasks }}
-            />
-          )}
-        </div>
-      </div>
+      <GanttChartContainer
+        {...{
+          handleAutoAssign,
+          isHidden,
+          projectData,
+          setModalVisibleStatus,
+          setShowChat,
+          taskMap,
+          tasks,
+        }}
+      />
 
       {showAssignmentModal && (
         <AssignmentPreviewModal
@@ -459,140 +410,27 @@ export default function TaskManagement({ id, text }: TaskManagementProps) {
           </p>
         </div>
 
-        {/* Client Information */}
+        {/* Client Information || Task Information */}
         {currentUser.roleName == "Developer" ? (
-          <div className="bg-white dark:bg-gray-800 p-4 shadow-md rounded-md ">
-            <h3 className="font-bold text-gray-700 dark:text-white mb-2">
-              Your Assigned Tasks
-            </h3>
-            <ul className="space-y-3">
-              {assignedTasks.map((task) => {
-                const isDone = task.statusName == "Done";
-
-                return (
-                  <li
-                    key={task.id}
-                    className={`flex justify-between items-center p-3 rounded ${
-                      isDone
-                        ? "bg-green-100 dark:bg-green-800"
-                        : "bg-gray-100 dark:bg-gray-700"
-                    }`}
-                  >
-                    <div>
-                      <p className="text-gray-800 dark:text-gray-200 font-semibold">
-                        {task.taskLabel.label}
-                      </p>
-                      <p className="text-sm text-gray-500 dark:text-gray-400">
-                        {task.description}
-                      </p>
-                    </div>
-                    <div className="flex gap-1 flex-wrap">
-                      <button
-                        onClick={() => handleMarkComplete(task.id)}
-                        className={`px-2 py-1 rounded text-xs ${
-                          isDone
-                            ? "bg-gray-400 text-white cursor-not-allowed"
-                            : "bg-green-600 hover:bg-green-500 text-white"
-                        }`}
-                        disabled={isDone}
-                      >
-                        ✅ {isDone ? "Completed" : "Done"}
-                      </button>
-                      <button
-                        onClick={() => setShowChat2(true)}
-                        className="bg-blue-600 hover:bg-blue-500 text-white px-2 py-1 rounded text-xs"
-                      >
-                        💬 Message PM
-                      </button>
-                    </div>
-                  </li>
-                );
-              })}
-            </ul>
-          </div>
+          <DeveloperTaskContainer
+            {...{ assignedTasks, handleMarkComplete, setShowChat2 }}
+          />
         ) : (
-          <div className="bg-white dark:bg-gray-800 p-4 shadow-md rounded-md">
-            <h3 className="font-bold text-gray-700 dark:text-white mb-2">
-              Client Information
-            </h3>
-            <p className="text-gray-500 dark:text-gray-300">
-              <strong>Name:</strong> {projectData.customer.name}{" "}
-              {projectData.customer.lastName}
-            </p>
-            <p className="text-gray-500 dark:text-gray-300">
-              <strong>Company:</strong> {projectData.customer.company}
-            </p>
-            <p className="text-gray-500 dark:text-gray-300">
-              <strong>Email:</strong> {projectData.customer.email}
-            </p>
-            <p className="text-gray-500 dark:text-gray-300">
-              <strong>Phone:</strong> {projectData.customer.phone}
-            </p>
-          </div>
+          <ClientInfoContainer {...{ projectData }} />
         )}
 
         {/* Project Team */}
         <ProjectTeamList {...{ projectData, usersData }} />
 
         {/* Client Requests */}
-        <div className="bg-white dark:bg-gray-800 p-4 shadow-md rounded-md max-h-[400px] overflow-auto">
-          <h3 className="font-bold text-gray-700 dark:text-white mb-2">
-            Client Requests
-          </h3>
-
-          <div className="overflow-x-auto max-w-full">
-            <table className="min-w-full text-left ">
-              <thead className="bg-gray-200 dark:bg-gray-700 text-gray-600 dark:text-gray-300">
-                <tr>
-                  <th className="px-3 py-2">Critic</th>
-                  <th className="px-3 py-2">Request</th>
-                  <th className="px-3 py-2">Action</th>
-                </tr>
-              </thead>
-              <tbody>
-                {projectRequests &&
-                  projectRequests.map((request) => (
-                    <tr
-                      className={`border-b hover:bg-gray-100 dark:hover:bg-gray-800 transition ${
-                        request.isClosed ? "opacity-50" : ""
-                      }`}
-                    >
-                      <td
-                        className={
-                          "px-3 py-2 font-semibold whitespace-nowrap " +
-                          (request.criticLevelName === "Low"
-                            ? "text-green-500"
-                            : request.criticLevelName === "Medium"
-                            ? "text-yellow-500"
-                            : request.criticLevelName === "High"
-                            ? "text-red-500"
-                            : "text-red-700")
-                        }
-                      >
-                        {request.criticLevelName}
-                      </td>
-                      <td className="px-3 py-2 text-gray-700 dark:text-gray-300 max-w-[180px] truncate">
-                        {request.description}
-                      </td>
-                      <td className="px-3 py-2">
-                        <button
-                          className="text-blue-500 hover:text-blue-700 font-semibold"
-                          onClick={() => {
-                            setSelectedRequest(request);
-                            setIsCompleted(request.isClosed || false);
-                            setCompletionNote(request.closingNote || "");
-                          }}
-                          disabled={request.isClosed}
-                        >
-                          {request.isClosed ? "Done" : "See"}
-                        </button>
-                      </td>
-                    </tr>
-                  ))}
-              </tbody>
-            </table>
-          </div>
-        </div>
+        <ClientRequestsContainer
+          {...{
+            projectRequests,
+            setCompletionNote,
+            setIsCompleted,
+            setSelectedRequest,
+          }}
+        />
 
         {selectedRequest && (
           <div className="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm flex justify-center items-center z-50">

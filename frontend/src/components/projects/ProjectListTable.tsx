@@ -19,6 +19,7 @@ export default function ProjectListTable({ projects }: ProjectListTableProps) {
         <thead>
           <tr className="border-b">
             <th className="p-2">Project</th>
+            <th className="p-2">Client</th>
             <th className="p-2">Manager</th>
             <th className="p-2">Type</th>
             <th className="p-2">Deadline</th>
@@ -36,6 +37,9 @@ export default function ProjectListTable({ projects }: ProjectListTableProps) {
             >
               <td className="p-2">{project.name}</td>
               <td className="p-2">
+                {project.customer.name} {project.customer.lastName}
+              </td>
+              <td className="p-2">
                 {project.manager.name} {project.manager.lastName}
               </td>
               <td className="p-2">{project.projectType.name.slice(0, 10)}</td>
@@ -47,6 +51,8 @@ export default function ProjectListTable({ projects }: ProjectListTableProps) {
                 {(currentUser.roleName == "Admin" ||
                   (currentUser.roleName == "ProjectManager" &&
                     project.manager.id == currentUser.id) ||
+                  (currentUser.roleName == "Client" &&
+                    project.customer.id == currentUser.id) ||
                   (currentUser.roleName == "Developer" &&
                     project.userProjects &&
                     project.userProjects.some(

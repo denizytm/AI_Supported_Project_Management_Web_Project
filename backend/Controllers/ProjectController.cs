@@ -110,7 +110,6 @@ namespace backend.Controllers
                     .Include(p => p.Manager)
                     .Include(p => p.Customer)
                     .Include(p => p.ProjectType)
-                    .Include(p => p.UserProjects)
                     .AsQueryable();
 
                 if (!string.IsNullOrEmpty(search))
