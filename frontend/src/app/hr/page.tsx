@@ -138,7 +138,7 @@ export default function page() {
 
       <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
         <div className="flex flex-col space-y-6">
-          <div className="bg-gray-800 p-4 rounded-lg shadow">
+          <div className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow">
             <h2 className="text-xl font-semibold mb-2">General Information</h2>
             <ul className="text-sm text-gray-300 space-y-1">
               <li>Total Workers: 152</li>
@@ -151,7 +151,7 @@ export default function page() {
             </ul>
           </div>
 
-          <div className="bg-gray-800 p-4 rounded-lg shadow">
+          <div className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow">
             <h2 className="text-xl font-semibold mb-2">
               Information For This Month
             </h2>
@@ -167,7 +167,7 @@ export default function page() {
             </ul>
           </div>
 
-          <div className="bg-gray-800 p-4 rounded-lg shadow">
+          <div className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow">
             <h2 className="text-xl font-semibold mb-2">Requests</h2>
             <ul className="text-sm text-gray-300 space-y-1">
               <li>✔️ John Doe - Salary Increase</li>
@@ -182,15 +182,15 @@ export default function page() {
         </div>
 
         <div className="xl:col-span-2 flex flex-col space-y-6">
-          <div className="bg-gray-800 p-4 rounded-lg shadow">
+          <div className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow">
             <h2 className="text-xl font-semibold mb-2">Reminders - Calendar</h2>
             <div className="h-64 bg-gray-700 rounded flex items-center justify-center text-gray-400">
               📅 Calendar Component Here
             </div>
           </div>
 
-          <div className="bg-gray-800 p-4 rounded-lg shadow">
-            <h2 className="text-lg font-semibold mb-3">Filter Employees</h2>
+          <div className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow">
+            <h2 className="text-lg font-semibold mb-3">Filter Users</h2>
             <div className="flex flex-wrap gap-4">
               <select
                 value={selectedStatus}
@@ -239,9 +239,9 @@ export default function page() {
             </div>
           </div>
 
-          <div className="bg-gray-800 p-4 rounded-lg shadow overflow-auto">
+          <div className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow overflow-auto">
             <h2 className="text-xl font-semibold mb-2 text-center">
-              Employees
+              Users
             </h2>
             <div className="button-container w-full flex justify-end">
               {currentUser.roleName == "Admin" && (
@@ -356,7 +356,7 @@ export default function page() {
               </div>
             )}
             <table className="w-full text-sm text-left text-gray-300">
-              <thead className="text-xs uppercase bg-gray-700 text-gray-200">
+              <thead className="text-xs uppercase bg-white dark:bg-gray-800 text-gray-200">
                 <tr>
                   <th className="px-4 py-2">Name</th>
                   <th className="px-4 py-2">Email</th>

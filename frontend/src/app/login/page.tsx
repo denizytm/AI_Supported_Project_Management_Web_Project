@@ -18,7 +18,7 @@ export default function LoginPage() {
   const router = useRouter();
 
   useEffect(() => {
-    if (localStorage.getItem("id")) router.push("/home");
+    if (localStorage.getItem("id")) router.push("/dashboard");
   }, []);
 
   const handleLogin = async (e: React.MouseEvent<HTMLButtonElement>) => {

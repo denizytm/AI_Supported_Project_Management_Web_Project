@@ -30,7 +30,7 @@ export default function RegisterPage() {
   const router = useRouter();
 
   useEffect(() => {
-    if (localStorage.getItem("id")) router.push("/home");
+    if (localStorage.getItem("id")) router.push("/dashboard");
   }, []);
 
   const handleRegister = async (e: React.MouseEvent<HTMLButtonElement>) => {

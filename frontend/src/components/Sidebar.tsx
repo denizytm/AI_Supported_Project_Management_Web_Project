@@ -2,7 +2,7 @@
 
 import { RootState } from "@/redux/store";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { usePathname } from "next/navigation";
 import { JSX, useEffect, useState } from "react";
 import {
   FaTachometerAlt,
@@ -16,10 +16,9 @@ import {
 import { useSelector } from "react-redux";
 
 export default function Sidebar() {
-  const [active, setActive] = useState("Project Management");
-  const router = useRouter();
+  const pathname = usePathname();
 
-  const [menuItems, setMenuItems] = useState([
+  const [menuItems] = useState([
     {
       name: "Dashboard",
       icon: <FaTachometerAlt />,
@@ -46,7 +45,7 @@ export default function Sidebar() {
     },
     {
       name: "My Projects",
-      icon: <FaClipboardList  />,
+      icon: <FaClipboardList />,
       link: "/projects/user",
       roles: ["ProjectManager", "Developer", "Client"],
     },
@@ -84,16 +83,26 @@ export default function Sidebar() {
   }, [currentUser]);
 
   return (
-    <aside className="fixed w-72 top-20 bg-gray-200 h-screen hidden md:block  dark:bg-gray-800 ">
-      <nav className="hidden w-72 md:block flex flex-col gap-4 p-4">
-        {filteredMenuItems.map((item) => (
-          <Link href={item.link} key={item.name}>
-            <div className="flex items-center gap-2 p-2 hover:bg-gray-700 rounded">
-              {item.icon}
-              <span>{item.name}</span>
-            </div>
-          </Link>
-        ))}
+    <aside className="fixed w-72 top-20 bg-gray-200 h-screen hidden md:block dark:bg-gray-800">
+      <nav className="flex flex-col gap-4 p-4">
+        {filteredMenuItems.map((item) => {
+          const isActive = pathname.startsWith(item.link);
+
+          return (
+            <Link href={item.link} key={item.name}>
+              <div
+                className={`flex items-center gap-2 p-2 rounded transition-all ${
+                  isActive
+                    ? "bg-blue-600 text-white dark:bg-blue-500"
+                    : "hover:bg-gray-700 text-gray-800 dark:text-white"
+                }`}
+              >
+                {item.icon}
+                <span>{item.name}</span>
+              </div>
+            </Link>
+          );
+        })}
       </nav>
     </aside>
   );

@@ -15,12 +15,12 @@ namespace backend.Mappers
             {
                 Id = projectRequest.Id,
                 ClosedAt = projectRequest.ClosedAt,
-                ClosingNote = projectRequest.ClosingNote ?? "", // Null olursa boş string
+                ClosingNote = projectRequest.ClosingNote ?? "", 
                 CreatedAt = projectRequest.CreatedAt,
-                CriticLevelName = projectRequest.CriticLevelName ?? "Unknown", // Hatalı isim düzelttim, ayrıca nullsa default ver
+                CriticLevelName = projectRequest.CriticLevelName ?? "Unknown", 
                 Description = projectRequest.Description ?? "",
                 IsClosed = projectRequest.IsClosed,
-                RequestedBy = projectRequest.RequestedBy != null ? projectRequest.RequestedBy.ToUserDto() : null,
+                RequestedBy = projectRequest.RequestedBy.ToUserDto(),
                 ProjectId = projectRequest.ProjectId,
                 RequestedById = projectRequest.RequestedById,
             };

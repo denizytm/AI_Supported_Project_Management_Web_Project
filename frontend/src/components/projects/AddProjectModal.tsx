@@ -6,13 +6,13 @@ import { useEffect, useState } from "react";
 interface AddProjectModalParams {
   addModelVisible: boolean;
   setAddModelVisible: React.Dispatch<React.SetStateAction<boolean>>;
-  fetchProjects : () => void;
+  fetchProjects: () => void;
 }
 
 export default function AddProjectModal({
   addModelVisible,
   setAddModelVisible,
-  fetchProjects
+  fetchProjects,
 }: AddProjectModalParams) {
   const [formData, setFormData] = useState({
     name: "",
@@ -36,6 +36,8 @@ export default function AddProjectModal({
   const [managers, setManagers] = useState<UserType[]>([]);
 
   useEffect(() => {
+    if (!addModelVisible) return;
+
     (async () => {
       const response = await axios.get(
         "http://localhost:5110/api/projects/types"
@@ -43,10 +45,10 @@ export default function AddProjectModal({
 
       if (response.status) {
         setProjectTypes(response.data);
-        fetchProjects();
+        fetchProjects(); 
       }
     })();
-  }, []);
+  }, [addModelVisible]);
 
   useEffect(() => {
     (async () => {

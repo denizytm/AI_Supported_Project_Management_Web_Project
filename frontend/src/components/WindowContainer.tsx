@@ -67,14 +67,15 @@ export default function Container({ children }: ContainerProps) {
               style={
                 currentUser
                   ? {
-                      marginLeft: sidebarVisible ? 290 : 0,
-                      marginTop: 80,
+                      marginLeft: sidebarVisible ? 287 : 0,
+                      marginTop: 57,
                       width: "85%",
-                      paddingTop: 25,
-                      paddingBottom: 25,
+                      paddingTop: 50,
+                      paddingBottom: 50,
                     }
                   : { width: "100%" }
               }
+              className="dark:bg-gray-900 bg-gray-100"
             >
               {children}
             </div>

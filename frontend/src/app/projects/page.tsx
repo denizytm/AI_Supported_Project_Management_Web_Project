@@ -50,6 +50,8 @@ export default function ProjectManagement() {
   const [editModelVisible, setEditModelVisible] = useState(false);
   const [deleteModelVisible, setDeleteModelVisible] = useState(false);
 
+  const [isFirstLoad, setIsFirstLoad] = useState(true);
+
   const fetchProjects = async () => {
     if (selectedPage != 0) {
       const response = await axios.get(
@@ -75,10 +77,12 @@ export default function ProjectManagement() {
   };
 
   useEffect(() => {
-    (async () => {
-      await fetchProjects();
-    })();
-  }, [selectedPage]);
+    if (isFirstLoad) {
+      setIsFirstLoad(false);
+      return;
+    }
+    fetchProjects();
+  }, [selectedPage, isFirstLoad]);
 
   return (
     <div className="w-11/12 mx-auto">

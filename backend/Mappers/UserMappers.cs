@@ -68,8 +68,8 @@ namespace backend.Mappers
             {
                 Email = createUserDto.Email,
                 ProficiencyLevelName = string.IsNullOrWhiteSpace(createUserDto.ProficiencyLevelName) ? null : createUserDto.ProficiencyLevelName,
-                RoleName = string.IsNullOrWhiteSpace(createUserDto.RoleName) ? null : createUserDto.RoleName,
-                StatusName = string.IsNullOrWhiteSpace(createUserDto.StatusName) ? null : createUserDto.StatusName,
+                RoleName = createUserDto.RoleName,
+                StatusName = createUserDto.StatusName,
                 TaskRoleName = string.IsNullOrWhiteSpace(createUserDto.TaskRoleName) ? null : createUserDto.TaskRoleName,
                 IsActive = false
             };
