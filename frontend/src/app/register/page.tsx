@@ -263,7 +263,7 @@ export default function RegisterPage() {
               </label>
               <input
                 type="password"
-                className="mt-1 w-full rounded-md border border-gray-300 p-2"
+                className="mt-1 text-black w-full rounded-md border border-gray-300 p-2"
                 placeholder="Enter your password"
                 value={formData.password}
                 onChange={(e) =>
@@ -281,7 +281,7 @@ export default function RegisterPage() {
               </label>
               <input
                 type="password"
-                className="mt-1 w-full rounded-md border border-gray-300 p-2"
+                className="mt-1 text-black w-full rounded-md border border-gray-300 p-2"
                 placeholder="Confirm your password"
                 value={formData.confirm_password}
                 onChange={(e) =>

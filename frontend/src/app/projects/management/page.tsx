@@ -351,6 +351,7 @@ export default function TaskManagement({ id, text }: TaskManagementProps) {
           Go Back
         </button>
       </div>
+      
       {/* Task Table and Gantt Chart */}
       <GanttChartContainer
         {...{

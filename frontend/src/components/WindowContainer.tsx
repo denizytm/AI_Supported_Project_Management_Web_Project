@@ -69,9 +69,10 @@ export default function Container({ children }: ContainerProps) {
                   ? {
                       marginLeft: sidebarVisible ? 287 : 0,
                       marginTop: 57,
-                      width: "85%",
+                      width: "89%",
                       paddingTop: 50,
                       paddingBottom: 50,
+                      minHeight : "96vh"
                     }
                   : { width: "100%" }
               }

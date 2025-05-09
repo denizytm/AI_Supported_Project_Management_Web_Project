@@ -44,25 +44,14 @@ namespace backend.Controllers
 
             IQueryable<User> query = _context.Users;
 
-            if (!string.IsNullOrWhiteSpace(role))
-            {
-                var normalizedRole = role.Trim().ToLower();
-                query = query.Where(u => u.Role.ToString().ToLower() == normalizedRole);
-            }
+            if (Enum.TryParse<Role>(role, true, out var parsedRole))
+                query = query.Where(u => u.Role == parsedRole);
 
-            if (!string.IsNullOrWhiteSpace(status))
-            {
-                var normalizedStatus = status.Trim().ToLower();
-                query = query.Where(u => u.Status.ToString().ToLower() == normalizedStatus);
-            }
+            if (Enum.TryParse<AvailabilityStatus>(status, true, out var parsedStatus))
+                query = query.Where(u => u.Status == parsedStatus);
 
-            if (!string.IsNullOrWhiteSpace(proficiency))
-            {
-                if (Enum.TryParse<ProficiencyLevel>(proficiency, true, out var profLevel))
-                {
-                    query = query.Where(u => u.ProficiencyLevel == profLevel);
-                }
-            }
+            if (Enum.TryParse<ProficiencyLevel>(proficiency, true, out var parsedProf))
+                query = query.Where(u => u.ProficiencyLevel == parsedProf);
 
             if (!string.IsNullOrWhiteSpace(search))
             {
@@ -79,12 +68,13 @@ namespace backend.Controllers
             var users = await query
                 .Skip((page - 1) * pageSize)
                 .Take(pageSize)
+                .Select(u => u.ToUserDto())
                 .ToListAsync();
 
             var result = new
             {
                 currentPage = page,
-                totalPages = (int)Math.Ceiling((double)totalUsers / pageSize),
+                totalPages = Math.Max(1, (int)Math.Ceiling((double)totalUsers / pageSize)),
                 totalCount = totalUsers,
                 users
             };

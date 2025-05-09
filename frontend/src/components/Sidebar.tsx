@@ -83,7 +83,7 @@ export default function Sidebar() {
   }, [currentUser]);
 
   return (
-    <aside className="fixed w-72 top-20 bg-gray-200 h-screen hidden md:block dark:bg-gray-800">
+    <aside className="fixed w-72 top-20 bg-gray-200 h-screen hidden md:block dark:bg-gray-800" style={{maxHeight : "94vh"}} >
       <nav className="flex flex-col gap-4 p-4">
         {filteredMenuItems.map((item) => {
           const isActive = pathname.startsWith(item.link);

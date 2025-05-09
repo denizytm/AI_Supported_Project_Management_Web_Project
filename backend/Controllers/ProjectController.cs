@@ -32,36 +32,30 @@ namespace backend.Controllers
         {
             try
             {
-
-                var query = _context.Projects
+                var projects = await _context.Projects
                     .Include(p => p.Manager)
                     .Include(p => p.Customer)
                     .Include(p => p.ProjectType)
                     .Include(p => p.UserProjects)
-                    .AsQueryable();
-
-                var totalProjects = await query.CountAsync();
-
-                var pagedProjects = await query
                     .ToListAsync();
 
-                var projectDtos = pagedProjects.Select(p => p.ToProjectDto());
+                var projectDtos = projects.Select(p => p.ToProjectDto()).ToList();
 
                 var generalInfos = new
                 {
-                    projectCount = totalProjects,
-                    finishedProjectCount = await query.Where(p => p.Status == ProjectStatus.Completed).CountAsync(),
-                    onGoingProjectCount = await query.Where(p => p.Status == ProjectStatus.Active).CountAsync(),
-                    onHoldProjectCount = await query.Where(p => p.Status == ProjectStatus.OnHold).CountAsync(),
+                    projectCount = projects.Count,
+                    finishedProjectCount = projects.Count(p => p.Status == ProjectStatus.Completed),
+                    onGoingProjectCount = projects.Count(p => p.Status == ProjectStatus.Active),
+                    onHoldProjectCount = projects.Count(p => p.Status == ProjectStatus.OnHold),
                 };
 
                 var projectTypes = new
                 {
-                    erp = await query.Where(p => p.ProjectType.Name == "ERP").CountAsync(),
-                    web = await query.Where(p => p.ProjectType.Name == "Web").CountAsync(),
-                    mobile = await query.Where(p => p.ProjectType.Name == "Mobile").CountAsync(),
-                    application = await query.Where(p => p.ProjectType.Name == "Application").CountAsync(),
-                    ai = await query.Where(p => p.ProjectType.Name == "AI").CountAsync()
+                    erp = projects.Count(p => p.ProjectType.Name == "ERP"),
+                    web = projects.Count(p => p.ProjectType.Name == "Web"),
+                    mobile = projects.Count(p => p.ProjectType.Name == "Mobile"),
+                    application = projects.Count(p => p.ProjectType.Name == "Application"),
+                    ai = projects.Count(p => p.ProjectType.Name == "AI")
                 };
 
                 return Ok(new
@@ -104,62 +98,67 @@ namespace backend.Controllers
         {
             try
             {
-                int perPage = 10;
+                const int perPage = 10;
 
-                var query = _context.Projects
+                var baseQuery = _context.Projects
                     .Include(p => p.Manager)
                     .Include(p => p.Customer)
                     .Include(p => p.ProjectType)
                     .AsQueryable();
 
-                if (!string.IsNullOrEmpty(search))
-                    query = query.Where(p => p.Name.Contains(search));
+                if (!string.IsNullOrWhiteSpace(search))
+                    baseQuery = baseQuery.Where(p => p.Name.Contains(search));
 
-                if (!string.IsNullOrEmpty(projectType))
-                    query = query.Where(p => p.ProjectType.Name == projectType);
+                if (!string.IsNullOrWhiteSpace(projectType))
+                    baseQuery = baseQuery.Where(p => p.ProjectType.Name == projectType);
 
-                if (!string.IsNullOrEmpty(manager))
-                    query = query.Where(p => (p.Manager.Name + " " + p.Manager.LastName).Contains(manager));
+                if (!string.IsNullOrWhiteSpace(manager))
+                    baseQuery = baseQuery.Where(p =>
+                        (p.Manager.Name + " " + p.Manager.LastName).Contains(manager));
 
-                if (!string.IsNullOrEmpty(process))
-                    query = query.Where(p => p.Status.ToString() == process);
+                if (!string.IsNullOrWhiteSpace(process) && Enum.TryParse<ProjectStatus>(process, out var parsedStatus))
+                    baseQuery = baseQuery.Where(p => p.Status == parsedStatus);
 
-                if (!string.IsNullOrEmpty(priority))
-                    query = query.Where(p => p.Priority.ToString() == priority);
+                if (!string.IsNullOrWhiteSpace(priority) && Enum.TryParse<ProjectPriority>(priority, out var parsedPriority))
+                    baseQuery = baseQuery.Where(p => p.Priority == parsedPriority);
 
-                var totalProjects = await query.CountAsync();
+                var filteredProjects = await baseQuery.ToListAsync();
 
-                var pagedProjects = await query
+                var pagedProjects = filteredProjects
                     .Skip((page - 1) * perPage)
                     .Take(perPage)
-                    .ToListAsync();
+                    .ToList();
 
                 var projectDtos = pagedProjects.Select(p => p.ToProjectDto());
 
                 var generalInfos = new
                 {
-                    projectCount = totalProjects,
-                    finishedProjectCount = await query.Where(p => p.Status == ProjectStatus.Completed).CountAsync(),
-                    onGoingProjectCount = await query.Where(p => p.Status == ProjectStatus.Active).CountAsync(),
-                    onHoldProjectCount = await query.Where(p => p.Status == ProjectStatus.OnHold).CountAsync(),
+                    projectCount = filteredProjects.Count,
+                    finishedProjectCount = filteredProjects.Count(p => p.Status == ProjectStatus.Completed),
+                    onGoingProjectCount = filteredProjects.Count(p => p.Status == ProjectStatus.Active),
+                    onHoldProjectCount = filteredProjects.Count(p => p.Status == ProjectStatus.OnHold),
                 };
 
-                var projectTypes = new
+                var projectTypesCount = new
                 {
-                    erp = await query.Where(p => p.ProjectType.Name == "ERP").CountAsync(),
-                    web = await query.Where(p => p.ProjectType.Name == "Web").CountAsync(),
-                    mobile = await query.Where(p => p.ProjectType.Name == "Mobile").CountAsync(),
-                    application = await query.Where(p => p.ProjectType.Name == "Application").CountAsync(),
-                    ai = await query.Where(p => p.ProjectType.Name == "AI").CountAsync()
+                    erp = filteredProjects.Count(p => p.ProjectType.Name == "ERP"),
+                    web = filteredProjects.Count(p => p.ProjectType.Name == "Web"),
+                    mobile = filteredProjects.Count(p => p.ProjectType.Name == "Mobile"),
+                    application = filteredProjects.Count(p => p.ProjectType.Name == "Application"),
+                    ai = filteredProjects.Count(p => p.ProjectType.Name == "AI")
                 };
 
-                var managers = await _context.Projects.Include(p => p.Manager).Select(p => p.Manager).ToListAsync();
+                var managers = filteredProjects
+                    .Select(p => p.Manager)
+                    .DistinctBy(m => m.Id)
+                    .Select(m => m.ToUserDto())
+                    .ToList();
 
                 return Ok(new
                 {
                     projectDtos,
                     generalInfos,
-                    projectTypes,
+                    projectTypes = projectTypesCount,
                     managers
                 });
             }
@@ -171,6 +170,7 @@ namespace backend.Controllers
                 });
             }
         }
+
 
         [HttpGet("find")]
         public async Task<IActionResult> GetProject(int id)
@@ -263,46 +263,31 @@ namespace backend.Controllers
             try
             {
                 var project = await _context.Projects
+                    .Where(p => p.Id == id)
                     .Include(p => p.Customer)
                     .Include(p => p.Manager)
-                    .Include(p => p.ProjectRequests)
-                    .Where(p => p.Id == id)
-                    .FirstAsync();
+                    .FirstOrDefaultAsync();
+
+                if (project == null)
+                {
+                    return NotFound(new { message = $"No project found with the id value : {id}" });
+                }
 
                 var projectDto = project.ToProjectDto();
-                if (projectDto == null)
-                {
-                    return BadRequest(new { message = $"No project found with the id value : {id}" });
-                }
 
-                var projectUsers = new List<UserProjectDto>(_context.UserProjects
+                var projectUsers = await _context.UserProjects
                     .Where(up => up.ProjectId == id)
-                    .Select(up => new UserProjectDto
-                    {
-                        Id = project.Id,
-                        User = up.User.ToUserDto(),
-                        ProjectId = up.ProjectId
-                    }));
+                    .Select(up => up.User.ToUserDto())
+                    .ToListAsync();
 
-                var users = new List<UserDto>();
+                var tasks = await _context.Tasks
+                    .Where(t => t.ProjectId == id)
+                    .Include(t => t.AssignedUser)
+                    .Include(t => t.TaskLabel)
+                    .Include(t => t.TaskType)
+                    .ToListAsync();
 
-                for (var i = 0; i < projectUsers.Count; i++)
-                {
-                    var user = projectUsers[i].User;
-                    if (user != null)
-                    {
-                        users.Add(_context.Users.Where(u => u.Id == user.Id).First().ToUserDto());
-                    }
-                }
-
-                var tasks = _context.Tasks
-                .Where(d => d.ProjectId == id)
-                .Include(t => t.AssignedUser)
-                .Include(t => t.TaskLabel)
-                .Include(t => t.TaskType)
-                .ToList();
-
-                var taskDtos = tasks.Select(t => t.ToTaskDto());
+                var taskDtos = tasks.Select(t => t.ToTaskDto()).ToList();
 
                 var groupedTasks = taskDtos
                     .GroupBy(t => t.TaskType.Name)
@@ -316,7 +301,7 @@ namespace backend.Controllers
                     tasks = taskDtos,
                     groupedTasks,
                     project = projectDto,
-                    users,
+                    users = projectUsers,
                     minStartDate,
                     maxDueDate
                 });
@@ -325,7 +310,7 @@ namespace backend.Controllers
             {
                 return BadRequest(new
                 {
-                    message = $"There was an error when fetching the project : {ex.Message}"
+                    message = $"There was an error when fetching the project: {ex.Message}"
                 });
             }
         }

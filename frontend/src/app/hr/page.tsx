@@ -64,6 +64,9 @@ export default function page() {
   const [proficiencyLevel, setProficiencyLevel] = useState("");
 
   const fetchUsers = async () => {
+
+    console.trace("fetchUsers");
+
     const params = new URLSearchParams();
 
     if (searchData) params.append("search", searchData);
@@ -112,6 +115,9 @@ export default function page() {
   };
 
   const handleAddUser = async () => {
+
+    console.trace("handleAddUser");
+    
     try {
       const response = await axios.post(
         "http://localhost:5110/api/users/create",
