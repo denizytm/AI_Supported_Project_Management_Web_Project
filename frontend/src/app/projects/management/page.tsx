@@ -238,7 +238,7 @@ export default function TaskManagement({ id, text }: TaskManagementProps) {
   }, [connection]);
 
   const handleMarkComplete = async (taskId: number) => {
-    console.trace("handleMarkComplete");
+
     try {
       const response = await axios.put(
         `http://localhost:5110/api/tasks/done?id=${taskId}`,
@@ -351,7 +351,7 @@ export default function TaskManagement({ id, text }: TaskManagementProps) {
           Go Back
         </button>
       </div>
-      
+
       {/* Task Table and Gantt Chart */}
       <GanttChartContainer
         {...{
@@ -387,7 +387,7 @@ export default function TaskManagement({ id, text }: TaskManagementProps) {
       )}
 
       {/* Bottom Section */}
-      <div className="grid grid-cols-4 gap-4 mt-4">
+      <div className="grid [grid-template-columns:2fr_2fr_3fr_3fr] gap-4 mt-4">
         {/* General Information */}
         <div className="bg-white dark:bg-gray-800 p-4 shadow-md rounded-md">
           <h3 className="font-bold text-gray-700 dark:text-white mb-2">

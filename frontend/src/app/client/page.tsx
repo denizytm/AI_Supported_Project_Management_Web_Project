@@ -128,11 +128,11 @@ export default function CustomerDashboard() {
                 </p>
                 <p>
                   <span className="font-semibold">Start Date:</span>{" "}
-                  {projectData.startDate}
+                  {projectData.startDate.slice(0,10)}
                 </p>
                 <p>
                   <span className="font-semibold">Deadline:</span>{" "}
-                  {projectData.deadline}
+                  {projectData.deadline.slice(0,10)}
                 </p>
                 <p>
                   <span className="font-semibold">Budget:</span> $
@@ -186,12 +186,12 @@ export default function CustomerDashboard() {
                       >
                         <td className="p-2">{r.criticLevelName}</td>
                         <td className="p-2 truncate max-w-xs">
-                          {r.description}
+                          {r.description.slice(0,10) + "..."}
                         </td>
                         <td className="p-2">
                           {r.isClosed ? "Closed" : "Open"}
                         </td>
-                        <td className="p-2">{r.createdAt}</td>
+                        <td className="p-2">{r.createdAt.slice(0, 10)}</td>
                         <td className="p-2">
                           {r.isClosed && (
                             <button

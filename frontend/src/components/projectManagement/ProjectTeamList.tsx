@@ -94,7 +94,7 @@ export default function ProjectTeamList({
   };
   if (!currentUser) return <>Loading...</>;
   return (
-    <div className="bg-white dark:bg-gray-800 p-4 shadow-md rounded-md h-96 overflow-y-scroll relative">
+    <div className="bg-white dark:bg-gray-800 p-4 shadow-md rounded-md h-96 overflow-y-auto overflow-x-auto relative">
       {/* Title + Manage Button */}
       <div className="flex justify-between items-center mb-2">
         <h3 className="font-bold text-gray-700 dark:text-white">
@@ -129,15 +129,17 @@ export default function ProjectTeamList({
             <td className="p-2">Project Manager</td>
             <td className="p-2"></td>
             <td className="p-2">
-              <button
-                className="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded text-xs"
-                onClick={() => {
-                  setTargetUser(projectData?.manager);
-                  setShowChat(true);
-                }}
-              >
-                💬 Message
-              </button>
+              {currentUser.id != projectData.manager.id && (
+                <button
+                  className="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded text-xs"
+                  onClick={() => {
+                    setTargetUser(projectData?.manager);
+                    setShowChat(true);
+                  }}
+                >
+                  💬 Message
+                </button>
+              )}
             </td>
           </tr>
           {usersData.map((user: any, index: number) => (
@@ -212,24 +214,26 @@ export default function ProjectTeamList({
                   Available Developers
                 </h4>
                 <div className="max-h-64 overflow-y-auto">
-                  {otherUsers.filter(u => u.name).map((user: any) => (
-                    <div
-                      key={user.id}
-                      className={`flex justify-between items-center mb-2 p-2 rounded cursor-pointer ${
-                        selectedAddUserIds.includes(user.id)
-                          ? "bg-green-100 dark:bg-green-800"
-                          : "hover:bg-gray-100 dark:hover:bg-gray-700"
-                      }`}
-                      onClick={() => handleAddSelect(user.id)}
-                    >
-                      <span>
-                        {user.name} {user.lastName}
-                      </span>
-                      <button className="text-green-500 hover:text-green-700 text-sm">
-                        +
-                      </button>
-                    </div>
-                  ))}
+                  {otherUsers
+                    .filter((u) => u.name)
+                    .map((user: any) => (
+                      <div
+                        key={user.id}
+                        className={`flex justify-between items-center mb-2 p-2 rounded cursor-pointer ${
+                          selectedAddUserIds.includes(user.id)
+                            ? "bg-green-100 dark:bg-green-800"
+                            : "hover:bg-gray-100 dark:hover:bg-gray-700"
+                        }`}
+                        onClick={() => handleAddSelect(user.id)}
+                      >
+                        <span>
+                          {user.name} {user.lastName}
+                        </span>
+                        <button className="text-green-500 hover:text-green-700 text-sm">
+                          +
+                        </button>
+                      </div>
+                    ))}
                 </div>
               </div>
             </div>

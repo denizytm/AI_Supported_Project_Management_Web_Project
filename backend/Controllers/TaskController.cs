@@ -202,8 +202,6 @@ namespace backend.Controllers
             }
         }
 
-
-
         [HttpPut("update")]
         public async Task<IActionResult> UpdateTask(UpdateTaskDto updateTaskDto, int id, [FromServices] IHubContext<ChatHub, IChatClient> hubContext)
         {
@@ -312,7 +310,7 @@ namespace backend.Controllers
         }
 
         [HttpPut("done")]
-        public async Task<IActionResult> MartkTaskAsDone(int id)
+        public async Task<IActionResult> MartkTaskAsDone(int id, [FromServices] IHubContext<ChatHub, IChatClient> hubContext)
         {
             var taskData = await _context.Tasks.FirstOrDefaultAsync(t => t.Id == id);
 
@@ -339,6 +337,25 @@ namespace backend.Controllers
             {
                 project.Progress = progress;
                 await _context.SaveChangesAsync();
+
+                var notification = new Notification
+                {
+                    TargetUserId = project.ManagerId,
+                    Title = "Task Completed",
+                    Message = $"A task in your project \"{project.Name}\" has been marked as done.",
+                    CreatedAt = DateTime.UtcNow,
+                    IsRead = false,
+                    Link = $"/projects/management?id={project.Id}"
+                };
+
+                await _context.Notifications.AddAsync(notification);
+                await _context.SaveChangesAsync();
+
+                if (ChatHub.UserConnections.TryGetValue(project.ManagerId, out var connectionId))
+                {
+                    var dto = notification.FromModelToDto();
+                    await hubContext.Clients.Client(connectionId).ReceiveNotification(dto);
+                }
             }
 
             var taskDto = taskData.ToTaskDto();

@@ -172,7 +172,6 @@ namespace backend.Controllers
             }
         }
 
-
         [HttpGet("find")]
         public async Task<IActionResult> GetProject(int id)
         {
@@ -219,15 +218,14 @@ namespace backend.Controllers
             try
             {
                 var managers = _context.Projects
-                                    .Include(p => p.Manager)
-                                    .Select(p => p.Manager.Id)
-                                    .Distinct()
-                                    .ToList();
+                    .Include(p => p.Manager)
+                    .Select(p => p.Manager.Id)
+                    .Distinct()
+                    .ToList();
 
                 var nonManagers = _context.Users
                     .Where(u => !managers.Contains(u.Id))
                     .ToList();
-
 
                 return Ok(nonManagers);
             }
@@ -268,6 +266,7 @@ namespace backend.Controllers
                     .Include(p => p.Customer)
                     .Include(p => p.Manager)
                     .Include(p => p.ProjectRequests)
+                        .ThenInclude(pr => pr.RequestedBy) 
                     .FirstOrDefaultAsync();
 
                 if (project == null)
@@ -441,7 +440,7 @@ namespace backend.Controllers
                             (c.User1Id == project.ManagerId && c.User2Id == project.CustomerId) ||
                             (c.User2Id == project.ManagerId && c.User1Id == project.CustomerId)
                         )
-                        .FirstOrDefaultAsync(); 
+                        .FirstOrDefaultAsync();
 
                     if (existingSession == null)
                     {
@@ -618,7 +617,6 @@ namespace backend.Controllers
                     return BadRequest(new { message = $"No project found with the id value : {id}" });
                 }
 
-                // Güncelleme işlemleri
                 project.Name = editProjectDto.Name;
                 project.Description = editProjectDto.Description;
                 project.ProjectTypeId = editProjectDto.ProjectTypeId;
