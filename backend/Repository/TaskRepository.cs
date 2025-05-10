@@ -66,8 +66,7 @@ namespace backend.Repository
             if (!string.IsNullOrWhiteSpace(updateTaskDto.PriorityName))
                 taskData.PriorityName = updateTaskDto.PriorityName;
 
-            if (updateTaskDto.TaskId.HasValue)
-                taskData.TaskId = updateTaskDto.TaskId;
+            taskData.TaskId = updateTaskDto.TaskId;
 
             if (!string.IsNullOrWhiteSpace(updateTaskDto.StatusName))
                 taskData.StatusName = updateTaskDto.StatusName;
@@ -75,19 +74,20 @@ namespace backend.Repository
             if (!string.IsNullOrWhiteSpace(updateTaskDto.TaskLevelName))
                 taskData.TaskLevelName = updateTaskDto.TaskLevelName;
 
-            if (updateTaskDto.UserId != null)
-                taskData.UserId = updateTaskDto.UserId;
+            taskData.UserId = updateTaskDto.UserId;
 
-            if (taskLabelData != null){
+            if (taskLabelData != null)
+            {
                 taskData.TaskLabelId = taskLabelData.Id;
                 taskData.TaskLabel = taskLabelData;
             }
 
-            if (taskTypeData != null){
+            if (taskTypeData != null)
+            {
                 taskData.TaskTypeId = taskTypeData.Id;
                 taskData.TaskType = taskTypeData;
             }
-                
+
             if (updateTaskDto.StartDate != null)
                 taskData.StartDate = updateTaskDto.StartDate.Value;
 
