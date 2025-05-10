@@ -310,9 +310,11 @@ export default function EditTaskModal({
           name="userId"
           className="w-full text-black p-2 border rounded mb-2"
           value={formData.userId || 0}
-          onChange={handleChange}
+          onChange={(e) =>
+            setFormData((f) => ({ ...f, userId: parseInt(e.target.value) }))
+          }
         >
-          <option value="">Select User</option>
+          <option value={0}>Select User</option>
           {formData.taskLevelName == "Beginner"
             ? usersData.map((user) => (
                 <option
@@ -375,9 +377,11 @@ export default function EditTaskModal({
           name="taskId"
           className="w-full text-black p-2 border rounded mb-2 overflow-scroll"
           value={formData.taskId || 0}
-          onChange={handleChange}
+          onChange={(e) =>
+            setFormData((f) => ({ ...f, taskId: parseInt(e.target.value) }))
+          }
         >
-          <option value="">None</option>
+          <option value={0}>None</option>
           {tasks
             .filter(
               (task) =>

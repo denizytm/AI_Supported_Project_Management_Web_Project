@@ -1,5 +1,6 @@
 "use client";
 
+import CalendarComponent from "@/components/hr/CalendarComponent";
 import EditUserModal from "@/components/hr/EditUserModal";
 import { RootState } from "@/redux/store";
 import { UserType } from "@/types/userType";
@@ -186,10 +187,10 @@ export default function page() {
         </div>
 
         <div className="xl:col-span-2 flex flex-col space-y-6">
-          <div className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow">
+          <div className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow w-full">
             <h2 className="text-xl font-semibold mb-2">Reminders - Calendar</h2>
-            <div className="h-64 bg-gray-700 rounded flex items-center justify-center text-gray-400">
-              📅 Calendar Component Here
+            <div className="bg-gray-700 rounded w-full min-h-96 max-h-96">
+              <CalendarComponent />
             </div>
           </div>
 

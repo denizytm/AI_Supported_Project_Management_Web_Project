@@ -270,6 +270,28 @@ namespace backend.Controllers
                 await _context.Notifications.AddAsync(notification);
                 await _context.SaveChangesAsync();
 
+                if (task.UserId.HasValue)
+                {
+                    var userNotification = new Notification
+                    {
+                        TargetUserId = task.UserId.Value,
+                        Title = "Task Assignment Updated",
+                        Message = $"Your assigned task \"{task.Description}\" has been updated.",
+                        CreatedAt = DateTime.UtcNow,
+                        IsRead = false,
+                        Link = $"/projects/management?id={project.Id}"
+                    };
+
+                    await _context.Notifications.AddAsync(userNotification);
+                    await _context.SaveChangesAsync();
+
+                    if (ChatHub.UserConnections.TryGetValue(task.UserId.Value, out var userConnectionId))
+                    {
+                        var dto = userNotification.FromModelToDto();
+                        await hubContext.Clients.Client(userConnectionId).ReceiveNotification(dto);
+                        await hubContext.Clients.Client(userConnectionId).ReceiveTaskAssignment(task.ToTaskDto());
+                    }
+                }
 
                 if (ChatHub.UserConnections.TryGetValue(project.ManagerId, out var connectionId))
                 {

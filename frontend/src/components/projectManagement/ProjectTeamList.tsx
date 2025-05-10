@@ -200,20 +200,19 @@ export default function ProjectTeamList({
                         {user.name} {user.lastName}
                       </span>
                       <button className="text-red-500 hover:text-red-700 text-sm">
-                        ❌
+                        -
                       </button>
                     </div>
                   ))}
                 </div>
               </div>
 
-              {/* Projeye Eklenecekler */}
               <div className="flex-1">
                 <h4 className="font-bold text-sm mb-2 text-gray-600 dark:text-gray-400">
                   Available Developers
                 </h4>
                 <div className="max-h-64 overflow-y-auto">
-                  {otherUsers.map((user: any) => (
+                  {otherUsers.filter(u => u.name).map((user: any) => (
                     <div
                       key={user.id}
                       className={`flex justify-between items-center mb-2 p-2 rounded cursor-pointer ${
@@ -227,7 +226,7 @@ export default function ProjectTeamList({
                         {user.name} {user.lastName}
                       </span>
                       <button className="text-green-500 hover:text-green-700 text-sm">
-                        ➕
+                        +
                       </button>
                     </div>
                   ))}

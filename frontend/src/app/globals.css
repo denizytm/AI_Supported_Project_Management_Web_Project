@@ -16,6 +16,12 @@
 @tailwind components;
 @tailwind utilities;
 
+.react-calendar {
+  width: 100% !important;
+  max-width: 100% !important;
+  background-color: transparent;
+}
+
 :root {
   --background: #ffffff;
   --foreground: #171717;
