@@ -56,7 +56,7 @@ namespace backend.Repository
             {
                 return null;
             }
-            
+
             if (!string.IsNullOrWhiteSpace(updateTaskDto.Description))
                 taskData.Description = updateTaskDto.Description;
 
@@ -78,11 +78,21 @@ namespace backend.Repository
             if (updateTaskDto.UserId != null)
                 taskData.UserId = updateTaskDto.UserId;
 
-            if (taskLabelData != null)
+            if (taskLabelData != null){
                 taskData.TaskLabelId = taskLabelData.Id;
+                taskData.TaskLabel = taskLabelData;
+            }
 
-            if (taskTypeData != null)
+            if (taskTypeData != null){
                 taskData.TaskTypeId = taskTypeData.Id;
+                taskData.TaskType = taskTypeData;
+            }
+                
+            if (updateTaskDto.StartDate != null)
+                taskData.StartDate = updateTaskDto.StartDate.Value;
+
+            if (updateTaskDto.DueDate != null)
+                taskData.DueDate = updateTaskDto.DueDate.Value;
 
             await _context.SaveChangesAsync();
 

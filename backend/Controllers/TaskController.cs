@@ -239,7 +239,6 @@ namespace backend.Controllers
 
                 await _taskRepository.UpdateAsync(id, updateTaskDto, taskLabelData, taskTypeData);
 
-
                 var projectTasks = await _context.Tasks
                     .Where(t => t.ProjectId == task.ProjectId)
                     .ToListAsync();
@@ -290,6 +289,44 @@ namespace backend.Controllers
             }
         }
 
+        [HttpPut("done")]
+        public async Task<IActionResult> MartkTaskAsDone(int id)
+        {
+            var taskData = await _context.Tasks.FirstOrDefaultAsync(t => t.Id == id);
+
+            if (taskData == null)
+            {
+                return Ok(new { result = false });
+            }
+
+            taskData.Status = TaskStatus.Done;
+            await _context.SaveChangesAsync();
+
+            var projectId = taskData.ProjectId;
+
+            var allTasks = await _context.Tasks
+                .Where(t => t.ProjectId == projectId)
+                .ToListAsync();
+
+            var doneTasks = allTasks.Count(t => t.Status == TaskStatus.Done);
+
+            var progress = allTasks.Count == 0 ? 0 : (int)Math.Round((double)doneTasks / allTasks.Count * 100);
+
+            var project = await _context.Projects.FindAsync(projectId);
+            if (project != null)
+            {
+                project.Progress = progress;
+                await _context.SaveChangesAsync();
+            }
+
+            var taskDto = taskData.ToTaskDto();
+
+            return Ok(new
+            {
+                result = true,
+                taskDto
+            });
+        }
 
         [HttpDelete("delete")]
         public async Task<IActionResult> DeleteTask(int id)

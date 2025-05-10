@@ -47,6 +47,8 @@ export default function UserProjects() {
           }
         );
 
+        console.log('naber',response.data);
+
         if (response.status) {
           if (!response.data.projectDtos.length && selectedPage != 1) {
             setSelectedPage(selectedPage - 1);
@@ -60,11 +62,12 @@ export default function UserProjects() {
     }
   };
 
+
   useEffect(() => {
     (async () => {
       await fetchProjects();
     })();
-  }, [selectedPage]);
+  }, [selectedPage,currentUser]);
 
   return (
     <div className="w-11/12 mx-auto">

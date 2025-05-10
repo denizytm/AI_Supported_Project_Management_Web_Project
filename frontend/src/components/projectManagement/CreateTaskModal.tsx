@@ -314,6 +314,7 @@ export default function CreateTaskModal({
             .filter((task) => task.taskType.name == formData.taskTypeName)
             .map((task) => (
               <option
+                key={task.id}
                 className={
                   task.taskLevelName == "Beginner"
                     ? "text-green-500"

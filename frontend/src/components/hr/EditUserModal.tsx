@@ -67,6 +67,7 @@ export default function EditUserModal({
             value={taskRole}
             onChange={(e) => setTaskRole(e.target.value)}
           >
+            <option>Select a task role</option>
             {taskRoles.map((role) => (
               <option key={role} value={role}>
                 {role}
@@ -82,6 +83,7 @@ export default function EditUserModal({
             value={proficiencyLevel}
             onChange={(e) => setProficiencyLevel(e.target.value)}
           >
+            <option>Select a proficiency level</option>
             {proficiencyLevels.map((level) => (
               <option key={level} value={level}>
                 {level}
@@ -97,6 +99,7 @@ export default function EditUserModal({
             value={role}
             onChange={(e) => setRole(e.target.value)}
           >
+            <option>Select a role</option>
             {roles.map((role) => (
               <option key={role} value={role}>
                 {role}

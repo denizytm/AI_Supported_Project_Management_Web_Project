@@ -64,7 +64,6 @@ export default function page() {
   const [proficiencyLevel, setProficiencyLevel] = useState("");
 
   const fetchUsers = async () => {
-
     console.trace("fetchUsers");
 
     const params = new URLSearchParams();
@@ -115,9 +114,8 @@ export default function page() {
   };
 
   const handleAddUser = async () => {
-
     console.trace("handleAddUser");
-    
+
     try {
       const response = await axios.post(
         "http://localhost:5110/api/users/create",
@@ -246,9 +244,7 @@ export default function page() {
           </div>
 
           <div className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow overflow-auto">
-            <h2 className="text-xl font-semibold mb-2 text-center">
-              Users
-            </h2>
+            <h2 className="text-xl font-semibold mb-2 text-center">Users</h2>
             <div className="button-container w-full flex justify-end">
               {currentUser.roleName == "Admin" && (
                 <button
@@ -377,7 +373,9 @@ export default function page() {
                 {users.map((user) => (
                   <tr key={user.id} className="border-t border-gray-600">
                     <td className="px-4 py-2">
-                      {user.name} {user.lastName}
+                      {user.name
+                        ? user.name + " " + user.lastName
+                        : "Waiting for a registration"}
                     </td>
                     <td className="px-4 py-2">{user.email}</td>
                     <td className="px-4 py-2">{user.proficiencyLevelName}</td>

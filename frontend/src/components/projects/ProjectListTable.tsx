@@ -30,45 +30,46 @@ export default function ProjectListTable({ projects }: ProjectListTableProps) {
           </tr>
         </thead>
         <tbody>
-          {projects.map((project, index) => (
-            <tr
-              key={index}
-              className="border-b hover:bg-gray-200 dark:hover:bg-gray-700"
-            >
-              <td className="p-2">{project.name}</td>
-              <td className="p-2">
-                {project.customer.name} {project.customer.lastName}
-              </td>
-              <td className="p-2">
-                {project.manager.name} {project.manager.lastName}
-              </td>
-              <td className="p-2">{project.projectType.name.slice(0, 10)}</td>
-              <td className="p-2">{project.deadline.slice(0, 10)}</td>
-              <td className="p-2">{project.progress}%</td>
-              <td className="p-2">{project.statusName}</td>
-              <td className="p-2">{project.priorityName}</td>
-              <td className="p-2 text-blue-500 cursor-pointer">
-                {(currentUser.roleName == "Admin" ||
-                  (currentUser.roleName == "ProjectManager" &&
-                    project.manager.id == currentUser.id) ||
-                  (currentUser.roleName == "Client" &&
-                    project.customer.id == currentUser.id) ||
-                  (currentUser.roleName == "Developer" &&
-                    project.userProjects &&
-                    project.userProjects.some(
-                      (up) => up.userId === currentUser.id
-                    ))) && (
-                  <button
-                    onClick={() =>
-                      router.push(`/projects/management?id=${project.id}`)
-                    }
-                  >
-                    View
-                  </button>
-                )}
-              </td>
-            </tr>
-          ))}
+          {projects.map((project, index) => {
+            console.log(project);
+            return (
+              <tr
+                key={project.id}
+                className="border-b hover:bg-gray-200 dark:hover:bg-gray-700"
+              >
+                <td className="p-2">{project.name}</td>
+                <td className="p-2">
+                  {project.customer.name} {project.customer.lastName}
+                </td>
+                <td className="p-2">
+                  {project.manager.name} {project.manager.lastName}
+                </td>
+                <td className="p-2">{project.projectType.name.slice(0, 10)}</td>
+                <td className="p-2">{project.deadline.slice(0, 10)}</td>
+                <td className="p-2">{project.progress}%</td>
+                <td className="p-2">{project.statusName}</td>
+                <td className="p-2">{project.priorityName}</td>
+                <td className="p-2 text-blue-500 cursor-pointer">
+                  {(currentUser.roleName == "Admin" ||
+                    (currentUser.roleName == "ProjectManager" &&
+                      project.manager.id == currentUser.id) ||
+                    (currentUser.roleName == "Developer" &&
+                      project.userProjects &&
+                      project.userProjects.some(
+                        (up) => up.userId === currentUser.id
+                      ))) && (
+                    <button
+                      onClick={() =>
+                        router.push(`/projects/management?id=${project.id}`)
+                      }
+                    >
+                      View
+                    </button>
+                  )}
+                </td>
+              </tr>
+            );
+          })}
         </tbody>
       </table>
     </div>

@@ -18,7 +18,7 @@ export default function UserSearchForm({
     <div className="flex justify-between items-center bg-white dark:bg-gray-800 p-4 rounded-md shadow mb-6">
       <input
         type="text"
-        placeholder="Search By Name"
+        placeholder="Search"
         value={search}
         onChange={(e) => setSearch(e.target.value)}
         onKeyDown={(e) => {

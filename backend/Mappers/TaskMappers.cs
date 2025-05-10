@@ -52,23 +52,47 @@ namespace backend.Mappers
             };
         }
 
-        public static backend.Models.Task fromUpdateDtoToTask(this UpdateTaskDto updateTaskDto, TaskLabel taskLabelData, TaskType taskTypeData)
+        public static backend.Models.Task fromUpdateDtoToTask(
+     this UpdateTaskDto updateTaskDto,
+     TaskLabel? taskLabelData,
+     TaskType? taskTypeData)
         {
+            var task = new backend.Models.Task();
 
-            return new Models.Task
-            {
-                Description = updateTaskDto.Description,
-                StartDate = updateTaskDto.StartDate,
-                DueDate = updateTaskDto.DueDate,
-                Note = updateTaskDto.Note,
-                PriorityName = updateTaskDto.PriorityName,
-                TaskId = updateTaskDto.TaskId,
-                StatusName = updateTaskDto.StatusName,
-                TaskLevelName = updateTaskDto.TaskLevelName,
-                UserId = updateTaskDto.UserId,
-                TaskLabelId = taskLabelData.Id,
-                TaskTypeId = taskTypeData.Id
-            };
+            if (!string.IsNullOrWhiteSpace(updateTaskDto.Description))
+                task.Description = updateTaskDto.Description;
+
+            if (updateTaskDto.StartDate.HasValue)
+                task.StartDate = updateTaskDto.StartDate.Value;
+
+            if (updateTaskDto.DueDate.HasValue)
+                task.DueDate = updateTaskDto.DueDate.Value;
+
+            if (!string.IsNullOrWhiteSpace(updateTaskDto.Note))
+                task.Note = updateTaskDto.Note;
+
+            if (!string.IsNullOrWhiteSpace(updateTaskDto.PriorityName))
+                task.PriorityName = updateTaskDto.PriorityName;
+
+            if (updateTaskDto.TaskId.HasValue)
+                task.TaskId = updateTaskDto.TaskId;
+
+            if (!string.IsNullOrWhiteSpace(updateTaskDto.StatusName))
+                task.StatusName = updateTaskDto.StatusName;
+
+            if (!string.IsNullOrWhiteSpace(updateTaskDto.TaskLevelName))
+                task.TaskLevelName = updateTaskDto.TaskLevelName;
+
+            if (updateTaskDto.UserId.HasValue)
+                task.UserId = updateTaskDto.UserId;
+
+            if (taskLabelData != null)
+                task.TaskLabelId = taskLabelData.Id;
+
+            if (taskTypeData != null)
+                task.TaskTypeId = taskTypeData.Id;
+
+            return task;
         }
 
     }

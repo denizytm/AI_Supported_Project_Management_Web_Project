@@ -1,8 +1,4 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Text.Json;
-using System.Threading.Tasks;
 using backend.Data;
 using backend.Dtos.ChatbotMessage;
 using backend.Interfaces;
@@ -134,50 +130,50 @@ namespace backend.Controllers
                     $"{{ \"UserId\": {a.GetType().GetProperty("UserId")?.GetValue(a)}, \"TaskId\": {a.GetType().GetProperty("TaskId")?.GetValue(a)} }}"));
 
                 string prompt = $@"
-            You are an AI assistant that assigns tasks to the most suitable users.
+                You are an AI assistant that assigns tasks to the most suitable users.
 
-            Objective: Assign tasks to users based on skills, time, and allowed capacity.
+                Objective: Assign tasks to users based on skills, time, and allowed capacity.
 
-            Previous Assignments:
-            [
-                {pastAssignments}
-            ]
+                Previous Assignments:
+                [
+                    {pastAssignments}
+                ]
 
-            Tasks to Assign:
-            {string.Join("\n", batch.Select(t => $@"
-            - Task ID: {t.Id}
-              Description: {t.Description}
-              Level: {t.TaskLevel} (0 = Beginner, 1 = Intermediate, 2 = Expert)
-              Priority: {t.Priority}
-              Label: {t.TaskLabel.Label}
-              Start: {t.StartDate}
-              Due: {t.DueDate}
-            "))}
+                Tasks to Assign:
+                {string.Join("\n", batch.Select(t => $@"
+                - Task ID: {t.Id}
+                  Description: {t.Description}
+                  Level: {t.TaskLevel} (0 = Beginner, 1 = Intermediate, 2 = Expert)
+                  Priority: {t.Priority}
+                  Label: {t.TaskLabel.Label}
+                  Start: {t.StartDate}
+                  Due: {t.DueDate}
+                "))}
 
-            Available Users:
-            {string.Join("\n", availableUsers.Select(u => $@"
-            - User ID: {u.Id}
-              Name: {u.Name} {u.LastName}
-              ProficiencyLevel: {u.ProficiencyLevel} (0 = Beginner, 1 = Intermediate, 2 = Expert)
-              TaskRole: {u.TaskRole}
-            "))}
+                Available Users:
+                {string.Join("\n", availableUsers.Select(u => $@"
+                - User ID: {u.Id}
+                  Name: {u.Name} {u.LastName}
+                  ProficiencyLevel: {u.ProficiencyLevel} (0 = Beginner, 1 = Intermediate, 2 = Expert)
+                  TaskRole: {u.TaskRole}
+                "))}
 
-            **Assignment Rules (strictly enforce all):**
-            1. A user's `ProficiencyLevel` must be **equal to or greater** than the task's `TaskLevel`.
-            2. A user can only be assigned tasks that match their `TaskRole` and the task's `Label`.
-            3. Assigned tasks for the same user **must not overlap** in date ranges.
-            4. Task limits per user:
-               - Beginner → max 1 task
-               - Intermediate → max 2 tasks
-               - Expert → max 3 tasks
-            5. If a task cannot be assigned, use: `AssignedUserId = 0`.
+                **Assignment Rules (strictly enforce all):**
+                1. A user's `ProficiencyLevel` must be **equal to or greater** than the task's `TaskLevel`.
+                2. A user can only be assigned tasks that match their `TaskRole` and the task's `Label`.
+                3. Assigned tasks for the same user **must not overlap** in date ranges.
+                4. Task limits per user:
+                   - Beginner → max 1 task
+                   - Intermediate → max 2 tasks
+                   - Expert → max 3 tasks
+                5. If a task cannot be assigned, use: `AssignedUserId = 0`.
 
-            **Output must be valid JSON. No extra text or explanation. Example:**
-             [
-                      {{ ""TaskId"": 101, ""AssignedUserId"": 55 }},
-                      {{ ""TaskId"": 102, ""AssignedUserId"": 0 }}
+                **Output must be valid JSON. No extra text or explanation. Example:**
+                    [
+                        {{ ""TaskId"": 101, ""AssignedUserId"": 55 }},
+                        {{ ""TaskId"": 102, ""AssignedUserId"": 0 }}
                     ]
-        ";
+                ";
 
                 var response = await chatService.GetChatMessageContentAsync(prompt);
                 string aiResponse = response?.ToString() ?? "";

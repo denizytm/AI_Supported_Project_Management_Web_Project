@@ -104,6 +104,7 @@ namespace backend.Controllers
                     .Include(p => p.Manager)
                     .Include(p => p.Customer)
                     .Include(p => p.ProjectType)
+                    .Include(p => p.UserProjects)
                     .AsQueryable();
 
                 if (!string.IsNullOrWhiteSpace(search))
@@ -375,6 +376,8 @@ namespace backend.Controllers
                         .ThenInclude(p => p.Manager)
                     .Include(up => up.Project)
                         .ThenInclude(p => p.Customer)
+                    .Include(up => up.Project)
+                        .ThenInclude(p => p.UserProjects)
                     .Select(up => up.Project)
                     .ToListAsync();
 
@@ -382,6 +385,7 @@ namespace backend.Controllers
                     .Where(p => p.ManagerId == userId)
                     .Include(p => p.ProjectType)
                     .Include(p => p.Manager)
+                    .Include(p => p.UserProjects)
                     .Include(p => p.Customer)
                     .ToListAsync();
 
@@ -389,6 +393,7 @@ namespace backend.Controllers
                     .Where(p => p.CustomerId == userId)
                     .Include(p => p.ProjectType)
                     .Include(p => p.Manager)
+                    .Include(p => p.UserProjects)
                     .Include(p => p.Customer)
                     .ToListAsync();
 

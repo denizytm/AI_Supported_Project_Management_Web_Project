@@ -38,6 +38,7 @@ export default function ClientRequestsContainer({
                 )
                 .map((request) => (
                   <tr
+                    key={request.id}
                     className={`border-b hover:bg-gray-100 dark:hover:bg-gray-800 transition ${
                       request.isClosed ? "opacity-50" : ""
                     }`}

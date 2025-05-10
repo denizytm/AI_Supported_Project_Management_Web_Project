@@ -241,7 +241,7 @@ export default function TaskManagement({ id, text }: TaskManagementProps) {
     console.trace("handleMarkComplete");
     try {
       const response = await axios.put(
-        `http://localhost:5110/api/tasks/update?id=${taskId}`,
+        `http://localhost:5110/api/tasks/done?id=${taskId}`,
         {
           statusName: "Done",
         }

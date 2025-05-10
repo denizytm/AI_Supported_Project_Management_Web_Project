@@ -25,7 +25,7 @@ export default function SearchForm({
       <div className="flex gap-2 w-1/3">
         <input
           type="text"
-          placeholder="Search By Name"
+          placeholder="Search"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           onKeyDown={(e) => {

@@ -40,7 +40,7 @@ export default function FilterTable({ filters, setFilters, managers }: Props) {
         >
           <option value="">All Managers</option>
           {managers.map((manager) => (
-            <option value={manager.name + " " + manager.lastName}>
+            <option key={manager.id} value={manager.name + " " + manager.lastName}>
               {manager.name + " " + manager.lastName}
             </option>
           ))}
